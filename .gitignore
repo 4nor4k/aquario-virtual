@@ -1,0 +1,17 @@
+# Node
+node_modules/
+
+# PlatformIO (Fase B)
+.pio/
+firmware/.pio/
+
+# Editor / sistema
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db
+
+# Arquivos locais e temporários
+*.log
+*.tmp
+.claude/settings.local.json
