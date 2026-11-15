@@ -1,0 +1,23 @@
+// Paleta de 16 cores (4 bits por pixel), como no aparelho.
+// Cores provisórias: fundo azul-esverdeado escuro, areia clara, destaques rosa e ciano
+// (estilo principal do doc 04). Refinamos olhando o cenário na tela.
+//
+// O índice 0 é "sem cor" nos sprites (transparente).
+export const PALETA = [
+  [0x00, 0x00, 0x00], //  0 transparente (nos sprites)
+  [0x0a, 0x1f, 0x2e], //  1 água, fundo
+  [0x0f, 0x3a, 0x4a], //  2 água, escura
+  [0x14, 0x5a, 0x66], //  3 água, média
+  [0x1e, 0x7f, 0x80], //  4 água, clara
+  [0x3f, 0xa8, 0x9a], //  5 luz na água
+  [0xe8, 0xd9, 0xa8], //  6 areia clara
+  [0xc2, 0xac, 0x78], //  7 areia sombra
+  [0x4a, 0x4a, 0x5a], //  8 rocha
+  [0x2c, 0x2c, 0x3a], //  9 rocha sombra
+  [0xff, 0x5d, 0x8f], // 10 rosa
+  [0x5e, 0xe6, 0xf0], // 11 ciano
+  [0xff, 0xff, 0xff], // 12 branco (olho, brilho)
+  [0x1a, 0x1a, 0x24], // 13 contorno
+  [0x8a, 0x5c, 0xc9], // 14 roxo
+  [0xf2, 0xa6, 0x5a], // 15 laranja
+];

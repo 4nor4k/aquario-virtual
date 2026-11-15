@@ -1,0 +1,43 @@
+/* Visual simples e provisório. O design de verdade vem depois. */
+:root {
+  --fundo: #14181f;
+  --painel: #1d232d;
+  --texto: #e6e9ee;
+  --escala: 2; /* tamanho da tela: 2 = 240×240 (fiel ao aparelho) */
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--fundo);
+  color: var(--texto);
+  font-family: system-ui, sans-serif;
+}
+
+main {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  padding: 24px;
+  align-items: flex-start;
+}
+
+#tela {
+  display: block;
+  width: calc(120px * var(--escala));
+  height: calc(120px * var(--escala));
+  box-sizing: content-box; /* a borda fica por fora: a imagem mede exatamente 240×240 */
+  image-rendering: pixelated; /* pixels nítidos, sem suavizar */
+  border: 4px solid #000;
+  background: #000;
+}
+
+.painel {
+  background: var(--painel);
+  padding: 16px 20px;
+  border-radius: 8px;
+  min-width: 260px;
+}
+
+.painel h1 { margin: 0 0 8px; font-size: 1.1rem; }
