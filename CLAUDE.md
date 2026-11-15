@@ -23,7 +23,8 @@ bateria + USB), gerenciado também pelo celular via WiFi. Veja `README.md` e `do
 - Fechado: `05-arquitetura.md` (seção 9, Fase B, fica como proposta até o hardware chegar). Git: só local por enquanto; nome do projeto
   provisório "Aquário". Pasta `C:\dev\aquario-virtual`; autor dos commits "Anorak".
   Primeiro commit feito. Pendente: apagar cópia antiga do OneDrive (se existir).
-- Depois: `06-web.md`, e só então o código (v0.1).
+- Fechado: `06-web.md` (página do celular; design visual fica para depois do v0.5).
+- Próximo: código da v0.1 (simulador), conforme `docs/01-visao.md` e `docs/05-arquitetura.md`.
 
 ## Pontos técnicos já levantados
 - Proposta de renderizar em 120×120 com escala 2× (128 daria escala não inteira).
