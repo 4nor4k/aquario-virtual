@@ -24,7 +24,8 @@ bateria + USB), gerenciado também pelo celular via WiFi. Veja `README.md` e `do
   provisório "Aquário". Pasta `C:\dev\aquario-virtual`; autor dos commits "Anorak".
   Primeiro commit feito. Pendente: apagar cópia antiga do OneDrive (se existir).
 - Fechado: `06-web.md` (página do celular; design visual fica para depois do v0.5).
-- Próximo: código da v0.1 (simulador), conforme `docs/01-visao.md` e `docs/05-arquitetura.md`.
+- Fechado: `07-plano-v0.1.md` (6 passos, um commit por passo). Próximo: passo 1 da v0.1
+  (pastas, `package.json`, servidor, canvas 120×120 em 240×240 e paleta).
 
 ## Pontos técnicos já levantados
 - Proposta de renderizar em 120×120 com escala 2× (128 daria escala não inteira).
