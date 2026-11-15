@@ -2,6 +2,8 @@
 
 Legenda: **[fechado]** decidido pelo usuário · **[proposta]** sugestão a confirmar.
 
+**Status: fechado em 2026-11-15** (seções 1 a 8 e 10). A seção 9 (Fase B) fica como proposta até as peças chegarem.
+
 ## 1. Estratégia em duas fases [fechado]
 
 Sem hardware ainda, então:
@@ -13,7 +15,7 @@ Sem hardware ainda, então:
 Ferramentas: **Antigravity IDE** (editor baseado no VS Code) e **Git** [fechado]. O PlatformIO
 só entra na Fase B. Ver a nota de compatibilidade na seção 9.
 
-## 2. Linguagem do simulador [proposta]
+## 2. Linguagem do simulador [fechado]
 
 JavaScript puro (sem frameworks e sem etapa de build), para ser simples e fácil de portar.
 Node.js (já instalado) serve para testes e para um servidor local mínimo.
@@ -24,7 +26,7 @@ só, mas a configuração é complexa para quem está começando.
 **Custo assumido:** o jogo existirá duas vezes (JS e C++). Para a tradução ser mecânica,
 valem as regras da seção 4.
 
-## 3. Estrutura de pastas [proposta]
+## 3. Estrutura de pastas [fechado]
 
 ```
 Projeto Aquario Virtual/
@@ -45,7 +47,7 @@ Projeto Aquario Virtual/
   web/             página do celular (servida pelo ESP32)
 ```
 
-## 4. Regras para portar fácil [proposta]
+## 4. Regras para portar fácil [fechado]
 
 1. **`core/` não conhece o navegador.** Nada de `document`, `canvas` ou `localStorage` dentro dele.
    Isso vira o código C++ do firmware, quase linha a linha.
@@ -61,7 +63,7 @@ Projeto Aquario Virtual/
 7. **Testes das regras no Node** (`node --test`, sem instalar nada). Os mesmos casos viram
    conferência do código C++ depois.
 
-## 5. Módulos do `core` [proposta]
+## 5. Módulos do `core` [fechado]
 
 | Módulo | Responsabilidade |
 |---|---|
@@ -74,7 +76,7 @@ Projeto Aquario Virtual/
 | `save` | Serializa o estado e o recupera |
 | `events` | Avisos para a interface (som, mensagem, Game Over) |
 
-## 6. Painel de testes do simulador [proposta]
+## 6. Painel de testes do simulador [fechado]
 
 Fica ao lado da tela do jogo e **não existe no aparelho**:
 - Velocidade do tempo: 1×, 60×, 3600×, e "pular para a próxima fase".
@@ -82,7 +84,7 @@ Fica ao lado da tela do jogo e **não existe no aparelho**:
 - Simular clima (chuva, frio) e hora do dia.
 - Forçar reprodução e Game Over.
 
-## 7. Controles no simulador [proposta]
+## 7. Controles no simulador [fechado]
 
 | Aparelho | Teclado |
 |---|---|
@@ -118,7 +120,10 @@ ESP32, por uma API. Detalhes no `06-web.md`.
 
 ## 11. Em aberto
 
-- Nome e e-mail do autor nos commits.
-- Confirmar a pasta `C:\dev\aquario-virtual` (fora do OneDrive, evita corromper o `.git`).
+- Seção 9 (biblioteca gráfica, salvamento na placa): decidir quando as peças chegarem.
+- Apagar qualquer cópia antiga do projeto que sobrou no OneDrive.
 
-Resolvido: repositório remoto → só local por enquanto.
+Resolvido [fechado]:
+- Repositório só local por enquanto.
+- Pasta do projeto: `C:\dev\aquario-virtual` (fora do OneDrive).
+- Autor dos commits: "Anorak" (configurado só neste repositório).

@@ -20,9 +20,9 @@ bateria + USB), gerenciado também pelo celular via WiFi. Veja `README.md` e `do
 - Estratégia: Fase A = simulador no navegador (JS puro, `core/` sem DOM, tempo injetado e
   acelerável); Fase B = firmware ESP32 (PlatformIO, editor Antigravity IDE) quando o hardware chegar.
   Usuário ainda não tem nenhuma peça.
-- Em andamento: `05-arquitetura.md` (rascunho). Git: só local por enquanto; nome do projeto
-  provisório "Aquário". Pendente: nome/e-mail do autor dos commits e confirmar a pasta
-  `C:\dev\aquario-virtual`.
+- Fechado: `05-arquitetura.md` (seção 9, Fase B, fica como proposta até o hardware chegar). Git: só local por enquanto; nome do projeto
+  provisório "Aquário". Pasta `C:\dev\aquario-virtual`; autor dos commits "Anorak".
+  Primeiro commit feito. Pendente: apagar cópia antiga do OneDrive (se existir).
 - Depois: `06-web.md`, e só então o código (v0.1).
 
 ## Pontos técnicos já levantados
