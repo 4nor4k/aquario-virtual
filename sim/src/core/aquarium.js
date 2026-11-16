@@ -1,12 +1,34 @@
-// O mundo do aquário: tamanhos e medidas. (Nos próximos passos entram também os peixes.)
-// Tudo em pixels de render, como no aparelho.
+// O aquário: a lista de peixes e o sorteio. (Regras de fome, sujeira e pH entram na v0.2.)
+import { criarRng } from './rng.js';
+import { criarPeixe, atualizarPeixe, limitesDoPeixe } from './fish.js';
+import { MUNDO_LARGURA, AREIA_Y } from './mundo.js';
 
-export const TILE = 8;                       // cada bloco do cenário mede 8×8
-export const COLUNAS = 45;                   // 45 blocos de largura
-export const LINHAS = 30;                    // 30 blocos de altura
-export const MUNDO_LARGURA = COLUNAS * TILE; // 360
-export const MUNDO_ALTURA = LINHAS * TILE;   // 240
+export function criarAquario({ semente = 1 } = {}) {
+  const rng = criarRng(semente);
+  const peixes = [];
+  let proximoId = 1;
 
-// Do alto até a linha 25 é água; a partir da linha 26 é areia.
-export const LINHA_AREIA = 26;
-export const AREIA_Y = LINHA_AREIA * TILE;   // 208: onde a areia começa (os peixes ficam acima)
+  return {
+    peixes,
+
+    // Põe um peixe no aquário. Sem posição, ele aparece no meio da água.
+    adicionarPeixe(dados = {}) {
+      const fase = dados.fase || 'adulto';
+      const lim = limitesDoPeixe(fase);
+      const peixe = criarPeixe({
+        ...dados,
+        id: proximoId++,
+        fase,
+        x: dados.x ?? Math.round(MUNDO_LARGURA / 2),
+        y: dados.y ?? Math.round((lim.minY + Math.min(lim.maxY, AREIA_Y)) / 2),
+      });
+      peixes.push(peixe);
+      return peixe;
+    },
+
+    // Um passo do jogo (dt em segundos).
+    atualizar(dt) {
+      for (const peixe of peixes) atualizarPeixe(peixe, dt, rng);
+    },
+  };
+}

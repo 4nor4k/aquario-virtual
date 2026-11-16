@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { gerarMapa, ID, NUM_TILES, pixelsDoTile } from '../src/render/cenario.js';
-import { COLUNAS, LINHAS, LINHA_AREIA, TILE } from '../src/core/aquarium.js';
+import { COLUNAS, LINHAS, LINHA_AREIA, TILE } from '../src/core/mundo.js';
 
 const em = (mapa, col, lin) => mapa[lin * COLUNAS + col];
 

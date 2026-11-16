@@ -1,7 +1,8 @@
 // Monta um quadro de 120×120: camadas de baixo para cima (doc 04, seção 4).
-// Por enquanto só o cenário; peixes entram no passo 4.
-import { TILE, COLUNAS, LINHAS } from '../core/aquarium.js';
+import { TILE, COLUNAS, LINHAS } from '../core/mundo.js';
+import { quadroDeNado } from '../core/fish.js';
 import { pixelsDoTile } from './cenario.js';
+import { SPRITES, desenharSprite } from './sprites.js';
 import { LARGURA, ALTURA } from './tela.js';
 
 // Desenha no quadro os blocos que aparecem dentro da janela da câmera.
@@ -32,6 +33,19 @@ export function desenharCenario(quadro, mapa, camera) {
   }
 }
 
-export function desenharQuadro(quadro, { mapa, camera }) {
+// Desenha os peixes por cima do cenário. (x, y) do peixe é o centro dele no mundo.
+export function desenharPeixes(quadro, peixes, camera) {
+  const cx = Math.round(camera.x);
+  const cy = Math.round(camera.y);
+  for (const peixe of peixes) {
+    const sprite = SPRITES[peixe.especie][peixe.fase];
+    const x = Math.round(peixe.x - sprite.largura / 2) - cx;
+    const y = Math.round(peixe.y - sprite.altura / 2) - cy;
+    desenharSprite(quadro, sprite, quadroDeNado(peixe), x, y, peixe.direcao === -1);
+  }
+}
+
+export function desenharQuadro(quadro, { mapa, camera, peixes }) {
   desenharCenario(quadro, mapa, camera);
+  desenharPeixes(quadro, peixes, camera);
 }

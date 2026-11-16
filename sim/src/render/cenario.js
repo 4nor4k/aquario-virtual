@@ -4,7 +4,7 @@
 //   1 a 4 = água (1 = funda, 4 = clara) · 6 e 7 = areia · 8 e 9 = rocha
 //
 // Cores provisórias: refinamos olhando na tela.
-import { TILE, COLUNAS, LINHAS, LINHA_AREIA } from '../core/aquarium.js';
+import { TILE, COLUNAS, LINHAS, LINHA_AREIA } from '../core/mundo.js';
 import { criarRng } from '../core/rng.js';
 
 export const SEMENTE_CENARIO = 2024; // mesma semente = mesmo cenário sempre
