@@ -3,6 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { criarClock, DIA_MS, MINUTO_MS } from '../src/core/clock.js';
 import { criarAquario } from '../src/core/aquarium.js';
+import { config } from './ajuda.js';
 import { limitesDoPeixe, msAteProximaFase, FASES } from '../src/core/fish.js';
 
 function fonteFalsa() {
@@ -17,7 +18,7 @@ const PASSO = 50; // ms reais por passo
 test('a 3600×, o peixe passa por todas as fases em 12 minutos, na ordem, sem sair da água', () => {
   const fonte = fonteFalsa();
   const clock = criarClock(fonte, 3600);
-  const aq = criarAquario({ semente: 3 });
+  const aq = criarAquario({ config, semente: 3 });
   const peixe = aq.adicionarPeixe({}, clock.agoraMs());
 
   const vistas = [peixe.fase];
@@ -36,7 +37,7 @@ test('a 3600×, o peixe passa por todas as fases em 12 minutos, na ordem, sem sa
 test('a 1×, o peixe continua filhote depois de 1 hora', () => {
   const fonte = fonteFalsa();
   const clock = criarClock(fonte, 1);
-  const aq = criarAquario();
+  const aq = criarAquario({ config });
   const peixe = aq.adicionarPeixe({}, clock.agoraMs());
   fonte.passar(60 * MINUTO_MS);
   aq.atualizar(0.05, clock.agoraMs());
@@ -46,7 +47,7 @@ test('a 1×, o peixe continua filhote depois de 1 hora', () => {
 test('"Pular fase" leva ao começo da próxima fase, até chegar ao idoso', () => {
   const fonte = fonteFalsa();
   const clock = criarClock(fonte);
-  const aq = criarAquario();
+  const aq = criarAquario({ config });
   const peixe = aq.adicionarPeixe({}, clock.agoraMs());
 
   const vistas = [peixe.fase];
@@ -62,7 +63,7 @@ test('"Pular fase" leva ao começo da próxima fase, até chegar ao idoso', () =
 });
 
 test('peixe adicionado já numa fase entra com a idade dessa fase', () => {
-  const aq = criarAquario();
+  const aq = criarAquario({ config });
   const p = aq.adicionarPeixe({ fase: 'adulto' }, 10 * DIA_MS);
   aq.atualizar(0.05, 10 * DIA_MS);
   assert.equal(p.fase, 'adulto');
@@ -73,14 +74,14 @@ test('peixe adicionado já numa fase entra com a idade dessa fase', () => {
 test('reiniciar: relógio em zero e peixe novo volta a ser filhote', () => {
   const fonte = fonteFalsa();
   const clock = criarClock(fonte, 3600);
-  let aq = criarAquario({ semente: 1 });
+  let aq = criarAquario({ config, semente: 1 });
   let p = aq.adicionarPeixe({}, clock.agoraMs());
   fonte.passar(7 * MINUTO_MS); // 7 min reais a 3600× = 17,5 dias de jogo (adulto: dia 15 a 27)
   aq.atualizar(0.05, clock.agoraMs());
   assert.equal(p.fase, 'adulto');
 
   clock.reiniciar();
-  aq = criarAquario({ semente: 2 });
+  aq = criarAquario({ config, semente: 2 });
   p = aq.adicionarPeixe({}, clock.agoraMs());
   aq.atualizar(0.05, clock.agoraMs());
   assert.equal(clock.agoraMs(), 0);

@@ -50,7 +50,7 @@ export function limitesDoPeixe(fase) {
 }
 
 export function criarPeixe({
-  id = 0, nome = 'Beta', especie = 'beta', fase = 'filhote', nascimentoMs = 0, x, y,
+  id = 0, nome = 'Beta', especie = 'beta', fase = 'filhote', saciedade = 100, nascimentoMs = 0, x, y,
 }) {
   if (!TAMANHO_POR_FASE[fase]) throw new RangeError(`fase desconhecida: ${fase}`);
   return {
@@ -58,6 +58,7 @@ export function criarPeixe({
     nome,
     especie,
     fase,
+    saciedade,             // 0 a 100 (100 = de barriga cheia)
     nascimentoMs,          // hora do jogo em que nasceu (a idade é "agora" menos isto)
     x,
     y,

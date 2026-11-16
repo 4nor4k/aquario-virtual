@@ -1,17 +1,26 @@
-// O aquário: a lista de peixes e o sorteio. (Regras de fome, sujeira e pH entram na v0.2.)
+// O aquário: a lista de peixes, a água (sujeira e pH) e as ações de cuidado.
+// As regras que mudam tudo com o tempo ficam em rules.js.
 import { criarRng } from './rng.js';
 import {
   criarPeixe, atualizarPeixe, atualizarIdade, limitesDoPeixe, INICIO_DA_FASE_MS,
 } from './fish.js';
+import { atualizarRegras, valorDoPh } from './rules.js';
 import { MUNDO_LARGURA, AREIA_Y } from './mundo.js';
 
-export function criarAquario({ semente = 1 } = {}) {
+// config: os números do jogo (sim/config/jogo.json). Quem cria o aquário entrega pronto,
+// porque o core não lê arquivos (no navegador e no ESP32 isso é feito de jeitos diferentes).
+export function criarAquario({ semente = 1, config } = {}) {
+  if (!config) throw new TypeError('criarAquario: falta o config (sim/config/jogo.json)');
   const rng = criarRng(semente);
   const peixes = [];
   let proximoId = 1;
+  let ultimoMs = null; // hora do jogo no passo anterior (para saber quanto tempo passou)
 
-  return {
+  const aquario = {
     peixes,
+    sujeira: config.inicial.sujeira, // 0 a 100 (0 = água limpa)
+    phPasso: config.inicial.phPasso, // posição na lista de pH (0 = o mais ácido)
+    phProgresso: 0,                  // 0 a 1: quanto falta para o pH cair o próximo passo
 
     // Põe um peixe no aquário. Sem fase, nasce filhote agora. Com fase, entra já com a idade
     // em que essa fase começa. Sem posição, aparece no meio da água.
@@ -23,6 +32,7 @@ export function criarAquario({ semente = 1 } = {}) {
         ...dados,
         id: proximoId++,
         fase,
+        saciedade: dados.saciedade ?? config.inicial.saciedade,
         nascimentoMs: dados.nascimentoMs ?? agoraMs - INICIO_DA_FASE_MS[fase],
         x: dados.x ?? Math.round(MUNDO_LARGURA / 2),
         y: dados.y ?? Math.round((lim.minY + Math.min(lim.maxY, AREIA_Y)) / 2),
@@ -32,12 +42,48 @@ export function criarAquario({ semente = 1 } = {}) {
     },
 
     // Um passo do jogo. dt = segundos reais do passo (movimento e animação);
-    // agoraMs = hora do jogo (já acelerada pelo relógio), de onde sai a idade.
+    // agoraMs = hora do jogo (já acelerada pelo relógio), de onde saem a idade e as regras.
     atualizar(dt, agoraMs = 0) {
+      if (ultimoMs === null) ultimoMs = agoraMs;
+      const passouMs = Math.max(0, agoraMs - ultimoMs);
+      ultimoMs = agoraMs;
+      atualizarRegras(aquario, passouMs, config);
+
       for (const peixe of peixes) {
         atualizarIdade(peixe, agoraMs);
         atualizarPeixe(peixe, dt, rng);
       }
     },
+
+    // --- Ações de cuidado (menu do aparelho e página do celular chamam estas) ---------------
+
+    // Dá comida a todos os peixes. Se algum já estava quase cheio, é "excesso" e suja mais a água.
+    // Devolve { alimentou, excesso }.
+    darComida() {
+      if (peixes.length === 0) return { alimentou: false, excesso: false };
+      const cfgSac = config.saciedade;
+      let excesso = false;
+      for (const peixe of peixes) {
+        if (peixe.saciedade > cfgSac.excessoAcimaDe) excesso = true;
+        peixe.saciedade = Math.min(100, peixe.saciedade + cfgSac.ganhoPorComida);
+      }
+      const suja = excesso ? config.sujeira.porComidaEmExcesso : config.sujeira.porComida;
+      aquario.sujeira = Math.min(100, aquario.sujeira + suja);
+      return { alimentou: true, excesso };
+    },
+
+    // Zera a sujeira.
+    limparAquario() {
+      aquario.sujeira = 0;
+    },
+
+    // Sobe o pH 1 passo. Devolve { mudou, ph }; no máximo (7,5) não muda nada.
+    regularPh() {
+      const mudou = aquario.phPasso < config.ph.valores.length - 1;
+      if (mudou) aquario.phPasso += 1;
+      return { mudou, ph: valorDoPh(aquario, config) };
+    },
   };
+
+  return aquario;
 }

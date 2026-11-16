@@ -1,10 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { criarAquario } from '../src/core/aquarium.js';
+import { config } from './ajuda.js';
 import { limitesDoPeixe } from '../src/core/fish.js';
 
 test('começa sem peixes e cada peixe novo recebe um número diferente', () => {
-  const aq = criarAquario();
+  const aq = criarAquario({ config });
   assert.equal(aq.peixes.length, 0);
   const a = aq.adicionarPeixe();
   const b = aq.adicionarPeixe();
@@ -14,7 +15,7 @@ test('começa sem peixes e cada peixe novo recebe um número diferente', () => {
 
 test('sem posição, o peixe aparece dentro da água', () => {
   for (const fase of ['filhote', 'jovem', 'adulto', 'idoso']) {
-    const aq = criarAquario();
+    const aq = criarAquario({ config });
     const p = aq.adicionarPeixe({ fase });
     const lim = limitesDoPeixe(fase);
     assert.ok(p.x >= lim.minX && p.x <= lim.maxX, `${fase}: x=${p.x}`);
@@ -23,7 +24,7 @@ test('sem posição, o peixe aparece dentro da água', () => {
 });
 
 test('atualizar move todos os peixes sem tirá-los da água', () => {
-  const aq = criarAquario({ semente: 9 });
+  const aq = criarAquario({ config, semente: 9 });
   aq.adicionarPeixe({ fase: 'filhote' });
   aq.adicionarPeixe({ fase: 'adulto' });
   for (let i = 0; i < 10000; i++) {
@@ -37,7 +38,7 @@ test('atualizar move todos os peixes sem tirá-los da água', () => {
 
 test('mesma semente no aquário: mesmo resultado', () => {
   const rodar = (semente) => {
-    const aq = criarAquario({ semente });
+    const aq = criarAquario({ config, semente });
     aq.adicionarPeixe();
     for (let i = 0; i < 2000; i++) aq.atualizar(0.05);
     const p = aq.peixes[0];

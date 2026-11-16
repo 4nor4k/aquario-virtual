@@ -30,14 +30,17 @@ Os indicadores são de 0 a 100, onde 100 é o ideal.
 - Do aquário. Sobe de 0 a 100 em ~4 dias.
 - Cada peixe a mais acelera 25% o ritmo; dar comida sobe a sujeira um pouco.
 - Imprópria: acima de 70.
+- Dar comida suja a água em **+3**; em excesso (saciedade acima de 80), em **+15** [proposta, v0.2].
 - **Limpar aquário:** zera a sujeira.
 
 ### pH [proposta, faixa fechada]
 - Valores possíveis: 6,2 · 6,4 · 6,6 · 6,8 · 7,0 · 7,2 · 7,5.
 - Quanto mais suja a água, mais rápido o pH cai:
-  - sujeira abaixo de 30: 1 passo a cada 18 h
-  - sujeira entre 30 e 70: 1 passo a cada 12 h
-  - sujeira acima de 70: 1 passo a cada 6 h
+  - sujeira abaixo de 30: 1 passo a cada 36 h
+  - sujeira entre 30 e 70: 1 passo a cada 24 h
+  - sujeira acima de 70: 1 passo a cada 12 h
+  - *(mudou em 2026-11-16: eram 18 / 12 / 6 h; com esses valores o peixe morria em 3 dias
+    sem cuidado e exigia limpar e regular o pH a cada 2 dias. Ver `08-plano-v0.2.md`, seção 6.)*
 - **Regular pH:** adiciona solução alcalina, que sobe 1 passo.
 - Início do jogo: 7,0.
 

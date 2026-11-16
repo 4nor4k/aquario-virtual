@@ -2,8 +2,9 @@
 
 Legenda: **[fechado]** decidido pelo usuário · **[proposta]** sugestão a confirmar.
 
-**Status: RASCUNHO em 2026-11-16.** Falta o usuário responder as decisões da seção 8.
-Nada aqui é código ainda.
+**Status: plano fechado em 2026-11-16**, com as recomendações da seção 8 (o usuário disse
+"ok, vamos pro próximo passo" sem alterar nenhuma; pode reabrir qualquer uma).
+**Passo 1 concluído em 2026-11-16** (ver seção 5).
 
 ## 1. Objetivo
 
@@ -54,7 +55,7 @@ Todos vão para `sim/config/jogo.json`; nenhum fica solto no código.
 | Cada peixe a mais | +25% no ritmo da sujeira | `03` [proposta] |
 | Comida suja a água | +3 (normal) ou +15 (excesso) | **novo [proposta]**, o `03` só diz "um pouco" |
 | Limpar | sujeira vai a 0 | `03` |
-| pH cai 1 passo a cada | 18 h (sujeira < 30), 12 h (30 a 70), 6 h (> 70) | `03` [proposta] |
+| pH cai 1 passo a cada | 36 h (sujeira < 30), 24 h (30 a 70), 12 h (> 70) | **mudou** (eram 18 / 12 / 6 h no `03`; ver seção 6) |
 | Regular pH | sobe 1 passo (máx. 7,5) | `03` |
 | Nota do pH | 6,8 · 7,0 · 7,2 = 100; 6,6 · 7,5 = 60; 6,4 = 30; 6,2 = 0 | `03` [fechada a faixa] |
 | Média | (saciedade + (100 − sujeira) + nota do pH) / 3 | `03` [fechado: pesos iguais] |
@@ -147,7 +148,7 @@ Cada passo termina com um commit; a versão fecha com a tag `v0.2`.
 
 | Passo | Entrega | Como você confere |
 |---|---|---|
-| 1 | `config/jogo.json`, `rules.js` e os 3 indicadores (saciedade, sujeira, pH) com testes | `node --test` passa |
+| 1 ✔ | `config/jogo.json`, `rules.js` e os 3 indicadores (saciedade, sujeira, pH) com testes | `node --test` passa |
 | 2 | Saúde, doença, morte (fome e velhice) e Game Over lógico, com testes de "sobrevive X dias" | `node --test` passa |
 | 3 | Fonte de pixels, HUD, peixe doente e peixe morto | Pelo painel, baixar a saciedade e ver o peixe adoecer e boiar |
 | 4 | Botões A, B, C, menu de ações e tela de status | Dar comida e limpar de verdade, pelo teclado |
@@ -216,9 +217,11 @@ lado ajustar.
 5. Nada em `src/core/` usa `document`, `canvas`, `localStorage` ou `window`.
 6. Os números do jogo estão só em `config/jogo.json`.
 
-## 8. Decisões que preciso de você
+## 8. Decisões
 
-Marque o que concordar; o que não marcar eu sigo com a recomendação.
+**Adotadas em 2026-11-16: a recomendação de cada item** (1 = opção **b**, pH mais lento).
+Na prática isso mudou o `config/jogo.json` (pH em 36 / 24 / 12 h) e o `03` foi atualizado.
+A seção abaixo é o registro das perguntas.
 
 1. **Quão exigente deve ser o bichinho?** (a seção 6 mostra os números)
    - **(a)** Como está no `03`: cuidar a cada 2 dias, 3 dias sem ninguém mata.

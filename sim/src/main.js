@@ -35,11 +35,17 @@ let aquario;
 let beta;
 let numeroDoJogo = 0;
 
+// Os números do jogo ficam em config/jogo.json. O core não lê arquivos, então é aqui que
+// o navegador carrega o JSON e entrega pronto.
+const respostaConfig = await fetch('config/jogo.json');
+if (!respostaConfig.ok) throw new Error(`Não consegui carregar config/jogo.json (${respostaConfig.status})`);
+const config = await respostaConfig.json();
+
 // Começa (ou recomeça) com um filhote novo e o relógio em zero.
 function novoJogo() {
   numeroDoJogo++;
   clock.reiniciar();
-  aquario = criarAquario({ semente: numeroDoJogo });
+  aquario = criarAquario({ semente: numeroDoJogo, config });
   beta = aquario.adicionarPeixe({ nome: 'Beta', especie: 'beta', x: 180, y: 150 }, clock.agoraMs());
 }
 novoJogo();
@@ -83,7 +89,7 @@ function ciclo(agora) {
 // Ajuda para desenvolver: abrindo http://localhost:8080/?debug, dá para mexer no jogo pelo
 // console do navegador (ex.: __debug.camera.irPara(0, 0)). Sem "?debug" nada disso existe.
 if (new URLSearchParams(location.search).has('debug')) {
-  window.__debug = { camera, clock, aquario: () => aquario };
+  window.__debug = { camera, clock, config, aquario: () => aquario };
 }
 
 desenhar();
