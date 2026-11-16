@@ -153,9 +153,9 @@ Cada passo termina com um commit; a versão fecha com a tag `v0.2`.
 | 3 ✔ | Fonte de pixels, HUD, peixe doente e peixe morto | Pelo painel, baixar a saciedade e ver o peixe adoecer e boiar |
 | 4 ✔ | Botões A, B, C, menu de ações e tela de status | Dar comida e limpar de verdade, pelo teclado |
 | 5 ✔ | Tela de Game Over, "novo filhote" e o painel com os valores | Deixar o peixe morrer com 3600× e ver o Game Over |
-| 6 | Balanceamento, README, resultado da conferência e a tag | Roteiro da seção 7 inteiro |
+| 6 ✔ | Balanceamento, README, resultado da conferência e a tag | Roteiro da seção 7 inteiro |
 
-**Resultado dos passos 1 e 2** (medido nos testes, com o pH em 36 / 24 / 12 h):
+**Resultado medido** (testes e `node tools/balanco.js`, com o pH em 36 / 24 / 12 h):
 
 | Rotina de cuidado | Fica doente em | Morre em |
 |---|---|---|
@@ -165,21 +165,29 @@ Cada passo termina com um commit; a versão fecha com a tag `v0.2`.
 | Comida diária, limpar e pH a cada 3 dias | 8,8 dias | 11,8 dias |
 | Comida diária, limpar e pH a cada 4 dias | 6,8 dias | 7,3 dias |
 
-Ou seja, ainda é preciso cuidar **a cada 2 dias** para o peixe chegar aos 30. É o ponto a
-ajustar no passo 6, jogando de verdade.
+Ou seja, ainda é preciso cuidar **a cada 2 dias** para o peixe chegar aos 30.
+
+**Balanceamento: deixado como está, para o usuário ajustar jogando** (combinado em
+2026-11-16). Para facilitar, ficou pronta a ferramenta `node tools/balanco.js`, que mostra
+esta tabela com os números de `config/jogo.json`. Teste da variante "mais tranquila"
+(pH em 48 / 36 / 18 h e sujeira em 6 dias): sem cuidado morre em 4,8 dias, e comida diária com
+limpeza e pH a cada 3 dias vive os 30 dias.
 
 **Detalhes que mudaram em relação ao plano:**
 - No peixe, o campo do nado que se chamava `estado` virou **`movimento`** (`nadando` /
   `esperando`), e `estado` ficou para a saúde (`saudavel`, `doente`, `morto`). Os dois
   nomes colidiam; os testes pegaram.
-- `events.js` já foi criado (fila de avisos: `adoeceu`, `recuperou`, `morreu`, `gameOver`).
-  A interface mostrar esses avisos fica para os passos 3 a 5.
-- O painel já mostra "doente" / "morto" e o aviso de Game Over (os números completos dos
-  indicadores entram no passo 5).
-- O peixe doente ainda nada na velocidade normal, e o morto só fica parado onde estava;
-  o visual de doente e de morto é o passo 3.
+- `core/events.js` existe (fila de avisos: `adoeceu`, `recuperou`, `morreu`, `gameOver`), mas
+  **a interface ainda não a usa**: ela lê o estado direto. A fila fica pronta para o som
+  (buzzer) e os avisos sonoros, que não entraram na v0.2.
+- Os textos do jogo (menu, mensagens, status, condolências) ficaram em `config/textos.json`,
+  fora do código, para você editar.
+- `core/formatar.js` (idade, pH com vírgula, moldes de texto) e `render/formas.js` (retângulos)
+  são módulos novos que o plano não previa.
 - A morte natural acontece até 15 min de jogo depois dos 30 dias exatos (o tempo é
   processado em pedaços de 15 min).
+- O peixe doente tem as cores amareladas de um recolorido (não há quadros de animação novos), e
+  o morto boia de cabeça para baixo com as cores do idoso.
 
 ## 6. Conferência dos números [achado importante]
 
@@ -266,6 +274,26 @@ A seção abaixo é o registro das perguntas.
 8. **Números em JSON:** o `05` pede `config/` em JSON. O navegador vai carregar o arquivo
    no início e entregar ao `core`, que continua sem navegador. Tudo bem?
 
-## 9. Resultado da conferência da v0.2
+## 9. Resultado da conferência da v0.2 (2026-11-16)
 
-*(a preencher ao final, como na seção 8 do `07`)*
+| # | Critério (seção 7) | Resultado | Como foi conferido |
+|---|---|---|---|
+| 1 | `node --test` passa, com os casos listados | ok | **217 testes, 0 falhas**: indicadores e taxas a 1×/60×/3600×, comida (normal, excesso, pH no limite), faixas da saúde, doente < 30, morte e sua causa, velhice aos 30 dias, Game Over só com o último peixe, rotinas de sobrevivência (sem cuidado: 3,7 dias; cuidado a cada 2 dias: vive os 30), jogo inteiro até o Game Over e o recomeço |
+| 2 | Teclado: Z abre o menu, setas escolhem, Z confirma, X volta, C mostra o status | ok | No navegador, com teclas de verdade: Z (abre), seta para baixo, Z (limpou o aquário), C (status) e Z seguido de X (fecha o menu) |
+| 3 | A 3600× e sem cuidado: fome, doente, morto, Game Over, e A cria filhote | ok, com ressalva | Teste automático do laço a 3600× (morre em ~89 s reais, Game Over 5 s depois, A recomeça). No navegador: "Matar peixe", Game Over após 5 s, A recomeça. A espera de ~95 s reais a 3600× **não** foi feita à mão |
+| 4 | Mensagens sem letras cortadas e com acentos certos | ok | Olhando a tela: menu, "AQUÁRIO LIMPO", status, Game Over. Testes: todo texto do `textos.json` cabe e existe na fonte |
+| 5 | `src/core/` sem `document`, `canvas`, `localStorage`, `window` | ok | Busca no código: nada |
+| 6 | Números do jogo só em `config/jogo.json` | ok, com ressalva | As regras do `03` estão todas lá. Ficam no código só constantes visuais e de interface: velocidade do nado e da boia, fator do peixe doente (0,5), 2,5 s da mensagem, 5 s até o Game Over e o pedaço de 15 min de cálculo no config |
+
+**Defeitos achados e corrigidos pelo caminho:** colisão do campo `estado` (nado × saúde);
+teste exigindo a fronteira exata de 12 h do pH (a soma de pedaços dá 0,99999 e o passo cai uns
+segundos depois; sem efeito no jogo).
+
+**Extras que não estavam no plano:** `tools/balanco.js` (quanto o peixe aguenta);
+`config/textos.json`; teclado ignora Ctrl/Alt (Ctrl+C continua copiando); "Pular fase" e os
+campos do painel desligam no Game Over.
+
+**Para o usuário decidir/ajustar:** a exigência do bichinho (seção 6) e os textos de condolências.
+
+**Fora do escopo da v0.2, ficou para as próximas versões:** salvamento (v0.3), adoção, nomes,
+espécie e cor (v0.3), reprodução e vários peixes (v0.4), clima e dia/noite (v0.5), som.

@@ -48,7 +48,9 @@ Para economizar, o WiFi só liga quando necessário.
 - **C**: tela de status (indicadores, idade, nome).
 
 Vantagem: novas tarefas (filtro, plantas) viram itens de menu sem mudar o hardware.
-**Pendente:** confirmar com o usuário.
+**Adotada no simulador da v0.2** (2026-11-16, ao aceitar o `08-plano-v0.2.md`): A abre o menu
+e confirma, B volta, C abre o status. Itens do menu: Dar comida, Limpar aquário, Regular pH.
+Continua **[proposta]** até o usuário confirmar no aparelho de verdade.
 
 ## Tempo sem RTC (proposta)
 - O ESP32 não guarda a hora sem energia.
@@ -61,4 +63,4 @@ Vantagem: novas tarefas (filtro, plantas) viram itens de menu sem mudar o hardwa
 ## Em aberto
 - Modelo exato da placa ESP32.
 - Pinagem.
-- Controles: confirmar proposta.
+- Controles: proposta usada no simulador da v0.2; confirmar no aparelho.

@@ -5,6 +5,7 @@ import { criarAquario } from '../src/core/aquarium.js';
 import { taxaDaSaude, mediaDoPeixe } from '../src/core/rules.js';
 import { fimDaVidaNatural, limitesDoPeixe } from '../src/core/fish.js';
 import { DIA_MS, HORA_MS } from '../src/core/clock.js';
+import { viverComRotina } from '../src/sim/rotinas.js';
 import { config, montar, perto } from './ajuda.js';
 
 const eventosDe = (aq, tipo) => aq.eventos.retirar().filter((e) => e.tipo === tipo);
@@ -248,27 +249,7 @@ test('a hora da morte é a mesma a 1×, 60× e 3600× (passos de 50 ms reais)', 
 
 // --- Rotinas de cuidado (balanceamento, seção 6 do plano) ---------------------------------
 
-// Vive N dias com uma rotina: comida, limpeza e regulagem de pH a cada X horas (ou nunca).
-// Devolve quando adoeceu e quando morreu (em dias; null = não aconteceu) e a causa.
-function viver({ comidaH, limparH, phH, maxDias = 40 }) {
-  const t = montar(1, 10 * 60 * 1000); // passos de 10 minutos de jogo
-  const peixe = t.aq.peixes[0];
-  let doenteH = null;
-  let horas = 0;
-  while (!t.aq.gameOver && horas < maxDias * 24) {
-    t.passar(1);
-    horas += 1;
-    if (peixe.estado === 'doente' && doenteH === null) doenteH = horas;
-    if (comidaH && horas % comidaH === 0) t.aq.darComida();
-    if (limparH && horas % limparH === 0) t.aq.limparAquario();
-    if (phH && horas % phH === 0) t.aq.regularPh();
-  }
-  return {
-    doenteDias: doenteH === null ? null : doenteH / 24,
-    morteDias: t.aq.gameOver ? horas / 24 : null,
-    causa: peixe.causaDaMorte,
-  };
-}
+const viver = (rotina) => viverComRotina(config, rotina);
 
 test('rotina: sem nenhum cuidado o peixe morre entre 3 e 4 dias', () => {
   const r = viver({});

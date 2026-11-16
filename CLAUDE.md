@@ -22,26 +22,33 @@ bateria + USB), gerenciado também pelo celular via WiFi. Veja `README.md` e `do
   Usuário ainda não tem nenhuma peça.
 - Fechado: `05-arquitetura.md` (a seção 9, Fase B, fica como proposta até o hardware chegar).
 - Git: só local por enquanto. Pasta `C:\dev\aquario-virtual`; autor dos commits "Anorak".
-  Nome do projeto provisório: "Aquário". Uma tag por versão (`v0.1` já criada).
+  Nome do projeto provisório: "Aquário". Uma tag por versão (`v0.1` e `v0.2` criadas).
   Pendente: apagar cópia antiga do OneDrive (se existir).
 - Fechado: `06-web.md` (página do celular; design visual fica para depois do v0.5).
 - **v0.1 do simulador concluída** (`sim/`, doc `07-plano-v0.1.md`, resultado na seção 8):
   beta nada, câmera por teclado, fases por idade, painel de tempo (1×/60×/3600×).
   Rodar: `cd sim` e `node servidor.js` (http://localhost:8080); testar: `node --test`.
   No PowerShell o `npm` pode ser bloqueado: usar `node` ou `npm.cmd`.
-- Próximo: **v0.2** (fome, sujeira, pH, saúde, doença, morte, Game Over, menu A/B/C).
-  **Plano fechado em 16/11/2026: `docs/08-plano-v0.2.md`** (usuário aceitou as recomendações;
-  pH ficou mais lento: 36/24/12 h, já no `03`). As dúvidas de ovos/segundo parceiro ficam para
-  o plano da v0.4.
-  **v0.2, passos 1 e 2 feitos** (config em `sim/config/jogo.json`, `core/rules.js`: saciedade,
-  sujeira, pH, saúde, doença, morte por falta de cuidado e velhice, Game Over lógico, eventos
-  em `core/events.js`; ações darComida/limparAquario/regularPh; 135 testes). `criarAquario`
-  exige `config`. No peixe: `estado` = saúde (`saudavel`/`doente`/`morto`), `movimento` = nado.
-  Medido: sem cuidado morre em 3,7 dias; só vive 30 dias limpando e regulando pH a cada 2 dias
-  (ajustar no passo 6). Próximo: **passo 3** (fonte de pixels, HUD, peixe doente e morto).
-  Por enquanto o peixe morto só fica parado na tela e o doente nada normal.
-  O usuário costuma ter o servidor aberto na porta 8080: não encerrar processos dele;
-  testar em outra porta (`PORT=`).
+- **v0.2 do simulador concluída em 16/11/2026** (plano e resultado em `docs/08-plano-v0.2.md`,
+  seção 9; tag `v0.2`; 217 testes). O usuário aceitou as recomendações do plano (pH mais lento:
+  36/24/12 h, já no `03`) e pediu para seguir os passos 3 a 6 sem interrupção; ele mesmo vai
+  ajustar depois. Entregue: fome, sujeira, pH, saúde, doença, morte (falta de cuidado e velhice
+  aos 30 dias), Game Over com condolências, fonte de pixels com acentos, HUD (F/S/P e F/+), peixe
+  doente e morto, botões A/B/C (teclado Z/X/C), menu (comida, limpar, pH), tela de status, painel
+  com valores editáveis.
+  - Números do jogo: `sim/config/jogo.json`. Textos: `sim/config/textos.json`.
+  - Balanceamento: `node tools/balanco.js` (em `sim/`). Com os números de hoje, sem cuidado o
+    peixe morre em 3,7 dias e só vive 30 dias limpando e regulando o pH a cada 2 dias. **Foi
+    deixado assim para o usuário ajustar jogando.**
+  - No peixe: `estado` = saúde (`saudavel`/`doente`/`morto`), `movimento` = nado.
+    `criarAquario` exige `config`. `core/events.js` existe mas a interface ainda não o usa.
+  - Pendente da v0.2: nada. Faltam só as conferências à mão que o plano marca como não feitas
+    (3600× esperado por ~95 s reais).
+- Próximo: **v0.3** (salvamento, adoção e nomes pelo painel, espécie e cor). Escrever
+  `docs/09-plano-v0.3.md` e fechar com o usuário antes de codar. As dúvidas de ovos e segundo
+  parceiro (`03`, seção 8) entram no plano da v0.4.
+- O usuário costuma ter o servidor aberto na porta 8080: não encerrar processos dele;
+  testar em outra porta (`PORT=`) e parar só o meu processo.
 
 ## Pontos técnicos já levantados
 - Proposta de renderizar em 120×120 com escala 2× (128 daria escala não inteira).
