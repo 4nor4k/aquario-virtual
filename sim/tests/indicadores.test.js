@@ -3,30 +3,11 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { criarAquario } from '../src/core/aquarium.js';
 import { atualizarRegras, horasPorPassoDoPh, valorDoPh, notaDoPh } from '../src/core/rules.js';
-import { HORA_MS, MINUTO_MS, DIA_MS } from '../src/core/clock.js';
-import { config } from './ajuda.js';
+import { HORA_MS, DIA_MS } from '../src/core/clock.js';
+import { config, configImortal, montar as montarBase, perto } from './ajuda.js';
 
-// Aquário com N peixes e um "relógio" de teste: passar(horas) avança o tempo do jogo
-// em passos de `passoMs` (como o laço do jogo faria).
-function montar(peixes = 1, passoMs = 5 * MINUTO_MS) {
-  const aq = criarAquario({ config });
-  for (let i = 0; i < peixes; i++) aq.adicionarPeixe({}, 0);
-  let agora = 0;
-  aq.atualizar(0, 0);
-  return {
-    aq,
-    passar(horas) {
-      const alvo = agora + horas * HORA_MS;
-      while (agora < alvo) {
-        agora = Math.min(alvo, agora + passoMs);
-        aq.atualizar(0, agora);
-      }
-    },
-  };
-}
-
-const perto = (real, esperado, margem, msg) =>
-  assert.ok(Math.abs(real - esperado) <= margem, `${msg ?? ''} esperado ${esperado}, veio ${real}`);
+// Aqui a saúde não muda (configImortal): o peixe não morre no meio de um teste de indicadores.
+const montar = (peixes, passoMs) => montarBase(peixes, passoMs, { cfg: configImortal });
 
 test('o config é coerente: 7 valores de pH, uma nota para cada, em ordem crescente', () => {
   const { valores, notas } = config.ph;
@@ -224,9 +205,9 @@ test('o resultado é o mesmo a 1×, 60× e 3600× (passos de 50 ms reais)', () =
 test('um salto grande de tempo ("pular fase") dá o mesmo que passar o tempo aos poucos', () => {
   const aos_poucos = montar(1);
   aos_poucos.passar(24 * 10);
-  const salto = criarAquario({ config });
+  const salto = criarAquario({ config: configImortal });
   salto.adicionarPeixe({}, 0);
-  atualizarRegras(salto, 10 * DIA_MS, config);
+  atualizarRegras(salto, 10 * DIA_MS, 10 * DIA_MS, configImortal);
 
   assert.equal(salto.peixes[0].saciedade, aos_poucos.aq.peixes[0].saciedade);
   assert.equal(salto.sujeira, aos_poucos.aq.sujeira);

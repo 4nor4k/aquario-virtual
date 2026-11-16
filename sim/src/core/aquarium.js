@@ -1,6 +1,7 @@
 // O aquário: a lista de peixes, a água (sujeira e pH) e as ações de cuidado.
 // As regras que mudam tudo com o tempo ficam em rules.js.
 import { criarRng } from './rng.js';
+import { criarEventos } from './events.js';
 import {
   criarPeixe, atualizarPeixe, atualizarIdade, limitesDoPeixe, INICIO_DA_FASE_MS,
 } from './fish.js';
@@ -20,7 +21,14 @@ export function criarAquario({ semente = 1, config } = {}) {
     peixes,
     sujeira: config.inicial.sujeira, // 0 a 100 (0 = água limpa)
     phPasso: config.inicial.phPasso, // posição na lista de pH (0 = o mais ácido)
-    phProgresso: 0,                  // 0 a 1: quanto falta para o pH cair o próximo passo
+    phProgresso: 0,                  // 0 a 1: quanto do próximo passo do pH já andou
+    gameOver: false,                 // vira true quando o último peixe vivo morre
+    eventos: criarEventos(),         // avisos para a interface (eventos.retirar())
+
+    // Os peixes que ainda estão vivos (saudáveis ou doentes).
+    vivos() {
+      return peixes.filter((p) => p.estado !== 'morto');
+    },
 
     // Põe um peixe no aquário. Sem fase, nasce filhote agora. Com fase, entra já com a idade
     // em que essa fase começa. Sem posição, aparece no meio da água.
@@ -33,6 +41,7 @@ export function criarAquario({ semente = 1, config } = {}) {
         id: proximoId++,
         fase,
         saciedade: dados.saciedade ?? config.inicial.saciedade,
+        saude: dados.saude ?? config.inicial.saude,
         nascimentoMs: dados.nascimentoMs ?? agoraMs - INICIO_DA_FASE_MS[fase],
         x: dados.x ?? Math.round(MUNDO_LARGURA / 2),
         y: dados.y ?? Math.round((lim.minY + Math.min(lim.maxY, AREIA_Y)) / 2),
@@ -47,9 +56,10 @@ export function criarAquario({ semente = 1, config } = {}) {
       if (ultimoMs === null) ultimoMs = agoraMs;
       const passouMs = Math.max(0, agoraMs - ultimoMs);
       ultimoMs = agoraMs;
-      atualizarRegras(aquario, passouMs, config);
+      atualizarRegras(aquario, passouMs, agoraMs, config);
 
       for (const peixe of peixes) {
+        if (peixe.estado === 'morto') continue; // (o visual do peixe morto entra no passo 3)
         atualizarIdade(peixe, agoraMs);
         atualizarPeixe(peixe, dt, rng);
       }
@@ -57,13 +67,14 @@ export function criarAquario({ semente = 1, config } = {}) {
 
     // --- Ações de cuidado (menu do aparelho e página do celular chamam estas) ---------------
 
-    // Dá comida a todos os peixes. Se algum já estava quase cheio, é "excesso" e suja mais a água.
-    // Devolve { alimentou, excesso }.
+    // Dá comida a todos os peixes vivos. Se algum já estava quase cheio, é "excesso" e suja mais
+    // a água. Devolve { alimentou, excesso }.
     darComida() {
-      if (peixes.length === 0) return { alimentou: false, excesso: false };
+      const vivos = aquario.vivos();
+      if (vivos.length === 0) return { alimentou: false, excesso: false };
       const cfgSac = config.saciedade;
       let excesso = false;
-      for (const peixe of peixes) {
+      for (const peixe of vivos) {
         if (peixe.saciedade > cfgSac.excessoAcimaDe) excesso = true;
         peixe.saciedade = Math.min(100, peixe.saciedade + cfgSac.ganhoPorComida);
       }

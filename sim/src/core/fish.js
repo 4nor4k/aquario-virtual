@@ -50,7 +50,8 @@ export function limitesDoPeixe(fase) {
 }
 
 export function criarPeixe({
-  id = 0, nome = 'Beta', especie = 'beta', fase = 'filhote', saciedade = 100, nascimentoMs = 0, x, y,
+  id = 0, nome = 'Beta', especie = 'beta', fase = 'filhote', saciedade = 100, saude = 100,
+  nascimentoMs = 0, x, y,
 }) {
   if (!TAMANHO_POR_FASE[fase]) throw new RangeError(`fase desconhecida: ${fase}`);
   return {
@@ -59,12 +60,15 @@ export function criarPeixe({
     especie,
     fase,
     saciedade,             // 0 a 100 (100 = de barriga cheia)
+    saude,                 // 0 a 100 (em 0 o peixe morre)
+    estado: 'saudavel',    // 'saudavel', 'doente' ou 'morto'
+    causaDaMorte: null,    // 'velhice' ou 'cuidado' (falta de cuidado), só depois de morrer
     nascimentoMs,          // hora do jogo em que nasceu (a idade é "agora" menos isto)
     x,
     y,
     direcao: 1,            // 1 = olhando para a direita, -1 = para a esquerda
     destino: null,         // para onde está nadando: { x, y }
-    estado: 'esperando',   // 'nadando' ou 'esperando'
+    movimento: 'esperando', // 'nadando' ou 'esperando' (o que está fazendo; não é a saúde)
     espera: 0.5,           // segundos que ainda vai ficar parado
     tempoAnimacao: 0,      // segundos acumulados, para escolher o quadro da animação
   };
@@ -72,8 +76,12 @@ export function criarPeixe({
 
 // --- Idade e fases ------------------------------------------------------------------------
 
-// Fase correspondente a uma idade. Depois dos 30 dias continua "idoso"
-// (na v0.1 o peixe não morre; a morte natural entra na v0.2).
+// A partir dos 30 dias o peixe morre de velhice (quem aplica é o rules.js).
+export function fimDaVidaNatural(idadeMs) {
+  return idadeMs >= VIDA_NATURAL_DIAS * DIA_MS;
+}
+
+// Fase correspondente a uma idade. Depois dos 30 dias continua "idoso".
 export function faseDaIdade(idadeMs) {
   if (idadeMs >= INICIO_DA_FASE_MS.idoso) return 'idoso';
   if (idadeMs >= INICIO_DA_FASE_MS.adulto) return 'adulto';
@@ -142,11 +150,11 @@ function escolherDestino(peixe, rng) {
 export function atualizarPeixe(peixe, dt, rng) {
   peixe.tempoAnimacao += dt;
 
-  if (peixe.estado === 'esperando') {
+  if (peixe.movimento === 'esperando') {
     peixe.espera -= dt;
     if (peixe.espera <= 0) {
       peixe.destino = escolherDestino(peixe, rng);
-      peixe.estado = 'nadando';
+      peixe.movimento = 'nadando';
       virarParaODestino(peixe); // já vira antes de sair nadando
     }
     return;
@@ -161,7 +169,7 @@ export function atualizarPeixe(peixe, dt, rng) {
     peixe.x = peixe.destino.x;
     peixe.y = peixe.destino.y;
     peixe.destino = null;
-    peixe.estado = 'esperando';
+    peixe.movimento = 'esperando';
     peixe.espera = rng.inteiro(5, 30) / 10; // de 0,5 a 3 segundos
     return;
   }

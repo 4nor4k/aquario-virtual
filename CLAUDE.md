@@ -33,9 +33,13 @@ bateria + USB), gerenciado também pelo celular via WiFi. Veja `README.md` e `do
   **Plano fechado em 16/11/2026: `docs/08-plano-v0.2.md`** (usuário aceitou as recomendações;
   pH ficou mais lento: 36/24/12 h, já no `03`). As dúvidas de ovos/segundo parceiro ficam para
   o plano da v0.4.
-  **v0.2, passo 1 feito** (config em `sim/config/jogo.json`, `core/rules.js`, saciedade, sujeira,
-  pH e ações darComida/limparAquario/regularPh, 115 testes). Próximo: **passo 2** (saúde,
-  doença, morte por fome e velhice, Game Over lógico). O `criarAquario` agora exige `config`.
+  **v0.2, passos 1 e 2 feitos** (config em `sim/config/jogo.json`, `core/rules.js`: saciedade,
+  sujeira, pH, saúde, doença, morte por falta de cuidado e velhice, Game Over lógico, eventos
+  em `core/events.js`; ações darComida/limparAquario/regularPh; 135 testes). `criarAquario`
+  exige `config`. No peixe: `estado` = saúde (`saudavel`/`doente`/`morto`), `movimento` = nado.
+  Medido: sem cuidado morre em 3,7 dias; só vive 30 dias limpando e regulando pH a cada 2 dias
+  (ajustar no passo 6). Próximo: **passo 3** (fonte de pixels, HUD, peixe doente e morto).
+  Por enquanto o peixe morto só fica parado na tela e o doente nada normal.
   O usuário costuma ter o servidor aberto na porta 8080: não encerrar processos dele;
   testar em outra porta (`PORT=`).
 

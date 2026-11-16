@@ -76,10 +76,10 @@ test('o peixe nunca anda mais rápido que a velocidade de nado', () => {
 test('nada, para, e vira para os dois lados', () => {
   const rng = criarRng(7);
   const peixe = criarPeixe({ x: 180, y: 120 });
-  const estados = new Set();
+  const movimentos = new Set();
   const direcoes = new Set();
-  simular(peixe, rng, 4000, (p) => { estados.add(p.estado); direcoes.add(p.direcao); });
-  assert.deepEqual([...estados].sort(), ['esperando', 'nadando']);
+  simular(peixe, rng, 4000, (p) => { movimentos.add(p.movimento); direcoes.add(p.direcao); });
+  assert.deepEqual([...movimentos].sort(), ['esperando', 'nadando']);
   assert.deepEqual([...direcoes].sort(), [-1, 1]);
 });
 
@@ -87,7 +87,7 @@ test('a direção acompanha o lado para onde ele nada', () => {
   const rng = criarRng(11);
   const peixe = criarPeixe({ x: 180, y: 120 });
   simular(peixe, rng, 6000, (p) => {
-    if (p.estado === 'nadando' && Math.abs(p.destino.x - p.x) > 0.5) {
+    if (p.movimento === 'nadando' && Math.abs(p.destino.x - p.x) > 0.5) {
       assert.equal(p.direcao, p.destino.x > p.x ? 1 : -1);
     }
   });
@@ -98,8 +98,8 @@ test('cada destino fica a pelo menos 20 pixels de lado e a no máximo 30 de altu
   const peixe = criarPeixe({ x: 180, y: 120 });
   let origem = null;
   simular(peixe, rng, 6000, (p) => {
-    if (p.estado === 'nadando' && !origem) origem = { x: p.x, y: p.y, destino: p.destino };
-    if (p.estado === 'esperando' && origem) {
+    if (p.movimento === 'nadando' && !origem) origem = { x: p.x, y: p.y, destino: p.destino };
+    if (p.movimento === 'esperando' && origem) {
       assert.ok(Math.abs(origem.destino.x - origem.x) >= 19.999, 'destino perto demais');
       assert.ok(Math.abs(origem.destino.y - origem.y) <= 30.001, 'destino alto/baixo demais');
       origem = null;
@@ -137,6 +137,6 @@ test('a animação continua mesmo com o peixe parado', () => {
   peixe.espera = 100; // vai ficar parado
   const rng = criarRng(1);
   atualizarPeixe(peixe, 0.5, rng);
-  assert.equal(peixe.estado, 'esperando');
+  assert.equal(peixe.movimento, 'esperando');
   assert.equal(quadroDeNado(peixe), 3); // 0,5 s × 6 por segundo = quadro 3
 });

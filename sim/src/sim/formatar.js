@@ -18,7 +18,3 @@ export function formatarIdade(idadeMs) {
   const dia = Math.min(VIDA_NATURAL_DIAS, Math.floor(idadeMs / DIA_MS) + 1);
   return `dia ${dia} de ${VIDA_NATURAL_DIAS}`;
 }
-
-export function fimDaVidaNatural(idadeMs) {
-  return idadeMs >= VIDA_NATURAL_DIAS * DIA_MS;
-}

@@ -4,7 +4,18 @@
   "inicial": {
     "saciedade": 100,
     "sujeira": 0,
-    "phPasso": 4
+    "phPasso": 4,
+    "saude": 100
+  },
+
+  "saude": {
+    "doenteAbaixoDe": 30,
+    "faixas": [
+      { "mediaMinima": 70, "porHora": 6 },
+      { "mediaMinima": 40, "porHora": 0 },
+      { "mediaMinima": 15, "porHora": -3 },
+      { "mediaMinima": 0, "porHora": -5 }
+    ]
   },
 
   "saciedade": {

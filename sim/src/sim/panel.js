@@ -1,12 +1,16 @@
 // Painel de testes do simulador (doc 05, seção 6). NÃO existe no aparelho.
 // Aqui ficam só botões e textos; as regras ficam no core.
 import { idadeMs, msAteProximaFase, faseDaIdade } from '../core/fish.js';
-import { formatarHoraDoJogo, formatarIdade, fimDaVidaNatural } from './formatar.js';
+import { formatarHoraDoJogo, formatarIdade } from './formatar.js';
 
 const INTERVALO_MS = 250; // o painel se atualiza 4 vezes por segundo
 
-// Pede para o main: o relógio, o peixe atual (muda ao reiniciar) e o que fazer ao reiniciar.
-export function criarPainel({ clock, obterPeixe, aoReiniciar, camera }) {
+const TEXTO_DO_ESTADO = { doente: 'doente', morto: 'morto' };
+const TEXTO_DA_CAUSA = { velhice: 'de velhice', cuidado: 'por falta de cuidado' };
+
+// Pede para o main: o relógio, o aquário e o peixe atuais (mudam ao reiniciar)
+// e o que fazer ao reiniciar.
+export function criarPainel({ clock, obterAquario, obterPeixe, aoReiniciar, camera }) {
   const $ = (id) => document.getElementById(id);
   const botoesVelocidade = [...document.querySelectorAll('#velocidades button')];
   const botaoPular = $('pular');
@@ -51,13 +55,21 @@ export function criarPainel({ clock, obterPeixe, aoReiniciar, camera }) {
 
     $('hora-jogo').textContent = formatarHoraDoJogo(tempo);
     // A fase vem direto da idade, para o painel nunca ficar um passo atrás do relógio.
-    $('peixe').textContent = `${peixe.nome} · ${faseDaIdade(idade)} · ${formatarIdade(idade)}`;
-    $('aviso-vida').hidden = !fimDaVidaNatural(idade);
+    const estado = TEXTO_DO_ESTADO[peixe.estado];
+    $('peixe').textContent =
+      `${peixe.nome} · ${faseDaIdade(idade)} · ${formatarIdade(idade)}${estado ? ` · ${estado}` : ''}`;
+    // (Os números de saciedade, sujeira, pH e saúde entram no painel no passo 5.)
+    const aquario = obterAquario();
+    $('aviso-vida').hidden = !aquario.gameOver;
+    if (aquario.gameOver) {
+      $('aviso-vida').textContent =
+        `Game Over: o peixe morreu ${TEXTO_DA_CAUSA[peixe.causaDaMorte] ?? ''}. Use Reiniciar.`;
+    }
 
     for (const botao of botoesVelocidade) {
       botao.classList.toggle('ativo', Number(botao.dataset.vel) === clock.velocidade);
     }
-    botaoPular.disabled = msAteProximaFase(peixe, tempo) === null;
+    botaoPular.disabled = aquario.gameOver || msAteProximaFase(peixe, tempo) === null;
     botaoTamanho.textContent = `Tela: ${escala}× (mudar para ${escala === 2 ? 4 : 2}×)`;
     $('camera').textContent =
       `x ${Math.round(camera.x)} de ${camera.maxX} · y ${Math.round(camera.y)} de ${camera.maxY}`;

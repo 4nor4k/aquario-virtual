@@ -4,7 +4,7 @@ Legenda: **[fechado]** decidido pelo usuário · **[proposta]** sugestão a conf
 
 **Status: plano fechado em 2026-11-16**, com as recomendações da seção 8 (o usuário disse
 "ok, vamos pro próximo passo" sem alterar nenhuma; pode reabrir qualquer uma).
-**Passo 1 concluído em 2026-11-16** (ver seção 5).
+**Passos 1 e 2 concluídos em 2026-11-16** (ver seção 5).
 
 ## 1. Objetivo
 
@@ -149,11 +149,37 @@ Cada passo termina com um commit; a versão fecha com a tag `v0.2`.
 | Passo | Entrega | Como você confere |
 |---|---|---|
 | 1 ✔ | `config/jogo.json`, `rules.js` e os 3 indicadores (saciedade, sujeira, pH) com testes | `node --test` passa |
-| 2 | Saúde, doença, morte (fome e velhice) e Game Over lógico, com testes de "sobrevive X dias" | `node --test` passa |
+| 2 ✔ | Saúde, doença, morte (fome e velhice) e Game Over lógico, com testes de "sobrevive X dias" | `node --test` passa |
 | 3 | Fonte de pixels, HUD, peixe doente e peixe morto | Pelo painel, baixar a saciedade e ver o peixe adoecer e boiar |
 | 4 | Botões A, B, C, menu de ações e tela de status | Dar comida e limpar de verdade, pelo teclado |
 | 5 | Tela de Game Over, "novo filhote" e o painel com os valores | Deixar o peixe morrer com 3600× e ver o Game Over |
 | 6 | Balanceamento, README, resultado da conferência e a tag | Roteiro da seção 7 inteiro |
+
+**Resultado dos passos 1 e 2** (medido nos testes, com o pH em 36 / 24 / 12 h):
+
+| Rotina de cuidado | Fica doente em | Morre em |
+|---|---|---|
+| Nenhum cuidado | 3,4 dias | 3,7 dias (falta de cuidado) |
+| Só comida, 1 vez por dia | 4,3 dias | 4,7 dias |
+| Comida diária, limpar e pH a cada 2 dias | nunca | 30 dias (velhice) |
+| Comida diária, limpar e pH a cada 3 dias | 8,8 dias | 11,8 dias |
+| Comida diária, limpar e pH a cada 4 dias | 6,8 dias | 7,3 dias |
+
+Ou seja, ainda é preciso cuidar **a cada 2 dias** para o peixe chegar aos 30. É o ponto a
+ajustar no passo 6, jogando de verdade.
+
+**Detalhes que mudaram em relação ao plano:**
+- No peixe, o campo do nado que se chamava `estado` virou **`movimento`** (`nadando` /
+  `esperando`), e `estado` ficou para a saúde (`saudavel`, `doente`, `morto`). Os dois
+  nomes colidiam; os testes pegaram.
+- `events.js` já foi criado (fila de avisos: `adoeceu`, `recuperou`, `morreu`, `gameOver`).
+  A interface mostrar esses avisos fica para os passos 3 a 5.
+- O painel já mostra "doente" / "morto" e o aviso de Game Over (os números completos dos
+  indicadores entram no passo 5).
+- O peixe doente ainda nada na velocidade normal, e o morto só fica parado onde estava;
+  o visual de doente e de morto é o passo 3.
+- A morte natural acontece até 15 min de jogo depois dos 30 dias exatos (o tempo é
+  processado em pedaços de 15 min).
 
 ## 6. Conferência dos números [achado importante]
 

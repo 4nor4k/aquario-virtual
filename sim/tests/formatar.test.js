@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { formatarHoraDoJogo, formatarIdade, fimDaVidaNatural } from '../src/sim/formatar.js';
+import { formatarHoraDoJogo, formatarIdade } from '../src/sim/formatar.js';
 import { DIA_MS, HORA_MS, MINUTO_MS } from '../src/core/clock.js';
 
 test('hora do jogo: começa no "Dia 1 · 00:00"', () => {
@@ -31,7 +31,3 @@ test('idade: nunca passa de "dia 30 de 30"', () => {
   assert.equal(formatarIdade(90 * DIA_MS), 'dia 30 de 30');
 });
 
-test('fim da vida natural só a partir dos 30 dias', () => {
-  assert.equal(fimDaVidaNatural(30 * DIA_MS - 1), false);
-  assert.equal(fimDaVidaNatural(30 * DIA_MS), true);
-});
