@@ -24,8 +24,13 @@ bateria + USB), gerenciado também pelo celular via WiFi. Veja `README.md` e `do
   provisório "Aquário". Pasta `C:\dev\aquario-virtual`; autor dos commits "Anorak".
   Primeiro commit feito. Pendente: apagar cópia antiga do OneDrive (se existir).
 - Fechado: `06-web.md` (página do celular; design visual fica para depois do v0.5).
-- Fechado: `07-plano-v0.1.md` (6 passos, um commit por passo). Próximo: passo 1 da v0.1
-  (pastas, `package.json`, servidor, canvas 120×120 em 240×240 e paleta).
+- **v0.1 do simulador concluída** (`sim/`, doc `07-plano-v0.1.md`, resultado na seção 8):
+  beta nada, câmera por teclado, fases por idade, painel de tempo (1×/60×/3600×).
+  Rodar: `cd sim` e `node servidor.js` (http://localhost:8080); testar: `node --test`.
+  No PowerShell o `npm` pode ser bloqueado: usar `node` ou `npm.cmd`.
+- Próximo: **v0.2** (fome, sujeira, pH, saúde, Game Over, menu A/B/C). Escrever o plano em
+  `docs/08-plano-v0.2.md` e fechar com o usuário antes de codar. O usuário costuma ter o
+  servidor aberto na porta 8080: não encerrar processos dele; testar em outra porta (`PORT=`).
 
 ## Pontos técnicos já levantados
 - Proposta de renderizar em 120×120 com escala 2× (128 daria escala não inteira).

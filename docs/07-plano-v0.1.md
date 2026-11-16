@@ -2,7 +2,8 @@
 
 Legenda: **[fechado]** decidido pelo usuário · **[proposta]** sugestão a confirmar.
 
-**Status: fechado em 2026-11-15** (plano e as 4 decisões da seção 7 aceitos).
+**Status: plano fechado em 2026-11-15** (plano e as 4 decisões da seção 7 aceitos).
+**v0.1 concluída em 2026-11-15** (resultado na seção 8).
 
 ## 1. Objetivo
 
@@ -50,20 +51,27 @@ sim/
     core/               regras, SEM nada de navegador
       rng.js            sorteio com semente (mesmo resultado em teste e no ESP32)
       clock.js          relógio do jogo: hora atual e velocidade
-      fish.js           dados do peixe: posição, direção, idade, fase
-      aquarium.js       o mundo 360×240 e a lista de peixes (por enquanto, 1)
+      mundo.js          medidas do mundo (blocos, 360×240, onde começa a areia)
+      fish.js           dados do peixe: posição, direção, idade, fases, nado
+      aquarium.js       a lista de peixes e o passo do jogo
     render/             desenho
       palette.js        paleta de 16 cores
-      sprites.js        sprites provisórios do beta (3 tamanhos × 4 quadros)
-      scene.js          monta o quadro 120×120: fundo, cenário, peixe
+      tela.js           quadro 120×120 de cor indexada -> canvas
+      cenario.js        blocos 8×8 e o mapa 45×30 (água, areia, rochas)
+      sprites.js        sprites provisórios do beta (3 tamanhos × 4 quadros + idoso)
+      scene.js          monta o quadro: cenário e peixes
       camera.js         qual pedaço do mundo a janela mostra
     input/
       keyboard.js       setas/WASD movem a câmera
-    sim/
+    sim/                só existe no simulador (não vai para o aparelho)
       panel.js          painel de tempo
+      formatar.js       textos do painel ("Dia 12 · 08:30")
     main.js             liga tudo e roda o laço do jogo
-  tests/                testes do core (rodam com "node --test")
+  tests/                testes (rodam com "node --test")
 ```
+
+*(Estrutura final da v0.1. Em relação ao plano original, entraram `mundo.js`, `tela.js` e
+`cenario.js`, e os testes ficaram em arquivos separados por assunto.)*
 
 Por que um servidor local: o navegador não deixa um `index.html` aberto direto do disco
 carregar módulos JavaScript. O `servidor.js` resolve isso em poucas linhas, com o Node que
@@ -162,3 +170,26 @@ Cada passo termina com um commit.
 3. **Código:** nomes de arquivos como no `05` (`clock`, `fish`, `aquarium`) e
    **comentários em português**.
 4. **Peixe na v0.1:** só nada, sem fome e sem morte.
+
+## 8. Resultado da conferência da v0.1 (2026-11-15)
+
+| # | Critério | Resultado | Como foi conferido |
+|---|---|---|---|
+| 1 | `npm start` abre sem erro | ok | `npm start` rodado até o fim (em outra porta, com `PORT=8099`) e `node servidor.js`; a página carrega e o console não tem erros. O `npm.cmd start` só mostrou o início, porque a porta 8080 já estava em uso |
+| 2 | Tela de 240×240, pixels 2×2 | ok | Medido no navegador: 240 px de conteúdo (a borda fica por fora) |
+| 3 | Câmera para nas bordas | ok | Navegador (canto superior esquerdo) e testes da câmera |
+| 4 | Beta nada e vira de lado | ok | Navegador, olhando para os dois lados, e testes do peixe |
+| 5 | 3600×: 4 fases em ~12 min | ok, com ressalva | Teste com relógio falso (12 min = 4 fases, na ordem) e taxa medida no navegador (~3600×). Os 12 minutos completos em tempo real **não** foram esperados |
+| 6 | `npm test` passa | ok | 91 testes, 0 falhas |
+| 7 | `core/` sem navegador | ok | Busca por `document`, `canvas`, `localStorage` e `window` em `src/core/`: nada |
+
+**Defeitos achados e corrigidos pelo caminho:** borda do canvas encolhendo a imagem para 232 px;
+rocha encostando na borda do mundo; peixe olhando 1 quadro para o lado errado ao sair nadando;
+painel mostrando a fase antiga logo após "Pular fase".
+
+**Extras que não estavam no plano:** gancho `?debug` (mexer no jogo pelo console, só com
+`?debug` na URL); testes em arquivos separados por assunto.
+
+**Limitação conhecida:** na aba de automação o navegador roda a ~3 quadros por segundo, então
+o movimento ali é mais lento que em uma aba normal. O jogo limita a 250 ms o tempo recuperado
+por quadro (para não "disparar" ao voltar de uma aba parada).
