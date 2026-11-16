@@ -66,7 +66,7 @@ function atualizar(dt) {
 }
 
 function desenhar() {
-  desenharQuadro(quadro, { mapa, camera, peixes: aquario.peixes });
+  desenharQuadro(quadro, { mapa, camera, peixes: aquario.peixes, aquario, config });
   mostrarQuadro(ctx, quadro);
 }
 

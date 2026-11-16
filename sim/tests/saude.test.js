@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { criarAquario } from '../src/core/aquarium.js';
 import { taxaDaSaude, mediaDoPeixe } from '../src/core/rules.js';
-import { fimDaVidaNatural } from '../src/core/fish.js';
+import { fimDaVidaNatural, limitesDoPeixe } from '../src/core/fish.js';
 import { DIA_MS, HORA_MS } from '../src/core/clock.js';
 import { config, montar, perto } from './ajuda.js';
 
@@ -217,12 +217,21 @@ test('dar comida quando só há peixes mortos não faz nada', () => {
   assert.equal(t.aq.sujeira, 0);
 });
 
-test('peixe morto não se mexe', () => {
+test('peixe morto não nada: só sobe devagar até a superfície e fica boiando lá', () => {
   const aq = criarAquario({ config, semente: 4 });
-  const p = aq.adicionarPeixe({ x: 100, y: 100 }, 0);
+  const p = aq.adicionarPeixe({ x: 100, y: 100, fase: 'adulto' }, 0);
   p.estado = 'morto';
-  for (let i = 1; i <= 200; i++) aq.atualizar(0.05, i * 50);
-  assert.deepEqual([p.x, p.y], [100, 100]);
+  const { minY } = limitesDoPeixe('adulto');
+
+  let anterior = p.y;
+  for (let i = 1; i <= 2000; i++) {
+    aq.atualizar(0.05, i * 50);
+    assert.equal(p.x, 100, 'não anda de lado');
+    assert.ok(p.y <= anterior, 'só sobe');
+    assert.ok(p.y >= minY, 'não passa da superfície');
+    anterior = p.y;
+  }
+  assert.equal(p.y, minY); // chegou e ficou
 });
 
 // --- Tempo acelerado -----------------------------------------------------------------------

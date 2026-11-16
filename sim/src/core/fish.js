@@ -30,6 +30,8 @@ export const TAMANHO_POR_FASE = {
 export const VELOCIDADE_NADO = 15;      // pixels por segundo
 export const QUADROS_POR_SEGUNDO = 6;   // velocidade da animação de nadar
 export const QUADROS_DE_NADO = 4;
+export const FATOR_VELOCIDADE_DOENTE = 0.5; // peixe doente: metade da velocidade
+export const VELOCIDADE_BOIA = 8;           // peixe morto sobe a 8 pixels por segundo
 
 const MARGEM_SUPERFICIE = 4;  // o peixe não encosta na superfície
 const MARGEM_AREIA = 2;       // nem na areia
@@ -148,7 +150,9 @@ function escolherDestino(peixe, rng) {
 
 // Um passo do peixe (dt em segundos): nada até o destino, espera um pouco e sorteia outro.
 export function atualizarPeixe(peixe, dt, rng) {
-  peixe.tempoAnimacao += dt;
+  // Peixe doente nada e bate a cauda na metade da velocidade (doc 03 e 04).
+  const ritmo = peixe.estado === 'doente' ? FATOR_VELOCIDADE_DOENTE : 1;
+  peixe.tempoAnimacao += dt * ritmo;
 
   if (peixe.movimento === 'esperando') {
     peixe.espera -= dt;
@@ -163,7 +167,7 @@ export function atualizarPeixe(peixe, dt, rng) {
   const dx = peixe.destino.x - peixe.x;
   const dy = peixe.destino.y - peixe.y;
   const distancia = Math.sqrt(dx * dx + dy * dy);
-  const passo = VELOCIDADE_NADO * dt;
+  const passo = VELOCIDADE_NADO * ritmo * dt;
 
   if (distancia <= passo) {
     peixe.x = peixe.destino.x;
@@ -177,6 +181,12 @@ export function atualizarPeixe(peixe, dt, rng) {
   peixe.x += (dx / distancia) * passo;
   peixe.y += (dy / distancia) * passo;
   virarParaODestino(peixe);
+}
+
+// Peixe morto: não nada; sobe devagar até a superfície e fica boiando lá, de barriga para cima.
+export function atualizarPeixeMorto(peixe, dt) {
+  const { minY } = limitesDoPeixe(peixe.fase);
+  peixe.y = Math.max(minY, peixe.y - VELOCIDADE_BOIA * dt);
 }
 
 // Olha para o lado do destino. Se o destino está quase na vertical, mantém o lado atual.

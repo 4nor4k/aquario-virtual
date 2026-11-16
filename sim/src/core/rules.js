@@ -75,11 +75,7 @@ function aplicarPasso(aquario, horas, agoraMs, config) {
     }
   }
 
-  // Game Over: quando não resta nenhum peixe vivo.
-  if (causaDaUltimaMorte && aquario.vivos().length === 0) {
-    aquario.gameOver = true;
-    aquario.eventos.registrar({ tipo: 'gameOver', causa: causaDaUltimaMorte });
-  }
+  if (causaDaUltimaMorte) verificarGameOver(aquario, causaDaUltimaMorte);
 }
 
 function morrer(aquario, peixe, causa) {
@@ -87,6 +83,37 @@ function morrer(aquario, peixe, causa) {
   peixe.causaDaMorte = causa;
   if (causa === 'cuidado') peixe.saude = 0;
   aquario.eventos.registrar({ tipo: 'morreu', peixeId: peixe.id, causa });
+}
+
+// Game Over: quando não resta nenhum peixe vivo.
+function verificarGameOver(aquario, causa) {
+  if (aquario.gameOver || aquario.vivos().length > 0) return;
+  aquario.gameOver = true;
+  aquario.eventos.registrar({ tipo: 'gameOver', causa });
+}
+
+// Mata um peixe de fora das regras (botão "Matar peixe" do painel de testes).
+export function matarPeixe(aquario, peixe, causa = 'cuidado') {
+  if (peixe.estado === 'morto') return;
+  morrer(aquario, peixe, causa);
+  verificarGameOver(aquario, causa);
+}
+
+// --- Avisos (o que está "impróprio", doc 03 e doc 04: HUD mínimo) ------------------------------
+
+export function peixeComFome(peixe, config) {
+  return peixe.saciedade < config.saciedade.improprioAbaixoDe;
+}
+
+// Quais indicadores do aquário estão impróprios agora. Sem peixe vivo, nada a avisar.
+export function avisosDoAquario(aquario, config) {
+  const vivos = aquario.vivos();
+  if (vivos.length === 0) return { fome: false, sujeira: false, ph: false };
+  return {
+    fome: vivos.some((p) => peixeComFome(p, config)),
+    sujeira: aquario.sujeira > config.sujeira.improprioAcimaDe,
+    ph: notaDoPh(aquario, config) <= config.ph.improprioNotaAte,
+  };
 }
 
 // Média dos três indicadores, de 0 a 100, com pesos iguais (doc 03, seção 3).

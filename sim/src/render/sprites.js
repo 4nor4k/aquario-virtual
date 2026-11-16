@@ -146,6 +146,11 @@ function recolorir(sprite, trocas) {
 // verde-água (11 -> 5).
 const CORES_DO_IDOSO = { 14: 8, 10: 7, 11: 5 };
 
+// Doente: cores pálidas e amareladas (corpo roxo 14 -> areia 7, cauda rosa 10 -> areia clara 6,
+// borda ciano 11 -> água clara 4). Também troca as cores do idoso (cinza 8 -> 7, areia 7 -> 6,
+// verde-água 5 -> 4), para o idoso doente continuar parecendo doente.
+const CORES_DO_DOENTE = { 14: 7, 8: 7, 10: 6, 7: 6, 11: 4, 5: 4 };
+
 // Sprites por espécie e fase.
 const ADULTO = montarSprite(CORPO_ADULTO, CAUDA_ADULTO);
 export const SPRITES = {
@@ -157,20 +162,41 @@ export const SPRITES = {
   },
 };
 
+// Mesmos desenhos nas variações de saúde: nenhum desenho novo, só troca de cores.
+const variar = (trocas) => Object.fromEntries(
+  Object.entries(SPRITES).map(([especie, fases]) => [
+    especie,
+    Object.fromEntries(Object.entries(fases).map(([fase, s]) => [fase, recolorir(s, trocas)])),
+  ]),
+);
+export const SPRITES_DOENTES = variar(CORES_DO_DOENTE);
+export const SPRITES_MORTOS = variar(CORES_DO_IDOSO); // apagado, como o idoso
+
+// Qual sprite usar para o peixe agora, e se deve ser desenhado de cabeça para baixo
+// (o morto boia de barriga para cima).
+export function spriteDoPeixe(peixe) {
+  const grupo = peixe.estado === 'morto' ? SPRITES_MORTOS
+    : peixe.estado === 'doente' ? SPRITES_DOENTES
+      : SPRITES;
+  return { sprite: grupo[peixe.especie][peixe.fase], inverter: peixe.estado === 'morto' };
+}
+
 // --- Desenho ----------------------------------------------------------------------------
 
 // Desenha um quadro de sprite no quadro da tela, com o canto de cima à esquerda em (x, y),
 // já em coordenadas da tela. A cor 0 é transparente. O que sai da tela é cortado.
-export function desenharSprite(quadroTela, sprite, indice, x, y, espelhar = false) {
+// espelhar = vira esquerda/direita; inverter = vira de cabeça para baixo.
+export function desenharSprite(quadroTela, sprite, indice, x, y, espelhar = false, inverter = false) {
   const { largura, altura } = sprite;
   const pix = sprite.quadros[indice];
   for (let sy = 0; sy < altura; sy++) {
     const ty = y + sy;
     if (ty < 0 || ty >= ALTURA) continue;
+    const linhaOrigem = inverter ? altura - 1 - sy : sy;
     for (let sx = 0; sx < largura; sx++) {
       const tx = x + sx;
       if (tx < 0 || tx >= LARGURA) continue;
-      const cor = pix[sy * largura + (espelhar ? largura - 1 - sx : sx)];
+      const cor = pix[linhaOrigem * largura + (espelhar ? largura - 1 - sx : sx)];
       if (cor !== 0) quadroTela[ty * LARGURA + tx] = cor;
     }
   }

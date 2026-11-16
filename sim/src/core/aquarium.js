@@ -3,9 +3,9 @@
 import { criarRng } from './rng.js';
 import { criarEventos } from './events.js';
 import {
-  criarPeixe, atualizarPeixe, atualizarIdade, limitesDoPeixe, INICIO_DA_FASE_MS,
+  criarPeixe, atualizarPeixe, atualizarPeixeMorto, atualizarIdade, limitesDoPeixe, INICIO_DA_FASE_MS,
 } from './fish.js';
-import { atualizarRegras, valorDoPh } from './rules.js';
+import { atualizarRegras, matarPeixe, valorDoPh } from './rules.js';
 import { MUNDO_LARGURA, AREIA_Y } from './mundo.js';
 
 // config: os números do jogo (sim/config/jogo.json). Quem cria o aquário entrega pronto,
@@ -59,7 +59,10 @@ export function criarAquario({ semente = 1, config } = {}) {
       atualizarRegras(aquario, passouMs, agoraMs, config);
 
       for (const peixe of peixes) {
-        if (peixe.estado === 'morto') continue; // (o visual do peixe morto entra no passo 3)
+        if (peixe.estado === 'morto') {
+          atualizarPeixeMorto(peixe, dt);
+          continue;
+        }
         atualizarIdade(peixe, agoraMs);
         atualizarPeixe(peixe, dt, rng);
       }
@@ -81,6 +84,11 @@ export function criarAquario({ semente = 1, config } = {}) {
       const suja = excesso ? config.sujeira.porComidaEmExcesso : config.sujeira.porComida;
       aquario.sujeira = Math.min(100, aquario.sujeira + suja);
       return { alimentou: true, excesso };
+    },
+
+    // Mata um peixe de fora das regras (usado pelo painel de testes do simulador).
+    matar(peixe, causa = 'cuidado') {
+      matarPeixe(aquario, peixe, causa);
     },
 
     // Zera a sujeira.

@@ -38,6 +38,7 @@
     "notas": [0, 30, 60, 100, 100, 100, 60],
     "horasPorPasso": { "sujeiraBaixa": 36, "sujeiraMedia": 24, "sujeiraAlta": 12 },
     "sujeiraBaixaAbaixoDe": 30,
-    "sujeiraAltaAcimaDe": 70
+    "sujeiraAltaAcimaDe": 70,
+    "improprioNotaAte": 30
   }
 }
