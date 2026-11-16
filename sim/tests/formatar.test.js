@@ -31,3 +31,25 @@ test('idade: nunca passa de "dia 30 de 30"', () => {
   assert.equal(formatarIdade(90 * DIA_MS), 'dia 30 de 30');
 });
 
+
+// --- Textos que a tela do aparelho também usa (core/formatar.js) -----------------------------
+
+import { diaDaVida, formatarPh, preencher } from '../src/core/formatar.js';
+
+test('diaDaVida: começa no dia 1 de 30 e trava no dia 30', () => {
+  assert.deepEqual(diaDaVida(0), { dia: 1, total: 30 });
+  assert.deepEqual(diaDaVida(11 * DIA_MS), { dia: 12, total: 30 });
+  assert.deepEqual(diaDaVida(500 * DIA_MS), { dia: 30, total: 30 });
+});
+
+test('pH em texto usa vírgula e uma casa', () => {
+  assert.equal(formatarPh(7), '7,0');
+  assert.equal(formatarPh(6.2), '6,2');
+  assert.equal(formatarPh(7.5), '7,5');
+});
+
+test('preencher troca {nome} e deixa o que não conhece', () => {
+  assert.equal(preencher('pH {ph} em {onde}', { ph: '7,0' }), 'pH 7,0 em {onde}');
+  assert.equal(preencher('sem molde', { ph: 1 }), 'sem molde');
+  assert.equal(preencher('{a}{a}', { a: 0 }), '00');
+});

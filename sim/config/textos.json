@@ -1,0 +1,40 @@
+{
+  "menu": {
+    "titulo": "Menu",
+    "itens": ["Dar comida", "Limpar aquário", "Regular pH"],
+    "dica": "A: ok  B: voltar"
+  },
+
+  "mensagens": {
+    "comida": "Comida servida",
+    "comidaEmExcesso": "Ele já estava cheio! A água suja.",
+    "semPeixe": "Não há peixe vivo.",
+    "limpeza": "Aquário limpo",
+    "phSubiu": "pH subiu para {ph}",
+    "phNoMaximo": "pH já está no máximo"
+  },
+
+  "status": {
+    "saciedade": "Saciedade",
+    "sujeira": "Sujeira",
+    "saude": "Saúde",
+    "ph": "pH",
+    "estado": "Estado",
+    "idade": "dia {dia} de {total}",
+    "fases": { "filhote": "Filhote", "jovem": "Jovem", "adulto": "Adulto", "idoso": "Idoso" },
+    "estados": { "saudavel": "saudável", "doente": "doente", "morto": "morto" },
+    "causas": { "velhice": "velhice", "cuidado": "falta de cuidado" },
+    "phNotas": { "ideal": "ideal", "aceitavel": "aceitável", "ruim": "ruim" },
+    "semPeixe": "Sem peixe",
+    "dica": "C: voltar"
+  },
+
+  "gameOver": {
+    "titulo": "Game Over",
+    "condolencias": {
+      "velhice": "Seu peixe viveu uma vida longa. Obrigado por cuidar dele.",
+      "cuidado": "Seu peixe não resistiu. Cuidar também é aprender. Que tal tentar de novo?"
+    },
+    "dica": "A: novo filhote"
+  }
+}
