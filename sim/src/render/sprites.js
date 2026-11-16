@@ -132,14 +132,28 @@ function montarSprite(corpo, cauda) {
   };
 }
 
-// Sprites por espécie e fase. O idoso reaproveita o adulto (as cores apagadas vêm depois).
+// Troca cores de um sprite (é assim que o idoso fica "apagado" sem desenho novo).
+// trocas: { corAntiga: corNova }, em números da paleta.
+function recolorir(sprite, trocas) {
+  return {
+    largura: sprite.largura,
+    altura: sprite.altura,
+    quadros: sprite.quadros.map((q) => q.map((cor) => trocas[cor] ?? cor)),
+  };
+}
+
+// Idoso: mesmo desenho do adulto, com corpo cinza (14 -> 8), cauda areia (10 -> 7) e borda
+// verde-água (11 -> 5).
+const CORES_DO_IDOSO = { 14: 8, 10: 7, 11: 5 };
+
+// Sprites por espécie e fase.
 const ADULTO = montarSprite(CORPO_ADULTO, CAUDA_ADULTO);
 export const SPRITES = {
   beta: {
     filhote: montarSprite(CORPO_FILHOTE, CAUDA_FILHOTE),
     jovem: montarSprite(CORPO_JOVEM, CAUDA_JOVEM),
     adulto: ADULTO,
-    idoso: ADULTO,
+    idoso: recolorir(ADULTO, CORES_DO_IDOSO),
   },
 };
 

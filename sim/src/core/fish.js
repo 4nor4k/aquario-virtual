@@ -1,8 +1,23 @@
-// O peixe: dados e comportamento de nado. (Idade e fases entram no passo 5.)
+// O peixe: dados, idade, fases e comportamento de nado.
 // São só dados simples + funções, para traduzir fácil para C++ na Fase B.
 import { MUNDO_LARGURA, AREIA_Y } from './mundo.js';
+import { DIA_MS } from './clock.js';
 
 export const FASES = ['filhote', 'jovem', 'adulto', 'idoso'];
+
+// Duração de cada fase, em dias reais (doc 03, seção 1). Somam 30 dias de vida natural.
+export const DURACAO_FASE_DIAS = { filhote: 5, jovem: 10, adulto: 12, idoso: 3 };
+export const VIDA_NATURAL_DIAS = 30;
+
+// Em que idade (ms) cada fase começa: filhote 0, jovem 5 dias, adulto 15 dias, idoso 27 dias.
+export const INICIO_DA_FASE_MS = {};
+{
+  let acumulado = 0;
+  for (const fase of FASES) {
+    INICIO_DA_FASE_MS[fase] = acumulado * DIA_MS;
+    acumulado += DURACAO_FASE_DIAS[fase];
+  }
+}
 
 // Tamanho do sprite em cada fase (doc 04, seção 5). O idoso usa o tamanho do adulto.
 export const TAMANHO_POR_FASE = {
@@ -34,13 +49,16 @@ export function limitesDoPeixe(fase) {
   };
 }
 
-export function criarPeixe({ id = 0, nome = 'Beta', especie = 'beta', fase = 'adulto', x, y }) {
+export function criarPeixe({
+  id = 0, nome = 'Beta', especie = 'beta', fase = 'filhote', nascimentoMs = 0, x, y,
+}) {
   if (!TAMANHO_POR_FASE[fase]) throw new RangeError(`fase desconhecida: ${fase}`);
   return {
     id,
     nome,
     especie,
     fase,
+    nascimentoMs,          // hora do jogo em que nasceu (a idade é "agora" menos isto)
     x,
     y,
     direcao: 1,            // 1 = olhando para a direita, -1 = para a esquerda
@@ -49,6 +67,50 @@ export function criarPeixe({ id = 0, nome = 'Beta', especie = 'beta', fase = 'ad
     espera: 0.5,           // segundos que ainda vai ficar parado
     tempoAnimacao: 0,      // segundos acumulados, para escolher o quadro da animação
   };
+}
+
+// --- Idade e fases ------------------------------------------------------------------------
+
+// Fase correspondente a uma idade. Depois dos 30 dias continua "idoso"
+// (na v0.1 o peixe não morre; a morte natural entra na v0.2).
+export function faseDaIdade(idadeMs) {
+  if (idadeMs >= INICIO_DA_FASE_MS.idoso) return 'idoso';
+  if (idadeMs >= INICIO_DA_FASE_MS.adulto) return 'adulto';
+  if (idadeMs >= INICIO_DA_FASE_MS.jovem) return 'jovem';
+  return 'filhote';
+}
+
+export function idadeMs(peixe, agoraMs) {
+  return Math.max(0, agoraMs - peixe.nascimentoMs);
+}
+
+// Quantos ms faltam para a próxima fase começar, ou null se já é idoso.
+// Arredonda para cima para nunca ficar 1 ms antes da fronteira.
+export function msAteProximaFase(peixe, agoraMs) {
+  const proxima = FASES[FASES.indexOf(faseDaIdade(idadeMs(peixe, agoraMs))) + 1];
+  if (!proxima) return null;
+  return Math.ceil(INICIO_DA_FASE_MS[proxima] - idadeMs(peixe, agoraMs));
+}
+
+// Troca a fase conforme a idade. Se o peixe cresceu, o corpo ficou maior:
+// puxa o peixe (e o destino dele) para dentro dos novos limites.
+export function atualizarIdade(peixe, agoraMs) {
+  const fase = faseDaIdade(idadeMs(peixe, agoraMs));
+  if (fase === peixe.fase) return;
+  peixe.fase = fase;
+  const lim = limitesDoPeixe(fase);
+  peixe.x = limitar(peixe.x, lim.minX, lim.maxX);
+  peixe.y = limitar(peixe.y, lim.minY, lim.maxY);
+  if (peixe.destino) {
+    peixe.destino = {
+      x: limitar(peixe.destino.x, lim.minX, lim.maxX),
+      y: limitar(peixe.destino.y, lim.minY, lim.maxY),
+    };
+  }
+}
+
+function limitar(v, min, max) {
+  return Math.min(max, Math.max(min, v));
 }
 
 // Quadro da animação de nadar (0 a 3) neste instante.

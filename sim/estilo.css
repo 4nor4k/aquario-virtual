@@ -3,6 +3,10 @@
   --fundo: #14181f;
   --painel: #1d232d;
   --texto: #e6e9ee;
+  --texto-suave: #98a2b3;
+  --botao: #2b3340;
+  --botao-ativo: #2f7fb8;
+  --aviso: #f2a65a;
   --escala: 2; /* tamanho da tela: 2 = 240×240 (fiel ao aparelho) */
 }
 
@@ -37,7 +41,35 @@ main {
   background: var(--painel);
   padding: 16px 20px;
   border-radius: 8px;
-  min-width: 260px;
+  min-width: 280px;
 }
 
-.painel h1 { margin: 0 0 8px; font-size: 1.1rem; }
+.painel h1 { margin: 0; font-size: 1.1rem; }
+.painel h2 {
+  margin: 16px 0 6px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--texto-suave);
+}
+.painel p { margin: 6px 0; }
+.versao, .dica { color: var(--texto-suave); font-size: 0.85rem; }
+.destaque { font-size: 1.15rem; font-variant-numeric: tabular-nums; }
+.aviso { color: var(--aviso); font-size: 0.9rem; }
+.aviso[hidden] { display: none; }
+
+.botoes { display: flex; gap: 8px; flex-wrap: wrap; margin: 6px 0; }
+
+button {
+  background: var(--botao);
+  color: var(--texto);
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 7px 12px;
+  font: inherit;
+  cursor: pointer;
+}
+button:hover:not(:disabled) { border-color: var(--texto-suave); }
+button.ativo { background: var(--botao-ativo); }
+button:disabled { opacity: 0.4; cursor: default; }
+button:focus-visible { outline: 2px solid var(--botao-ativo); outline-offset: 2px; }

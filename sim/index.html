@@ -12,12 +12,43 @@
       <!-- Janela do jogo: 120×120 pixels de render, mostrada em 240×240 (escala 2×) -->
       <canvas id="tela" width="120" height="120"></canvas>
     </section>
+
     <aside class="painel" id="painel">
       <h1>Aquário · simulador</h1>
-      <p>v0.1 · passo 4: peixe nadando.</p>
-      <p>Setas ou WASD movem a câmera.</p>
-      <p id="camera"></p>
-      <p id="peixe"></p>
+      <p class="versao">v0.1 · passo 5</p>
+
+      <section>
+        <h2>Tempo</h2>
+        <div class="botoes" id="velocidades">
+          <button data-vel="1">1×</button>
+          <button data-vel="60">60×</button>
+          <button data-vel="3600">3600×</button>
+        </div>
+        <p id="hora-jogo" class="destaque"></p>
+        <div class="botoes">
+          <button id="pular">Pular fase</button>
+          <button id="reiniciar">Reiniciar</button>
+        </div>
+      </section>
+
+      <section>
+        <h2>Peixe</h2>
+        <p id="peixe"></p>
+        <p id="aviso-vida" class="aviso" hidden>
+          Chegou ao fim da vida natural. Nesta versão isso ainda não tem efeito.
+        </p>
+      </section>
+
+      <section>
+        <h2>Câmera</h2>
+        <p class="dica">Setas ou WASD</p>
+        <p id="camera"></p>
+      </section>
+
+      <section>
+        <h2>Tela</h2>
+        <button id="tamanho"></button>
+      </section>
     </aside>
   </main>
   <script type="module" src="src/main.js"></script>
