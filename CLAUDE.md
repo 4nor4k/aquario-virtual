@@ -30,11 +30,12 @@ bateria + USB), gerenciado também pelo celular via WiFi. Veja `README.md` e `do
   Rodar: `cd sim` e `node servidor.js` (http://localhost:8080); testar: `node --test`.
   No PowerShell o `npm` pode ser bloqueado: usar `node` ou `npm.cmd`.
 - Próximo: **v0.2** (fome, sujeira, pH, saúde, doença, morte, Game Over, menu A/B/C).
-  Escrever o plano em `docs/08-plano-v0.2.md` e fechar com o usuário antes de codar.
-  Já foi perguntado se pode começar o plano; o usuário ainda não respondeu (parou aqui em 15/11/2026).
-  Ao escrever: revisar com o usuário os números do `03-jogo.md` que ainda são [proposta]
-  (fome 48 h, sujeira 4 dias, pH por passos, recuperação/queda de saúde) e as 3 dúvidas da
-  seção 8 do `03` (ovos além do limite de 5, segundo parceiro).
+  **Rascunho do plano escrito em 16/11/2026: `docs/08-plano-v0.2.md`** (ainda não commitado).
+  Falta o usuário responder as 8 decisões da seção 8, principalmente a 1 (quão exigente é o
+  bichinho). Achado da simulação (seção 6): com os números do `03`, sem cuidado o peixe morre
+  em 2,9 dias e só vive 30 dias limpando e regulando pH a cada 2 dias; pH mais lento
+  (36/24/12 h) é a recomendação. As dúvidas de ovos/segundo parceiro ficam para o plano da v0.4.
+  Só codar depois de o usuário fechar o plano.
   O usuário costuma ter o servidor aberto na porta 8080: não encerrar processos dele;
   testar em outra porta (`PORT=`).
 
