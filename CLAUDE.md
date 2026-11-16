@@ -20,9 +20,10 @@ bateria + USB), gerenciado também pelo celular via WiFi. Veja `README.md` e `do
 - Estratégia: Fase A = simulador no navegador (JS puro, `core/` sem DOM, tempo injetado e
   acelerável); Fase B = firmware ESP32 (PlatformIO, editor Antigravity IDE) quando o hardware chegar.
   Usuário ainda não tem nenhuma peça.
-- Fechado: `05-arquitetura.md` (seção 9, Fase B, fica como proposta até o hardware chegar). Git: só local por enquanto; nome do projeto
-  provisório "Aquário". Pasta `C:\dev\aquario-virtual`; autor dos commits "Anorak".
-  Primeiro commit feito. Pendente: apagar cópia antiga do OneDrive (se existir).
+- Fechado: `05-arquitetura.md` (a seção 9, Fase B, fica como proposta até o hardware chegar).
+- Git: só local por enquanto. Pasta `C:\dev\aquario-virtual`; autor dos commits "Anorak".
+  Nome do projeto provisório: "Aquário". Uma tag por versão (`v0.1` já criada).
+  Pendente: apagar cópia antiga do OneDrive (se existir).
 - Fechado: `06-web.md` (página do celular; design visual fica para depois do v0.5).
 - **v0.1 do simulador concluída** (`sim/`, doc `07-plano-v0.1.md`, resultado na seção 8):
   beta nada, câmera por teclado, fases por idade, painel de tempo (1×/60×/3600×).
