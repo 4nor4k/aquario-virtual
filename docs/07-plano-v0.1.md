@@ -69,6 +69,11 @@ Por que um servidor local: o navegador não deixa um `index.html` aberto direto 
 carregar módulos JavaScript. O `servidor.js` resolve isso em poucas linhas, com o Node que
 você já tem. Para abrir: `npm start` e entrar em `http://localhost:8080`.
 
+**No Windows (PowerShell):** o comando `npm` pode ser bloqueado ("a execução de scripts foi
+desabilitada"). Dentro da pasta `sim/`, use no lugar:
+- abrir: `node servidor.js` (ou `npm.cmd start`)
+- testar: `node --test` (ou `npm.cmd test`)
+
 ## 4. Como cada parte funciona [proposta]
 
 ### Tela
