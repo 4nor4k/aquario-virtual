@@ -4,7 +4,7 @@ Legenda: **[fechado]** decidido pelo usuário · **[proposta]** sugestão a conf
 
 **Status: plano fechado em 2026-11-16**, com as recomendações da seção 8 (o usuário disse
 "ok, vamos pro próximo passo" sem alterar nenhuma; pode reabrir qualquer uma).
-**Passos 1 a 4 concluídos em 2026-11-16** (ver seção 5).
+**Passos 1 a 5 concluídos em 2026-11-16** (ver seção 5).
 
 ## 1. Objetivo
 
@@ -152,7 +152,7 @@ Cada passo termina com um commit; a versão fecha com a tag `v0.2`.
 | 2 ✔ | Saúde, doença, morte (fome e velhice) e Game Over lógico, com testes de "sobrevive X dias" | `node --test` passa |
 | 3 ✔ | Fonte de pixels, HUD, peixe doente e peixe morto | Pelo painel, baixar a saciedade e ver o peixe adoecer e boiar |
 | 4 ✔ | Botões A, B, C, menu de ações e tela de status | Dar comida e limpar de verdade, pelo teclado |
-| 5 | Tela de Game Over, "novo filhote" e o painel com os valores | Deixar o peixe morrer com 3600× e ver o Game Over |
+| 5 ✔ | Tela de Game Over, "novo filhote" e o painel com os valores | Deixar o peixe morrer com 3600× e ver o Game Over |
 | 6 | Balanceamento, README, resultado da conferência e a tag | Roteiro da seção 7 inteiro |
 
 **Resultado dos passos 1 e 2** (medido nos testes, com o pH em 36 / 24 / 12 h):

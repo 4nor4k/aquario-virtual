@@ -23,6 +23,7 @@ export function criarAquario({ semente = 1, config } = {}) {
     phPasso: config.inicial.phPasso, // posição na lista de pH (0 = o mais ácido)
     phProgresso: 0,                  // 0 a 1: quanto do próximo passo do pH já andou
     gameOver: false,                 // vira true quando o último peixe vivo morre
+    causaDoGameOver: null,           // 'velhice' ou 'cuidado' (a causa da morte do último peixe)
     eventos: criarEventos(),         // avisos para a interface (eventos.retirar())
 
     // Os peixes que ainda estão vivos (saudáveis ou doentes).

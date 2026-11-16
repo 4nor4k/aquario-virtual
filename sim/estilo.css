@@ -60,6 +60,26 @@ main {
 
 .botoes { display: flex; gap: 8px; flex-wrap: wrap; margin: 6px 0; }
 
+.campos {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 6px 12px;
+  align-items: center;
+  margin: 8px 0;
+}
+.campos label { color: var(--texto-suave); font-size: 0.9rem; }
+input, select {
+  background: var(--botao);
+  color: var(--texto);
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 5px 8px;
+  font: inherit;
+  width: 100%;
+}
+input:focus-visible, select:focus-visible { outline: 2px solid var(--botao-ativo); outline-offset: 1px; }
+input:disabled, select:disabled { opacity: 0.4; }
+
 button {
   background: var(--botao);
   color: var(--texto);

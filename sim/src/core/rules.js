@@ -89,6 +89,7 @@ function morrer(aquario, peixe, causa) {
 function verificarGameOver(aquario, causa) {
   if (aquario.gameOver || aquario.vivos().length > 0) return;
   aquario.gameOver = true;
+  aquario.causaDoGameOver = causa;
   aquario.eventos.registrar({ tipo: 'gameOver', causa });
 }
 

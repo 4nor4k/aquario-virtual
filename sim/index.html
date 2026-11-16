@@ -15,7 +15,7 @@
 
     <aside class="painel" id="painel">
       <h1>Aquário · simulador</h1>
-      <p class="versao">v0.2 · passo 2</p>
+      <p class="versao">v0.2 · passo 5</p>
 
       <section>
         <h2>Tempo</h2>
@@ -35,11 +35,40 @@
         <h2>Peixe</h2>
         <p id="peixe"></p>
         <p id="aviso-vida" class="aviso" hidden></p>
+        <div class="campos">
+          <label for="campo-saciedade">Saciedade</label>
+          <input id="campo-saciedade" type="number" min="0" max="100" step="1">
+          <label for="campo-sujeira">Sujeira</label>
+          <input id="campo-sujeira" type="number" min="0" max="100" step="1">
+          <label for="campo-ph">pH</label>
+          <select id="campo-ph"></select>
+          <label for="campo-saude">Saúde</label>
+          <input id="campo-saude" type="number" min="0" max="100" step="1">
+        </div>
+        <p class="dica">Os valores andam sozinhos com o tempo; escreva um número para testar.</p>
+      </section>
+
+      <section>
+        <h2>Cuidados</h2>
+        <div class="botoes">
+          <button id="acao-comida">Dar comida</button>
+          <button id="acao-limpar">Limpar aquário</button>
+          <button id="acao-ph">Regular pH</button>
+          <button id="acao-matar">Matar peixe</button>
+        </div>
+        <p class="dica">Fazem o mesmo que o menu do aparelho.</p>
+      </section>
+
+      <section>
+        <h2>Botões do aparelho</h2>
+        <p class="dica">
+          Z = A (abre o menu e confirma) · X = B (volta) · C = C (status)<br>
+          Setas ou WASD: câmera, ou escolher no menu
+        </p>
       </section>
 
       <section>
         <h2>Câmera</h2>
-        <p class="dica">Setas ou WASD</p>
         <p id="camera"></p>
       </section>
 

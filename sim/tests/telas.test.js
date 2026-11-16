@@ -133,3 +133,57 @@ test('desenharTelas: tela do jogo não desenha nada; menu e status sim', () => {
   desenharTelas(msg, ctx);
   assert.ok(contar(msg, 13) > 0);
 });
+
+// --- Game Over -------------------------------------------------------------------------------
+
+import { desenharGameOver } from '../src/render/telas.js';
+import { TELAS } from '../src/core/menu.js';
+
+test('Game Over: cobre a tela, e a mensagem muda conforme a causa da morte', () => {
+  const t = montar();
+  const comCausa = (causa) => {
+    const a = montar();
+    a.aq.matar(a.aq.peixes[0], causa);
+    const q = criarQuadro();
+    desenharGameOver(q, { aquario: a.aq, textos });
+    return q;
+  };
+  const velhice = comCausa('velhice');
+  const cuidado = comCausa('cuidado');
+  assert.equal(contar(velhice, 0), 0, 'cobre a tela inteira');
+  assert.ok(contar(velhice, 10) > 0, 'título em rosa');
+  assert.notDeepEqual(Array.from(velhice), Array.from(cuidado), 'mensagens diferentes');
+  assert.equal(t.aq.causaDoGameOver, null);
+});
+
+test('Game Over: nenhum texto invade a borda da tela', () => {
+  for (const causa of ['velhice', 'cuidado']) {
+    const a = montar();
+    a.aq.matar(a.aq.peixes[0], causa);
+    const q = criarQuadro();
+    desenharGameOver(q, { aquario: a.aq, textos });
+    for (let y = 1; y < ALTURA - 1; y++) {
+      for (const x of [1, 2, LARGURA - 3, LARGURA - 2]) {
+        assert.equal(q[y * LARGURA + x], 13, `${causa}: pixel (${x}, ${y}) deveria ser fundo`);
+      }
+    }
+    // E o texto não passa do rodapé: a última linha de letras termina antes da dica.
+    const brancoAbaixoDe = (limite) => {
+      for (let y = limite; y < ALTURA - 16; y++) for (let x = 0; x < LARGURA; x++) if (q[y * LARGURA + x] === 12) return true;
+      return false;
+    };
+    assert.equal(brancoAbaixoDe(ALTURA - 16), false);
+  }
+});
+
+test('desenharTelas mostra o Game Over quando a tela é a do Game Over', () => {
+  const t = montar();
+  const menu = menuNovo();
+  t.aq.matar(t.aq.peixes[0]);
+  menu.atualizar(6, t.aq);
+  assert.equal(menu.tela, TELAS.GAME_OVER);
+  const q = criarQuadro();
+  desenharTelas(q, { menu, aquario: t.aq, config, textos, agoraMs: 0 });
+  assert.equal(contar(q, 0), 0);
+  assert.ok(contar(q, 10) > 0);
+});

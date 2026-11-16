@@ -64,6 +64,7 @@ const painel = criarPainel({
   clock,
   camera,
   menu,
+  config,
   obterAquario: () => aquario,
   obterPeixe: () => beta,
   aoReiniciar: novoJogo,

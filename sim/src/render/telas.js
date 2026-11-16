@@ -113,10 +113,32 @@ export function desenharStatus(quadro, { aquario, config, textos, agoraMs }) {
   desenharTexto(quadro, t.dica, centralizado(t.dica), ALTURA - 11, DICA);
 }
 
+// --- Game Over ---------------------------------------------------------------------------------
+
+export function desenharGameOver(quadro, { aquario, textos }) {
+  const g = textos.gameOver;
+  preencherRetangulo(quadro, 0, 0, LARGURA, ALTURA, FUNDO_DA_CAIXA);
+  contornoRetangulo(quadro, 0, 0, LARGURA, ALTURA, RUIM);
+
+  desenharTexto(quadro, g.titulo, centralizado(g.titulo, 2), 14, RUIM, 2);
+
+  // A mensagem de condolências depende de como o último peixe morreu.
+  const mensagem = g.condolencias[aquario.causaDoGameOver] ?? g.condolencias.cuidado;
+  quebrarTexto(mensagem, 26).forEach((linha, i) => {
+    desenharTexto(quadro, linha, MARGEM + 2, 42 + i * ALTURA_LINHA, TEXTO);
+  });
+
+  desenharTexto(quadro, g.dica, centralizado(g.dica), ALTURA - 14, DESTAQUE);
+}
+
 // --- Qual tela mostrar -------------------------------------------------------------------------
 
 // Desenha por cima do aquário o que a tela atual pede.
 export function desenharTelas(quadro, { menu, aquario, config, textos, agoraMs }) {
+  if (menu.tela === TELAS.GAME_OVER) {
+    desenharGameOver(quadro, { aquario, textos });
+    return;
+  }
   if (menu.tela === TELAS.STATUS) {
     desenharStatus(quadro, { aquario, config, textos, agoraMs });
     return;
