@@ -17,6 +17,7 @@ import { desenharOvos } from './ovos.js';
 import { desenharCoracoes } from './coracoes.js';
 import { luzDoClima, restaurarPaleta, aplicarLuz } from './luz.js';
 import { desenharCeu } from './ceu.js';
+import { desenharChuva } from './chuva.js';
 import { desenharRaiosDeLuz } from './raios.js';
 import { LARGURA, ALTURA } from './tela.js';
 
@@ -89,6 +90,7 @@ export function desenharQuadro(quadro, {
   desenharPlantas(quadro, plantas, camera, tempo);
   desenharSuperficie(quadro, camera, tempo);
   if (luz) desenharCeu(quadro, camera, luz, tempo); // estrelas de noite e o clarão do relâmpago (depois da superfície, que repinta o ar)
+  if (luz) desenharChuva(quadro, camera, luz.chuvaNivel, tempo); // gotas no ar e anéis na superfície
   desenharFiltro(quadro, camera, tempo);     // caixa, bico e queda d'água, por cima da superfície
   desenharTurvacao(quadro, camera, turvacao, tempo); // a cor da água suja e as partículas: atrás dos peixes
   if (luz && luz.dia > 0.02) desenharRaiosDeLuz(quadro, camera, tempo); // os raios de luz do dia, na água ainda limpa
