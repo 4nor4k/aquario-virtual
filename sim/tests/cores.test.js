@@ -115,7 +115,7 @@ test('o adulto (e o idoso) usam os 8 papéis da cor; todo sprite usa pelo menos 
     for (const papel of PAPEIS_DO_PEIXE) assert.ok(idoso.has(COR.PEIXE[cor].idoso[papel]), `${cor}: o idoso não usa ${papel}`);
     for (const fase of FASES) {
       const todos = new Set(s.normal.beta[fase].quadros.flatMap((q) => [...q]));
-      assert.ok(![...todos].some((c) => c >= 240), `${cor}/${fase}: sobrou molde sem trocar`);
+      assert.ok(![...todos].some((c) => c >= 248), `${cor}/${fase}: sobrou molde sem trocar`);
     }
   }
 });

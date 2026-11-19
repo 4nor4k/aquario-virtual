@@ -94,8 +94,11 @@ não de resolução.
     ilumina.** Como o quadro é indexado, são dois efeitos: (1) no ar e na água pura, um degradê de **7 degraus de
     azul** (`COR.SPOT`, índices 59 a 65); (2) areia, plantas, pedras e água suja dentro do feixe trocam para uma
     **cor gêmea mais clara** (`PAR_CLARO` em `palette.js`, 28 índices a mais; a `luz.js` pinta a gêmea até 75% mais
-    clara que a cor da noite). Preso ao mundo, só existe de noite, mais fraco no relâmpago.
-    **[proposta]** Abertura (meia largura de 100 px no topo e 109 px na areia: o usuário pediu 100 px no topo e +75% na base em 19/11/2026), esmaecimento, azuis do brilho e os 75% são meus.
+    clara que a cor da noite). **Borda suave** (pedido do usuário): as superfícies grandes (areia, pedras, pedra grande,
+    água suja e a alga maior) têm uma **segunda gêmea, intermediária** (`PAR_MEIO`, 35% mais clara), usada na borda do
+    feixe: escuro, meio, claro, em vez de um salto só. As plantas finas ficam só com a gêmea clara. A paleta tem 243 cores
+    e os "moldes" dos sprites foram para 248 a 255 (limite da paleta: 248). Preso ao mundo, só existe de noite, mais fraco no relâmpago.
+    **[proposta]** Abertura (meia largura de 50 px no topo e 109 px na areia: o usuário foi pedindo +200% e depois 100 px no topo, +75% na base, e por fim 50 px no topo, em 19/11/2026), esmaecimento, azuis do brilho e os 75% são meus.
   - **[fechado]** **O peixe não muda com a hora**: as cores do peixe ficam de fora da troca de paleta, iguais de dia, de
     noite, na chuva e no relâmpago (`SEM_TOM` em `luz.js`).
   - **Chuva**: 130 gotas (risquinho de 3 px, `#8fb4d8`) no ar e anéis na linha da água, presas ao mundo.

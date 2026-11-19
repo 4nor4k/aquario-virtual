@@ -4,20 +4,22 @@
 // para o fundo, sem contorno duro. Dois efeitos:
 //   1. no ar e na água pura (cor 1) pinta um degradê de 7 degraus de azul (COR.SPOT);
 //   2. onde o feixe ilumina, as cores do cenário (areia, plantas, pedras, água suja...) trocam para a gêmea
-//      mais clara (PAR_CLARO, palette.js): o que está na luz fica mais claro que o que está fora dela.
+//      mais clara (PAR_CLARO, palette.js): o que está na luz fica mais claro que o que está fora dela. Na borda
+//      do feixe as superfícies grandes passam antes por uma gêmea INTERMEDIÁRIA (PAR_MEIO): luz suave, sem salto.
 // Os peixes não mudam (nem as estrelas, a chuva, os ovos...). Só existe de noite: as cores são calculadas pela
 // luz.js (de dia o brilho é preto e as gêmeas são iguais às originais), por isso nem se desenha de dia.
 // O feixe fica preso ao MUNDO (no meio do aquário), então anda na tela junto com a câmera.
 import { AREIA_Y, MUNDO_LARGURA, MUNDO_ALTURA } from '../core/mundo.js';
 import { LARGURA, ALTURA } from './tela.js';
-import { COR, PAR_CLARO } from './palette.js';
+import { COR, PAR_CLARO, PAR_MEIO } from './palette.js';
 
 export const SPOT_X = MUNDO_LARGURA / 2;  // o centro do topo
-export const ABERTURA_NO_TOPO = 100;      // meia largura do brilho no topo do aquário (era 5, depois 15; 100 a pedido do usuário)
+export const ABERTURA_NO_TOPO = 50;       // meia largura do brilho no topo do aquário (era 5, depois 15 e 100; 50 a pedido do usuário)
 export const ABERTURA_NO_FUNDO = 109;     // meia largura do brilho na areia (era 62; +75% a pedido do usuário)
 export const ESMAECER_NO_FUNDO = 0.45;    // quanto o brilho perde da força do topo até a areia
 export const NIVEIS = COR.SPOT.length;    // degraus do degradê
-export const LIMITE_DO_CENARIO = 0.3;     // a partir desta intensidade (0 a 1) o cenário fica "iluminado"
+export const LIMITE_DO_CENARIO = 0.3;     // a partir desta intensidade (0 a 1) o cenário fica bem "iluminado"
+export const LIMITE_DA_BORDA = 0.08;      // a partir desta, as superfícies grandes ficam "meio iluminadas" (borda suave)
 
 // A intensidade do brilho (0 a 1) no ponto (wx, wy) do mundo: 1 no centro do topo, 0 fora do cone.
 export function intensidadeDoSpot(wx, wy) {
@@ -46,6 +48,7 @@ export function desenharSpot(quadro, camera) {
       const cor = quadro[i];
       if (cor === COR.AGUA) quadro[i] = COR.SPOT[degrau - 1];
       else if (forca >= LIMITE_DO_CENARIO && PAR_CLARO.has(cor)) quadro[i] = PAR_CLARO.get(cor);
+      else if (forca >= LIMITE_DA_BORDA && PAR_MEIO.has(cor)) quadro[i] = PAR_MEIO.get(cor);
     }
   }
 }

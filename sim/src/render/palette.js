@@ -302,6 +302,15 @@ for (const [nome, base] of Object.entries(TONS_DAS_CORES)) {
 export const PAR_CLARO = new Map();
 {
   const doCenario = [2, 3, 4, 5, 6, 7, 8, 9, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
-    36, 37, 38, 39, 40, 41, 42, 43, 48];
+    36, 37, 38, 39, 40, 41, 48];
   for (const i of doCenario) PAR_CLARO.set(i, registrar([...PALETA[i]]));
+}
+
+// Para suavizar a borda da luz, as superfícies grandes (areia, pedras, pedra grande, água suja e a alga
+// maior) ganham uma segunda gêmea, de claridade INTERMEDIÁRIA: na borda do feixe elas passam por dois
+// degraus (escuro, meio, claro) em vez de um salto só. As plantas finas ficam só com a gêmea clara.
+export const PAR_MEIO = new Map();
+{
+  const grandes = [6, 7, 24, 25, 26, 8, 9, 2, 3, 48, 36, 37, 38, 39, 40, 41, 4];
+  for (const i of grandes) PAR_MEIO.set(i, registrar([...PALETA[i]]));
 }

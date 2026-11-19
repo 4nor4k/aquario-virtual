@@ -14,7 +14,7 @@ import { gerarMapa } from '../src/render/cenario.js';
 import { gerarFundo } from '../src/render/fundo.js';
 import { criarCamera } from '../src/render/camera.js';
 import { criarQuadro, LARGURA, ALTURA, COR_SOLIDA } from '../src/render/tela.js';
-import { PALETA, COR, COLORIDOS, PAR_CLARO } from '../src/render/palette.js';
+import { PALETA, COR, COLORIDOS, PAR_CLARO, PAR_MEIO } from '../src/render/palette.js';
 import { SUPERFICIE_Y, MUNDO_LARGURA, MUNDO_ALTURA } from '../src/core/mundo.js';
 import { config } from './ajuda.js';
 
@@ -290,7 +290,7 @@ test('spot: no cenário troca só pela cor iluminada (gêmea); peixe, ovo e chuv
   for (const dx of [10, 11, 12]) assert.equal(q[60 * LARGURA + x0 + dx], antes[60 * LARGURA + x0 + dx]);
   const longe = criarQuadro().fill(COR.PEDRA);
   desenharSpot(longe, camera(0, 0)); // com a câmera em x=0 o feixe passa a 120 px: fora da tela, a cor 0 fica
-  assert.equal(contar(longe, COR.PEDRA) + contar(longe, PAR_CLARO.get(COR.PEDRA)), LARGURA * ALTURA);
+  assert.equal(contar(longe, COR.PEDRA) + contar(longe, PAR_CLARO.get(COR.PEDRA)) + contar(longe, PAR_MEIO.get(COR.PEDRA)), LARGURA * ALTURA);
   assert.equal(longe[60 * LARGURA + 0], COR.PEDRA);
 });
 
@@ -316,6 +316,37 @@ test('spot: só existe de noite (o brilho é preto de dia, e a gêmea clara só 
   restaurarPaleta();
   aplicarLuz(luzDoClima({ horaMin: H(2), raio: 1 }, horas));
   assert.ok(claro(PALETA[COR.SPOT[6]]) < claro(ORIGINAL[COR.SPOT[6]]), 'no relâmpago o brilho fica mais fraco');
+  limpar();
+});
+
+test('spot: a borda da luz é suave: areia e pedras passam por um degrau intermediário entre escuro e iluminado', () => {
+  limpar();
+  // Uma linha de areia na altura 100 cortando o feixe de ponta a ponta (câmera no meio).
+  const q = criarQuadro().fill(COR.AREIA);
+  desenharSpot(q, camera(60, 32));
+  const meio = PAR_MEIO.get(COR.AREIA);
+  const forte = PAR_CLARO.get(COR.AREIA);
+  assert.ok(contar(q, meio) > 20, 'há areia meio iluminada');
+  assert.ok(contar(q, forte) > contar(q, meio), 'e mais areia bem iluminada do que meio iluminada');
+  // Nenhuma areia meio iluminada encosta direto na escura sem passar... (a ordem de fora para dentro é escura, meio, forte).
+  for (let y = 0; y < ALTURA; y++) {
+    const linha = Array.from(q.slice(y * LARGURA, (y + 1) * LARGURA));
+    const esquerda = linha.slice(0, linha.length / 2);
+    for (let x = 1; x < esquerda.length; x++) {
+      assert.ok(!(esquerda[x - 1] === COR.AREIA && esquerda[x] === forte), 'sem salto direto da escura para a forte');
+    }
+  }
+  // A cor do meio fica entre a escura e a forte, de noite.
+  restaurarPaleta();
+  aplicarCores(0);
+  aplicarLuz(luzDoClima({ horaMin: H(2) }, horas));
+  const [a, m, f] = [COR.AREIA, meio, forte].map((c) => claro(PALETA[c]));
+  assert.ok(a < m && m < f, 'escura < meio < forte');
+  // De dia as três são iguais.
+  restaurarPaleta();
+  aplicarCores(0);
+  aplicarLuz(luzDoClima({ horaMin: H(12) }, horas));
+  assert.deepEqual(PALETA[meio], PALETA[COR.AREIA]);
   limpar();
 });
 

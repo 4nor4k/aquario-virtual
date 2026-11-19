@@ -71,8 +71,8 @@ test('tons: a água é preto sólido; texto e HUD seguem branco sólido; areia e
 });
 
 test('paleta: uma cor e um tom por índice, e os desenhos guardados (hex) só usam 0 a 15 ou as letras extras', () => {
-  assert.equal(PALETA.length, 66 + 28 + 5 * 3 + 5 * 24,
-    '66 fixas (e 28 gêmeas claras do spot) (com o turvo, a água suja, o bolor, a comida, o cocô, o ovo, o coração, o clima e o brilho do spot) + 5 papéis a mais nos 3 estados do vermelho + 8 papéis × 3 estados em cada uma das 5 cores novas');
+  assert.equal(PALETA.length, 66 + 26 + 17 + 5 * 3 + 5 * 24,
+    '66 fixas (e 26 gêmeas claras e 17 intermediárias do spot) (com o turvo, a água suja, o bolor, a comida, o cocô, o ovo, o coração, o clima e o brilho do spot) + 5 papéis a mais nos 3 estados do vermelho + 8 papéis × 3 estados em cada uma das 5 cores novas');
   assert.equal(TONS.length, PALETA.length);
   assert.ok(COLORIDOS.every((i) => i >= 0 && i < PALETA.length));
   assert.equal(new Set(COLORIDOS).size, COLORIDOS.length, 'sem índice repetido');

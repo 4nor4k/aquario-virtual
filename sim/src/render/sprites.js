@@ -20,10 +20,10 @@
 import { LARGURA, ALTURA } from './tela.js';
 import { COR, PAPEIS_DO_PEIXE, PALETA } from './palette.js';
 
-// Papel de cada letra, como "molde": números FORA da paleta (a paleta tem menos de 250 cores),
+// Papel de cada letra, como "molde": números FORA da paleta (a paleta tem menos de 248 cores),
 // que na montagem viram os tons da cor do peixe. O olho (12) e a pupila (13) já são cores finais.
-const MOLDE = { e: 240, l: 241, s: 242, a: 243, f: 244, b: 245, o: 246, h: 247, c: 12, d: 13 };
-const PAPEL_DO_MOLDE = { 240: 'corpo', 241: 'brilho', 242: 'sombra', 243: 'nadadeira', 244: 'clara', 245: 'borda', 246: 'contorno', 247: 'destaque' };
+const MOLDE = { e: 248, l: 249, s: 250, a: 251, f: 252, b: 253, o: 254, h: 255, c: 12, d: 13 };
+const PAPEL_DO_MOLDE = { 248: 'corpo', 249: 'brilho', 250: 'sombra', 251: 'nadadeira', 252: 'clara', 253: 'borda', 254: 'contorno', 255: 'destaque' };
 
 const CORPO_ADULTO = [
   '................................',
@@ -253,8 +253,8 @@ function montarCor(cor) {
   return { normal, doente: variar(normal, trocas.doente), morto: variar(normal, trocas.idoso) };
 }
 
-// Os moldes (240 a 247) precisam ficar fora da paleta, senão se confundem com cores de verdade.
-if (PALETA.length >= 240) throw new Error('palette: a PALETA chegou a 240 cores; mude os moldes de sprites.js');
+// Os moldes (248 a 255) precisam ficar fora da paleta, senão se confundem com cores de verdade.
+if (PALETA.length >= 248) throw new Error('palette: a PALETA chegou a 248 cores; mude os moldes de sprites.js');
 
 // As cores que existem e o que foi montado para cada uma (montado uma vez, ao abrir).
 export const CORES_DO_PEIXE = Object.keys(COR.PEIXE);
