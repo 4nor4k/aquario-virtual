@@ -8,7 +8,7 @@ import { OVO_Y_AREIA } from './reproducao.js';
 
 export const VERSAO_DO_SALVAMENTO = 1;
 // No máximo 5 peixes VIVOS (mais os ovos) ao mesmo tempo: o número está em config.reproducao.limiteDePeixes.
-// Na lista cabem também os mortos que ainda não sumiram (12 h depois de morrer).
+// Na lista cabem também os mortos que ainda não sumiram (1 min depois de morrer).
 export const MAXIMO_NA_LISTA = 20;
 const MAXIMO_DE_OVOS = 5;
 const MAXIMO_DE_PENDENTES = 200; // cada grão comido vira uma entrada e some em ~6 h
@@ -133,7 +133,7 @@ export function importarJogo(dados, { config, semente = 1 }) {
       estado,
       causaDaMorte,
       nascimentoMs: numero(p.nascimentoMs, `${rotulo}.nascimentoMs`),
-      // Sem a hora da morte (arquivo antigo), vale a hora da gravação: o morto some 12 h depois dela.
+      // Sem a hora da morte (arquivo antigo), vale a hora da gravação: o morto some 1 min depois dela.
       morteMs: estado !== 'morto' ? null : (p.morteMs === undefined || p.morteMs === null ? tempoJogoMs : numero(p.morteMs, `${rotulo}.morteMs`, 0)),
       x: numero(p.x, `${rotulo}.x`),
       y: numero(p.y, `${rotulo}.y`),

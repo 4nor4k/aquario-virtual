@@ -117,9 +117,10 @@ export function eclodirOvos(aquario, agoraMs, config) {
   }
 }
 
-// O morto que já passou tempo demais some sozinho (tempo de jogo).
+// O peixe morto é retirado do aquário 1 minuto depois de morrer (tempo de jogo): tempo de sobra para
+// ele boiar até a superfície e para você ver o que houve. O "Limpar" retira na hora.
 export function removerMortosAntigos(aquario, agoraMs, config) {
-  const limite = config.reproducao.morteSomeEmHoras * HORA_MS;
+  const limite = config.reproducao.morteSomeEmMin * MINUTO_MS;
   for (const peixe of [...aquario.peixes]) {
     if (peixe.estado === 'morto' && peixe.morteMs !== null && agoraMs - peixe.morteMs >= limite) {
       aquario.removerPeixe(peixe);

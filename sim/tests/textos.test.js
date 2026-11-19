@@ -50,7 +50,7 @@ test('existe texto para toda fase, estado, causa de morte e nota de pH', () => {
 
 test('as mensagens curtas cabem em até 3 linhas no rodapé (26 letras por linha)', () => {
   for (const [nome, texto] of frases(textos.mensagens)) {
-    const linhas = quebrarTexto(preencher(texto, { ph: '7,5' }), 26);
+    const linhas = quebrarTexto(preencher(texto, { ph: '7,5', nome: 'Doze letras' }), 26);
     assert.ok(linhas.length <= 3, `${nome}: ${linhas.length} linhas`);
   }
 });

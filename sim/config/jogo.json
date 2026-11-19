@@ -56,7 +56,7 @@
     "eclosaoMin": 60,
     "namoroSegundos": 6,
     "velocidadeQuedaOvo": 9,
-    "morteSomeEmHoras": 12,
+    "morteSomeEmMin": 1,
     "nomeDoFilhote": "Filhote"
   },
 

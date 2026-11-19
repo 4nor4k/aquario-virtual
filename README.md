@@ -38,7 +38,7 @@ Depois abra **http://localhost:8080** no navegador. Para parar, use `Ctrl+C` no 
   **ovos** que caem na areia e **eclodem em 1 hora**. O filhote tem a cor de um dos pais, sexo
   sorteado e se chama "Filhote 1", "Filhote 2"... (renomeie pelo painel). Com o jogo fechado, o
   namoro e a eclosão também acontecem.
-- **Peixe morto** sai com "Limpar aquário" ou some sozinho 12 h depois. Ovos seguram o Game Over.
+- **Peixe morto** sai com "Limpar aquário" ou é retirado sozinho 1 minuto depois de morrer (aparece "Fulano morreu"). Ovos seguram o Game Over.
 - No painel: seletor de peixe, **Adotar parceiro** e **Forçar namoro** (para testar sem esperar).
 
 ### v0.3: o aquário dura de verdade

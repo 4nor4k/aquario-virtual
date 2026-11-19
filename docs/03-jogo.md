@@ -162,7 +162,7 @@ deixado descendentes, é Game Over.
   **cortada pelo que cabe**; com 5, a reprodução espera abrir vaga.
 - O **filhote** tem a cor de **um dos pais** (sorteio) e sexo sorteado; nome "Filhote 1",
   "Filhote 2"... até ser renomeado.
-- **Peixe morto**: "Limpar" o retira; se ninguém limpar, **some sozinho 12 h depois** de morrer.
+- **Peixe morto**: "Limpar" o retira; se ninguém limpar, ele é **retirado 1 minuto depois** de morrer (tempo de boiar até a superfície; o usuário pediu em 19/11/2026 que o morto saia do aquário, no lugar das 12 h do plano). Avisa "Fulano morreu" na tela.
   Morto não conta no limite de 5.
 - **Ovos seguram o Game Over**: só é Game Over sem peixe vivo **e sem ovo**.
 - O **sexo** só aparece em texto (tela de status e painel), quando o peixe vira adulto.

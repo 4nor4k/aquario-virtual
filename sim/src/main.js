@@ -21,6 +21,7 @@ import { exportarJogo, importarJogo, ErroDeSalvamento } from './core/salvar.js';
 import { calcularAusencia, aplicarAusencia } from './core/ausencia.js';
 import { criarArmazenamento } from './sim/armazenamento.js';
 import { caracteresSemGlifo } from './render/fonte.js';
+import { preencher } from './core/formatar.js';
 
 const PASSO_MS = 50;           // passo fixo: 20 por segundo (igual no ESP32)
 const VELOCIDADE_CAMERA = 60;  // pixels por segundo
@@ -252,6 +253,11 @@ function mostrarAvisosDoCore() {
   for (const evento of aquario.eventos.retirar()) {
     if (evento.tipo === 'reproducao') menu.avisar(textos.mensagens.namoro);
     else if (evento.tipo === 'nasceu') menu.avisar(textos.mensagens.nasceu);
+    else if (evento.tipo === 'morreu' && !aquario.gameOver) {
+      // O morto sai logo do aquário, então avisa quem foi (no Game Over a tela já diz tudo).
+      const peixe = aquario.peixePorId(evento.peixeId);
+      if (peixe) menu.avisar(preencher(textos.mensagens.morreu, { nome: peixe.nome }));
+    }
   }
 }
 

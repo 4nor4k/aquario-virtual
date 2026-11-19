@@ -101,7 +101,7 @@ contagem de 30 min continua e ela acontece quando abrir vaga). Assim nenhum ovo 
 ### Peixes mortos [proposta]
 Hoje o peixe morto fica boiando para sempre, o que não faz sentido com vários peixes.
 - A ação **Limpar** do menu passa a **retirar os mortos** (além de zerar a sujeira).
-- Se você não limpar, o morto **some sozinho 12 h depois** de morrer (tempo do jogo).
+- Se você não limpar, o morto **some sozinho 1 minuto depois** de morrer (tempo do jogo). *Eram 12 h; o usuário pediu em 19/11/2026 que o morto seja retirado do aquário, e o tempo caiu para 1 minuto.*
 - Peixe morto **não conta** no limite de 5.
 
 ### Game Over [proposta]
@@ -171,7 +171,7 @@ bytes); o limite de 5 mantém o desenho dentro do que o aparelho aguenta.
 | `eclosaoMin` | 60 | `03` **[fechado]** |
 | `namoroSegundos` | 6 | meu |
 | `limiteDePeixes` | 5 | `03` **[fechado]** |
-| `morteSomeEmHoras` | 12 | meu |
+| `morteSomeEmMin` | 1 (era 12 h) | meu; mudado a pedido do usuário |
 
 ## 9. Decisões
 

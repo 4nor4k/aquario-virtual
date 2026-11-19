@@ -112,16 +112,41 @@ test('casal: quando um dos dois morre, o outro fica livre para ganhar outro parc
 
 // --- Mortos ----------------------------------------------------------------------------------
 
-test('morto: some sozinho 12 h depois de morrer', () => {
+test('morto: é retirado do aquário 1 minuto depois de morrer', () => {
   const { aq, passar, agora } = casalBem();
   passar(1);
   const morto = aq.peixes[0];
   aq.matar(morto);
   assert.equal(morto.morteMs, agora());
-  passar(11);
-  assert.ok(aq.peixes.includes(morto), 'em 11 h ainda está lá');
-  passar(1.1);
-  assert.ok(!aq.peixes.includes(morto), 'em 12 h some');
+  assert.equal(config.reproducao.morteSomeEmMin, 1);
+  passar(0.5 / 60); // 30 s
+  assert.ok(aq.peixes.includes(morto), 'em 30 s ainda está boiando');
+  passar(0.6 / 60); // passou de 1 min
+  assert.ok(!aq.peixes.includes(morto), 'passado 1 minuto, saiu');
+  assert.equal(aq.peixes.length, 1);
+  assert.equal(aq.casais.length, 0);
+});
+
+test('morto: o último peixe (Game Over) fica na tela, e o morto de um aquário com outros sai mesmo assim', () => {
+  const { aq, passar } = casalBem();
+  const [a, b] = aq.peixes;
+  aq.matar(a);
+  passar(0.05);
+  assert.ok(!aq.peixes.includes(a));
+  aq.matar(b); // o último
+  assert.equal(aq.gameOver, true);
+  passar(1);
+  assert.ok(aq.peixes.includes(b), 'no Game Over as regras congelam e o peixe fica para a tela');
+});
+
+test('morto: se estava no foco, o foco vai para um vivo e o seletor não fica com peixe que sumiu', () => {
+  const { aq, passar } = casalBem();
+  aq.adicionarPeixe({ fase: 'filhote' }, 0);
+  const morto = aq.peixes[0];
+  aq.matar(morto);
+  passar(0.05);
+  assert.ok(aq.peixes.every((p) => p.estado !== 'morto'));
+  assert.equal(aq.vivos().length, aq.peixes.length);
 });
 
 test('"Limpar" retira os mortos, menos no Game Over', () => {
