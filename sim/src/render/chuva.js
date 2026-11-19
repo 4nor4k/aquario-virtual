@@ -42,7 +42,7 @@ export function estadoDaGota(k, tempo) {
 
 // O ar é a cor 1 (ou, no relâmpago, a cor do céu); a água é a cor 1, a água suja ou o raio de luz.
 const E_AR = (c) => c === COR.AGUA || c === COR.CEU_RELAMPAGO;
-const E_AGUA = (c) => c === COR.AGUA || c === COR.AGUA_SUJA || c === COR.RAIO_DE_LUZ;
+const E_AGUA = (c) => c === COR.AGUA || c === COR.AGUA_SUJA;
 
 // chuvaNivel: 0 a 1 (de core/clima.js). Chame depois da superfície e do céu.
 export function desenharChuva(quadro, camera, chuvaNivel, tempo = 0) {

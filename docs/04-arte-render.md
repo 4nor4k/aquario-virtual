@@ -86,11 +86,10 @@ não de resolução.
     reescreve água e areia, aplicar a luz.
   - **Estrelas** (28, aparecem uma a uma ao escurecer, piscam, somem na chuva) e o **clarão do relâmpago** (o ar
     fica azul-claro `#7890d0`, o cenário clareia) são desenhados **depois** da superfície, que repinta o ar de preto.
-  - **Reflexos de vidro** (eram "raios de sol"; o usuário disse que não precisa de sol, mas gostou do efeito de vidro e
-    pediu para manter assim): 3 faixas inclinadas de `#0a223a`, só de dia, só na água pura, balançam; `render/raios.js`.
-  - **[fechado]** **Spot da noite** (pedido do usuário em 19/11/2026): de noite, um feixe sai do **centro do topo** e abre em
+  - **[fechado]** **Sem raios de sol** (o usuário pediu para tirar, 19/11/2026): `render/raios.js` foi apagado.
+  - **[fechado]** **Spot da noite** (pedido do usuário em 19/11/2026): de noite, um feixe sai do **centro do topo do aquário** (linha 0 do mundo, em cima do ar, não da superfície da água) e abre em
     **cone** para baixo, como o spot de uma lâmpada (`render/spot.js`; halo `#0f2c4e` e miolo `#1b4d7c`, cor sólida, sem
-    pontilhado). Preso ao mundo (no meio do aquário), só pinta água pura, acende ao escurecer e fica mais fraco no
+    pontilhado). Preso ao mundo (no meio do aquário), só pinta ar e água puros, acende ao escurecer e fica mais fraco no
     relâmpago. **[proposta]** Abertura (3 px no topo, 50 px na areia) e as duas cores são minhas.
   - **[fechado]** **O peixe não muda com a hora**: as cores do peixe ficam de fora da troca de paleta, iguais de dia, de
     noite, na chuva e no relâmpago (`SEM_TOM` em `luz.js`).
