@@ -135,3 +135,47 @@ export const COR = {
   // A pedra grande do fundo e o musgo dela.
   PEDRA_GRANDE: { base: 36, clara: 37, escura: 38, rachadura: 39, musgo: 40, musgoClaro: 41 },
 };
+
+// --- As cores do peixe (doc 09, seção 5) ---------------------------------------------------------
+// O vermelho é o de sempre (tons escolhidos à mão, índices 27 a 35). As outras cores têm só 3 tons
+// escolhidos (corpo, nadadeira/cauda e borda da cauda); o tom de IDOSO (apagado) e de DOENTE
+// (pálido) sai por conta, a partir deles, e entra no fim da PALETA, depois do índice 41.
+// Para acrescentar uma cor: ponha o nome em config/jogo.json ("cores") e os 3 tons aqui.
+const TONS_DAS_CORES = {
+  azul:    { corpo: [0x2f, 0x5f, 0xc0], nadadeira: [0x5a, 0x8c, 0xf0], borda: [0x9f, 0xc4, 0xff] },
+  roxo:    { corpo: [0x7a, 0x3f, 0xb5], nadadeira: [0xa3, 0x6b, 0xe0], borda: [0xd1, 0xaa, 0xf5] },
+  laranja: { corpo: [0xd9, 0x74, 0x1a], nadadeira: [0xf2, 0x9a, 0x3d], borda: [0xff, 0xd0, 0x8a] },
+  verde:   { corpo: [0x3a, 0xa6, 0x4a], nadadeira: [0x5f, 0xc8, 0x6a], borda: [0xb0, 0xea, 0xa6] },
+  rosa:    { corpo: [0xd9, 0x4f, 0x9a], nadadeira: [0xf2, 0x7a, 0xb8], borda: [0xff, 0xbf, 0xe0] },
+};
+
+const misturar = (a, b, parte) => a.map((v, i) => Math.round(v * (1 - parte) + b[i] * parte));
+const brilho = (c) => Math.round(0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]);
+// Idoso: metade do caminho até o cinza de mesmo brilho, um pouco mais escuro.
+const apagar = (c) => misturar(c, [brilho(c), brilho(c), brilho(c)], 0.5).map((v) => Math.round(v * 0.93));
+// Doente: quase todo o caminho até um bege claro.
+const empalidecer = (c) => misturar(c, [212, 196, 188], 0.75);
+
+// Põe uma cor na PALETA (como cor sólida, sem dithering) e devolve o índice dela.
+function registrar(rgb) {
+  PALETA.push(rgb);
+  TONS.push(16);
+  const indice = PALETA.length - 1;
+  COLORIDOS.push(indice);
+  return indice;
+}
+
+const registrarTons = (t) => ({
+  corpo: registrar(t.corpo), nadadeira: registrar(t.nadadeira), borda: registrar(t.borda),
+});
+const transformar = (tons, f) => ({ corpo: f(tons.corpo), nadadeira: f(tons.nadadeira), borda: f(tons.borda) });
+
+// COR.PEIXE[cor] = { vivo, idoso, doente }, cada um com { corpo, nadadeira, borda } (índices).
+COR.PEIXE = { vermelho: { vivo: COR.BETA, idoso: COR.BETA_IDOSO, doente: COR.BETA_DOENTE } };
+for (const [nome, tons] of Object.entries(TONS_DAS_CORES)) {
+  COR.PEIXE[nome] = {
+    vivo: registrarTons(tons),
+    idoso: registrarTons(transformar(tons, apagar)),
+    doente: registrarTons(transformar(tons, empalidecer)),
+  };
+}

@@ -255,3 +255,10 @@ A confirmar (a recomendação vem primeiro; se nada for dito, entra a recomenda�
   mensagem, mesmo que `ausenciaMaximaHoras` limite o que conta. Conferido no navegador: 5 h 20 min
   fora (saciedade 100 -> 89, sujeira 0 -> 6, relógio em 05:20) e 5 dias fora ("Você ficou fora
   por 5 dias. Seu peixe não resistiu.", A leva ao Game Over).
+- **Passo 4 (cores) feito em 2026-11-19:** seis cores (vermelho, azul, roxo, laranja, verde, rosa).
+  O vermelho mantém os tons de antes (índices 27 a 35); as outras têm 3 tons escolhidos em
+  `palette.js` (`TONS_DAS_CORES`) e os tons de idoso e doente saem por cálculo, entrando na
+  paleta depois do índice 41 (agora 87 entradas). `sprites.js` monta tudo uma vez ao abrir
+  (`spritesDaCor`, `spriteDoPeixe` escolhe pela cor); `SPRITES`, `SPRITES_DOENTES` e
+  `SPRITES_MORTOS` continuam existindo e são os do vermelho. Os tons são **provisórios**, para
+  o usuário refinar.

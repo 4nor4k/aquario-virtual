@@ -3,8 +3,8 @@
 // Cada letra é uma cor da paleta (palette.js), em hexadecimal, usada como "molde":
 //   .  transparente      e  corpo      a  nadadeiras e cauda
 //   b  borda da cauda    c  branco (olho)    d  escuro (pupila)
-// Na hora de montar, o corpo (e), as nadadeiras (a) e a borda (b) viram tons de vermelho
-// (CORES_DO_BETA); o olho e a pupila ficam como estão.
+// Na hora de montar, o corpo (e), as nadadeiras (a) e a borda (b) viram os tons da cor do peixe
+// (vermelho, azul...; veja COR.PEIXE em palette.js); o olho e a pupila ficam como estão.
 //
 // O desenho é virado para a DIREITA. Quando o peixe nada para a esquerda, o sprite é espelhado.
 // Cada tamanho (filhote, jovem, adulto) tem:
@@ -145,59 +145,67 @@ function recolorir(sprite, trocas) {
   };
 }
 
-// O beta saudável: do molde (14 corpo, 10 nadadeira, 11 borda) para os vermelhos (27, 28, 29).
-const CORES_DO_BETA = {
-  14: COR.BETA.corpo, 10: COR.BETA.nadadeira, 11: COR.BETA.borda,
-};
-
-// Idoso (e morto): o mesmo desenho do adulto, com o vermelho apagado.
-const CORES_DO_IDOSO = {
-  [COR.BETA.corpo]: COR.BETA_IDOSO.corpo,
-  [COR.BETA.nadadeira]: COR.BETA_IDOSO.nadadeira,
-  [COR.BETA.borda]: COR.BETA_IDOSO.borda,
-};
-
-// Doente: vermelho pálido, desbotado. Também troca as cores do idoso, para o idoso doente
-// continuar parecendo doente.
-const CORES_DO_DOENTE = {
-  [COR.BETA.corpo]: COR.BETA_DOENTE.corpo,
-  [COR.BETA.nadadeira]: COR.BETA_DOENTE.nadadeira,
-  [COR.BETA.borda]: COR.BETA_DOENTE.borda,
-  [COR.BETA_IDOSO.corpo]: COR.BETA_DOENTE.corpo,
-  [COR.BETA_IDOSO.nadadeira]: COR.BETA_DOENTE.nadadeira,
-  [COR.BETA_IDOSO.borda]: COR.BETA_DOENTE.borda,
-};
-
-// O desenho do beta já nas cores vermelhas.
-const betaVermelho = (corpo, cauda) => recolorir(montarSprite(corpo, cauda), CORES_DO_BETA);
-
-// Sprites por espécie e fase.
-const ADULTO = betaVermelho(CORPO_ADULTO, CAUDA_ADULTO);
-export const SPRITES = {
-  beta: {
-    filhote: betaVermelho(CORPO_FILHOTE, CAUDA_FILHOTE),
-    jovem: betaVermelho(CORPO_JOVEM, CAUDA_JOVEM),
-    adulto: ADULTO,
-    idoso: recolorir(ADULTO, CORES_DO_IDOSO),
-  },
-};
+// As trocas de cor de uma cor do peixe (COR.PEIXE em palette.js), em números da paleta:
+//   vivo:   do molde (14 corpo, 10 nadadeira, 11 borda) para os tons da cor;
+//   idoso:  os tons da cor viram os apagados (é assim que o idoso e o morto ficam "apagados");
+//   doente: pálido; também troca os do idoso, para o idoso doente continuar parecendo doente.
+function trocasDaCor(p) {
+  return {
+    vivo: { 14: p.vivo.corpo, 10: p.vivo.nadadeira, 11: p.vivo.borda },
+    idoso: {
+      [p.vivo.corpo]: p.idoso.corpo, [p.vivo.nadadeira]: p.idoso.nadadeira, [p.vivo.borda]: p.idoso.borda,
+    },
+    doente: {
+      [p.vivo.corpo]: p.doente.corpo, [p.vivo.nadadeira]: p.doente.nadadeira, [p.vivo.borda]: p.doente.borda,
+      [p.idoso.corpo]: p.doente.corpo, [p.idoso.nadadeira]: p.doente.nadadeira, [p.idoso.borda]: p.doente.borda,
+    },
+  };
+}
 
 // Mesmos desenhos nas variações de saúde: nenhum desenho novo, só troca de cores.
-const variar = (trocas) => Object.fromEntries(
-  Object.entries(SPRITES).map(([especie, fases]) => [
+const variar = (porEspecie, trocas) => Object.fromEntries(
+  Object.entries(porEspecie).map(([especie, fases]) => [
     especie,
     Object.fromEntries(Object.entries(fases).map(([fase, s]) => [fase, recolorir(s, trocas)])),
   ]),
 );
-export const SPRITES_DOENTES = variar(CORES_DO_DOENTE);
-export const SPRITES_MORTOS = variar(CORES_DO_IDOSO); // apagado, como o idoso
 
-// Qual sprite usar para o peixe agora, e se deve ser desenhado de cabeça para baixo
-// (o morto boia de barriga para cima).
+// Todos os sprites de uma cor: { normal, doente, morto }, cada um por espécie e fase.
+function montarCor(cor) {
+  const trocas = trocasDaCor(COR.PEIXE[cor]);
+  const pintar = (corpo, cauda) => recolorir(montarSprite(corpo, cauda), trocas.vivo);
+  const ADULTO = pintar(CORPO_ADULTO, CAUDA_ADULTO);
+  const normal = {
+    beta: {
+      filhote: pintar(CORPO_FILHOTE, CAUDA_FILHOTE),
+      jovem: pintar(CORPO_JOVEM, CAUDA_JOVEM),
+      adulto: ADULTO,
+      idoso: recolorir(ADULTO, trocas.idoso),
+    },
+  };
+  return { normal, doente: variar(normal, trocas.doente), morto: variar(normal, trocas.idoso) };
+}
+
+// As cores que existem e o que foi montado para cada uma (montado uma vez, ao abrir).
+export const CORES_DO_PEIXE = Object.keys(COR.PEIXE);
+const POR_COR = Object.fromEntries(CORES_DO_PEIXE.map((cor) => [cor, montarCor(cor)]));
+
+export function spritesDaCor(cor) {
+  const s = POR_COR[cor];
+  if (!s) throw new RangeError(`cor de peixe desconhecida: ${cor}`);
+  return s;
+}
+
+// O beta vermelho (a cor de sempre), por espécie e fase.
+export const SPRITES = POR_COR.vermelho.normal;
+export const SPRITES_DOENTES = POR_COR.vermelho.doente;
+export const SPRITES_MORTOS = POR_COR.vermelho.morto; // apagado, como o idoso
+
+// Qual sprite usar para o peixe agora (pela cor, espécie, fase e saúde), e se deve ser desenhado
+// de cabeça para baixo (o morto boia de barriga para cima).
 export function spriteDoPeixe(peixe) {
-  const grupo = peixe.estado === 'morto' ? SPRITES_MORTOS
-    : peixe.estado === 'doente' ? SPRITES_DOENTES
-      : SPRITES;
+  const s = spritesDaCor(peixe.cor);
+  const grupo = peixe.estado === 'morto' ? s.morto : peixe.estado === 'doente' ? s.doente : s.normal;
   return { sprite: grupo[peixe.especie][peixe.fase], inverter: peixe.estado === 'morto' };
 }
 
