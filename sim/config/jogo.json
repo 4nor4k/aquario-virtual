@@ -60,6 +60,17 @@
     "nomeDoFilhote": "Filhote"
   },
 
+  "clima": {
+    "friaAbaixoDe": 18,
+    "horas": { "amanhecer": 5.5, "dia": 6.5, "entardecer": 17.5, "noite": 18.5 },
+    "temperaturaMedia": 22,
+    "temperaturaAmplitude": 6,
+    "temperaturaVariacao": 1.5,
+    "chuva": { "semChuvaMinSeg": 300, "semChuvaMaxSeg": 1200, "duracaoMinSeg": 60, "duracaoMaxSeg": 240, "segundosParaMudar": 4 },
+    "relampago": { "intervaloMinSeg": 4, "intervaloMaxSeg": 12, "duracaoSeg": 0.35 },
+    "cicloRapidoSeg": 60
+  },
+
   "profundidade": {
     "chanceNoFundo": 0.2,
     "chanceNoMeio": 0.3
