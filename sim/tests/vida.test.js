@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { criarClock, DIA_MS, MINUTO_MS } from '../src/core/clock.js';
 import { criarAquario } from '../src/core/aquarium.js';
-import { configCalma } from './ajuda.js';
+import { config, configCalma } from './ajuda.js';
 import { limitesDoPeixe, msAteProximaFase, FASES } from '../src/core/fish.js';
 
 function fonteFalsa() {
@@ -61,6 +61,32 @@ test('"Pular fase" leva ao começo da próxima fase, até chegar ao idoso', () =
   }
   assert.deepEqual(vistas, FASES);
   assert.equal(msAteProximaFase(peixe, clock.agoraMs()), null);
+});
+
+test('"Pular fase" com as regras de verdade: o peixe cresce até idoso e continua vivo', () => {
+  const aq = criarAquario({ config });
+  const peixe = aq.adicionarPeixe({}, 0);
+  const vistas = [peixe.fase];
+  for (let i = 0; i < 5; i++) {
+    const ms = msAteProximaFase(peixe, 0);
+    if (ms === null) break;
+    aq.envelhecer(peixe, ms);
+    aq.atualizar(0.05, 0);
+    vistas.push(peixe.fase);
+  }
+  assert.deepEqual(vistas, FASES);
+  assert.equal(peixe.estado, 'saudavel');
+  assert.equal(aq.gameOver, false);
+  assert.equal(peixe.saciedade, config.inicial.saciedade, 'a fome não andou');
+  assert.equal(aq.sujeira, config.inicial.sujeira, 'a sujeira não andou');
+});
+
+test('avançar o relógio 5 dias sem cuidado mata o peixe (por isso o painel não usa isso)', () => {
+  const aq = criarAquario({ config });
+  const peixe = aq.adicionarPeixe({}, 0);
+  aq.atualizar(0.05, 0);
+  aq.atualizar(0.05, 5 * DIA_MS);
+  assert.equal(peixe.estado, 'morto');
 });
 
 test('peixe adicionado já numa fase entra com a idade dessa fase', () => {

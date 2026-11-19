@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  desenharFiltro, ruido, CAIXA, BICO, QUEDA_X, QUEDA_Y, TUBO,
+  desenharFiltro, ruido, CAIXA, BICO, QUEDA_X, QUEDA_Y, TUBO, CONTORNO, MIOLO,
 } from '../src/render/filtro.js';
 import { deslocamentoDaOnda } from '../src/render/superficie.js';
 import { desenharQuadro } from '../src/render/scene.js';
@@ -21,20 +21,20 @@ const quadroDe = (t, cx = 0, cy = 0) => {
 };
 const pixel = (q, x, y) => q[y * LARGURA + x];
 
-test('filtro: a caixa fica no canto de cima à esquerda, com contorno branco, e acima da água', () => {
+test('filtro: a caixa fica no canto de cima à esquerda, com contorno cinza escuro, e acima da água', () => {
   const q = quadroDe(0);
   assert.equal(CAIXA.y + CAIXA.altura, 18);
   assert.ok(CAIXA.y + CAIXA.altura <= SUPERFICIE_Y - AMPLITUDE_ONDA, 'a caixa não encosta na crista da onda');
   for (let i = 0; i < CAIXA.largura; i++) {
-    assert.equal(pixel(q, CAIXA.x + i, CAIXA.y), 12, 'borda de cima');
-    assert.equal(pixel(q, CAIXA.x + i, CAIXA.y + CAIXA.altura - 1), 12, 'borda de baixo');
+    assert.equal(pixel(q, CAIXA.x + i, CAIXA.y), CONTORNO, 'borda de cima');
+    assert.equal(pixel(q, CAIXA.x + i, CAIXA.y + CAIXA.altura - 1), CONTORNO, 'borda de baixo');
   }
-  assert.equal(pixel(q, CAIXA.x + 2, CAIXA.y + 2), 14, 'miolo em xadrez');
+  assert.equal(pixel(q, CAIXA.x + 2, CAIXA.y + 2), MIOLO, 'miolo cinza escuro');
 });
 
 test('filtro: o bico sai da caixa para a direita, a queda começa na ponta dele', () => {
   const q = quadroDe(0);
-  for (let i = 0; i < BICO.comprimento; i++) assert.equal(pixel(q, BICO.x + i, BICO.y), 12, `bico em ${i}`);
+  for (let i = 0; i < BICO.comprimento; i++) assert.equal(pixel(q, BICO.x + i, BICO.y), CONTORNO, `bico em ${i}`);
   assert.ok(QUEDA_X >= BICO.x && QUEDA_X < BICO.x + BICO.comprimento, 'a queda sai do bico');
   assert.ok(QUEDA_Y > BICO.y, 'a queda começa abaixo do bico');
 });
@@ -79,9 +79,9 @@ test('filtro: as falhas do fio DESCEM com o tempo (não sobem)', () => {
 
 test('filtro: tubo de sucção desce para dentro da água e acaba numa grade', () => {
   const q = quadroDe(0);
-  for (let y = TUBO.y; y < TUBO.y + TUBO.comprimento; y++) assert.equal(pixel(q, TUBO.x, y), 12, `tubo na linha ${y}`);
+  for (let y = TUBO.y; y < TUBO.y + TUBO.comprimento; y++) assert.equal(pixel(q, TUBO.x, y), CONTORNO, `tubo na linha ${y}`);
   assert.ok(TUBO.y + TUBO.comprimento > SUPERFICIE_Y + AMPLITUDE_ONDA + 10, 'o tubo entra bem fundo na água');
-  assert.equal(pixel(q, TUBO.x, TUBO.y + TUBO.comprimento + 2), 14, 'grade em xadrez');
+  assert.equal(pixel(q, TUBO.x, TUBO.y + TUBO.comprimento + 2), MIOLO, 'grade');
 });
 
 test('filtro: respingos e bolhas do impacto variam e ficam perto da queda', () => {
@@ -126,9 +126,9 @@ test('desenharQuadro: o filtro aparece por cima da superfície, sem sumir com o 
   const mapa = gerarMapa();
   const q = criarQuadro();
   desenharQuadro(q, { mapa, camera: camera(0, 0), peixes: [], tempo: 0.5 });
-  assert.equal(pixel(q, CAIXA.x, CAIXA.y), 12);
+  assert.equal(pixel(q, CAIXA.x, CAIXA.y), CONTORNO);
   const sem = criarQuadro();
   desenharQuadro(sem, { mapa, camera: camera(120, 0), peixes: [], tempo: 0.5 });
-  assert.notEqual(pixel(sem, CAIXA.x, CAIXA.y), 12, 'sem o filtro quando a câmera está longe');
+  assert.notEqual(pixel(sem, CAIXA.x, CAIXA.y), CONTORNO, 'sem o filtro quando a câmera está longe');
   assert.ok(q.length === LARGURA * ALTURA);
 });

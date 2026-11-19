@@ -1,27 +1,31 @@
-// Bolhas pequenas subindo do chão até a superfície, saindo de dois pontos do aquário.
+// Bolhas subindo do chão até a superfície, saindo de um ou mais pontos (emissores) do aquário.
 // É só enfeite: não afeta o jogo e não é salvo. O tempo vem de fora (dt), o sorteio tem semente.
 //
-// Cada ponto (emissor) solta uma bolha de tempos em tempos. A bolha sobe, balança um pouquinho
-// para os lados e some ao chegar na superfície.
+// Cada ponto (emissor) solta, o tempo todo, bolhas PEQUENAS (um pontinho), e de vez em quando uma
+// bolha MAIOR (um anel de 3×3, e às vezes um de 5×5), que sobe mais depressa. A bolha sobe,
+// balança um pouquinho para os lados e some ao chegar na superfície.
 import { criarRng } from './rng.js';
 import { AREIA_Y, SUPERFICIE_Y } from './mundo.js';
 
-// De onde saem (x no mundo), bem afastados. Têm de ser colunas que nunca têm rocha (ver
+// De onde saem (x no mundo) as bolhas da frente. Tem de ser uma coluna que nunca tem rocha (ver
 // cenario.js): 0 e 1, 9 a 13, 17 e 18, 22 e 23 e 27 a 29. O 84 fica dentro da câmera inicial.
-export const EMISSORES_X = [84, 236];
+// (A fonte da direita, no 236, foi tirada a pedido do usuário em 19/11/2026. Existe outra fonte, atrás
+// da pedra grande, que é do fundo: ver main.js e render/fundo.js.)
+export const EMISSORES_X = [84];
 
-// Tempo até a próxima bolha de um ponto: quase sempre um intervalo comum, às vezes uma rajada
-// (várias coladas) e às vezes uma pausa longa. É isso que tira o ar de relógio.
-const INTERVALO_COMUM = [0.3, 1.4];  // segundos
-const INTERVALO_RAJADA = [0.08, 0.2];
-const INTERVALO_PAUSA = [2.5, 6];
-const CHANCE_DE_PAUSA = 0.15;
-const CHANCE_DE_RAJADA = 0.25;
+// Bolhas pequenas: saem sempre, com um intervalo que varia um pouco (e às vezes duas juntas), sem
+// pausas longas: o fluxo é constante.
+const INTERVALO_PEQUENA = [0.3, 0.9]; // segundos entre uma e outra
+const CHANCE_DE_DUPLA = 0.2;          // às vezes saem duas bolhas juntas, uma ao lado da outra
+// Bolhas maiores: de vez em quando, bem mais raras.
+const INTERVALO_GRANDE = [3.5, 9];
+const CHANCE_DE_ENORME = 0.3;         // entre as grandes, as que são o anel de 5×5
 const VELOCIDADE_MIN = 9;       // pixels por segundo: umas sobem devagar, outras disparam
 const VELOCIDADE_MAX = 26;
+const VELOCIDADE_GRANDE = [20, 32]; // as grandes sobem mais depressa
 const BALANCO_MAX = 1.5;        // quanto balança para os lados, em pixels
-const CHANCE_DE_ANEL = 0.25;    // as outras são só um pontinho
-const MAXIMO = 40;              // teto de bolhas na tela (memória do ESP32)
+const BALANCO_GRANDE = [0.8, 1.8];
+export const MAXIMO_DE_BOLHAS = 100; // teto de bolhas no aquário (memória do ESP32)
 const AQUECIMENTO_S = 14;       // já começa com a coluna de bolhas formada
 
 export function criarBolhas({
@@ -35,36 +39,42 @@ export function criarBolhas({
   const entre = (min, max) => min + rng.decimal() * (max - min);
 
   const bolhas = [];
-  const proximoIntervalo = () => {
-    const sorteio = rng.decimal();
-    if (sorteio < CHANCE_DE_PAUSA) return entre(...INTERVALO_PAUSA);
-    if (sorteio < CHANCE_DE_PAUSA + CHANCE_DE_RAJADA) return entre(...INTERVALO_RAJADA);
-    return entre(...INTERVALO_COMUM);
-  };
-  // Quanto falta para cada ponto soltar a próxima bolha (começam em momentos diferentes).
-  const espera = emissores.map(() => entre(0, 4));
+  // Quanto falta para cada ponto soltar a próxima bolha pequena e a próxima grande (começam em
+  // momentos diferentes).
+  const espera = emissores.map(() => entre(0, 1));
+  const esperaGrande = emissores.map(() => entre(0, INTERVALO_GRANDE[1]));
 
-  function nova(xDoPonto) {
+  // tamanho: 1 = pontinho, 3 = anel 3×3, 5 = anel 5×5. `anel` (true nas maiores) continua existindo.
+  function nova(xDoPonto, tamanho) {
     const centro = xDoPonto + entre(-1, 1); // cada bolha sai um tiquinho para o lado
+    const grande = tamanho > 1;
     return {
       x: centro,
       y: yNascimento,
       xBase: centro,
-      velocidade: entre(VELOCIDADE_MIN, VELOCIDADE_MAX),
-      balanco: entre(0.4, BALANCO_MAX),
-      ritmo: entre(1.2, 2.4),      // balanços por segundo
+      tamanho,
+      anel: grande,
+      velocidade: grande ? entre(...VELOCIDADE_GRANDE) : entre(VELOCIDADE_MIN, VELOCIDADE_MAX),
+      balanco: grande ? entre(...BALANCO_GRANDE) : entre(0.4, BALANCO_MAX),
+      ritmo: grande ? entre(0.8, 1.4) : entre(1.2, 2.4), // balanços por segundo (as grandes oscilam mais devagar)
       fase: entre(0, Math.PI * 2),
       idade: 0,
-      anel: rng.decimal() < CHANCE_DE_ANEL,
     };
   }
+  const cabe = () => bolhas.length < MAXIMO_DE_BOLHAS;
 
   function atualizar(dt) {
     for (let i = 0; i < emissores.length; i++) {
       espera[i] -= dt;
       while (espera[i] <= 0) {
-        if (bolhas.length < MAXIMO) bolhas.push(nova(emissores[i]));
-        espera[i] += proximoIntervalo();
+        if (cabe()) bolhas.push(nova(emissores[i], 1));
+        if (cabe() && rng.decimal() < CHANCE_DE_DUPLA) bolhas.push(nova(emissores[i], 1));
+        espera[i] += entre(...INTERVALO_PEQUENA);
+      }
+      esperaGrande[i] -= dt;
+      while (esperaGrande[i] <= 0) {
+        if (cabe()) bolhas.push(nova(emissores[i], rng.decimal() < CHANCE_DE_ENORME ? 5 : 3));
+        esperaGrande[i] += entre(...INTERVALO_GRANDE);
       }
     }
     for (let i = bolhas.length - 1; i >= 0; i--) {

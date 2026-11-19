@@ -48,7 +48,8 @@ não de resolução.
 ## 5. Peixes [proposta]
 
 - Sprite desenhado virado para um lado; o outro lado é o mesmo sprite espelhado.
-- Tamanho cresce com a idade: **filhote ~10×8**, **jovem ~14×10**, **adulto ~20×14**.
+- Tamanho cresce com a idade: **filhote 14×11**, **jovem 22×18**, **adulto 32×26** (novo design do
+  beta, seção 8; antes eram ~10×8, ~14×10 e ~20×14).
 - Animações: **nadar 4 quadros**, **comer 3**, **doente 2** (mais lento e paleta pálida).
   O namoro reutiliza o nadar e adiciona partículas de coração.
 - Ovo: sprite pequeno, 2 quadros.
@@ -109,7 +110,8 @@ não de resolução.
     dela também é **preto sólido**, sem dithering (pedido do usuário); só a onda separa ar e água.
     O peixe nunca passa da crista da onda.
   - **Bolhas pequenas** (`core/bolhas.js`, `render/bolhas.js`) sobem da areia até a superfície
-    saindo de **dois pontos bem afastados** (x = 180 e x = 340, colunas que nunca têm rocha). Maioria é um
+    saindo de **um ponto** (x = 84, coluna que nunca tem rocha; a segunda fonte, a da direita, foi
+    tirada em 19/11/2026, e há outra atrás da pedra grande, ver "Bolhas" abaixo). Maioria é um
     pontinho; 1 em 4 é um anel 3×3. Balançam 1 a 2 pixels e somem ao tocar a superfície.
   - **[proposta]** Onda e bolhas andam em **tempo real** (não aceleram com o 60×/3600×) e não
     afetam o jogo. Tudo nos números do topo desses arquivos.
@@ -149,7 +151,7 @@ não de resolução.
   - **Pedras em cinza cheio**: rochas da frente em #6E737C (sombra #4F535B) e pedras do fundo em
     #3A3E45 (borda de cima #555A63). O cinza tem um leve tom frio.
   - **Superfície da água e água que cai do filtro**: **azul claro #86D0F2** (a linha ondulada, os
-    respingos, as bolhinhas do impacto e o fio d'água). A caixa e o tubo do filtro seguem brancos.
+    respingos, as bolhinhas do impacto e o fio d'água). A caixa e o tubo do filtro eram brancos com miolo em xadrez; passaram a **cinza escuro sólido** (contorno `#4f535b`, miolo `#3a3e45`, os mesmos das pedras).
   - O ar acima da superfície é o mesmo preto da água (agora o índice 1; o 5 virou o azul).
   - **[proposta]** Os tons exatos são palpite meu: ajuste na `PALETA` e veja na hora.
   - Continuam em preto e branco: texto/HUD e bolhas (e o olho e a pupila do peixe, que são
@@ -241,10 +243,87 @@ não de resolução.
   **[proposta]** Li "fixo" como **fixo no aquário** (parte do mundo): só aparece quando a câmera
   vai até o canto de cima à esquerda. Se você queria fixo na **tela** (sempre visível, como uma
   moldura), diga que eu mudo; mas aí a queda não acompanharia a superfície quando a câmera descesse.
+- **[fechado]** **Água suja em quatro faixas** (pedido do usuário em 19/11/2026, refeito no mesmo dia),
+  em `render/turvacao.js` e `render/bolor.js`. **Sem pontilhado nenhum**: a água muda de **cor
+  sólida**, e a sujeira aparece como partículas que flutuam e caem. (Passou por névoa com Bayer, por
+  névoa com ruído azul e por cor sólida; o que o usuário quer é esta: cor sólida + partículas.)
+
+  | Sujeira | O que se vê |
+  |---|---|
+  | 0 a 40 | aquário limpo |
+  | 41 a 60 | o **chão escurece** aos poucos (areia e grãos andam até um tom acastanhado escuro, 65% do caminho até `#241e10`, e param no 60); aparecem **grãos de sujeira parados no chão** (claros em cima da areia, escuros na areia) e algumas **partículas flutuando e caindo** (até 30% do total). A água ainda é preta |
+  | 61 a 90 | a **água muda de cor**, do preto ao marrom-esverdeado `#584f24` (até 70% da cor em 90); mais partículas (até 70%); a **linha da superfície** (e a água do filtro) vai do azul `#86d0f2` ao amarelo-barrento `#b8aa5e` junto com a água. **O bolor começa no 61** e cresce até o 100 |
+  | 91 a 100 | água na **cor inteira** e o **máximo de partículas** (70 flutuando e 60 no chão); o bolor chega ao tamanho máximo no 100 |
+
+  O **bolor** (`render/bolor.js`; `#2f5a1f`, borda `#58862e`) é do **vidro do aquário, dentro da
+  água** (correção do usuário em 19/11/2026: antes eu tinha feito na tela/câmera). Ele é preso ao
+  **mundo**: 20 manchas irregulares nas **duas paredes laterais** (10 em cada), entre a linha da
+  água e a areia, então só aparecem quando a câmera chega perto da parede. Cada mancha começa um pouco
+  antes ou depois das outras e cresce a partir do vidro. Como é o vidro, é desenhado **antes de
+  tudo** (logo depois de pintar a água): fundo, areia, pedras, plantas e peixes ficam na frente.
+  Some aos poucos ao limpar. Só os pixels de **água** (cor 1) são pintados pela cor da água suja:
+  plantas, pedras, peixes, comida e bolhas ficam por cima. O ar acima da linha da água não muda. O nível visual **não pula**
+  com a sujeira: ele anda até ela em até 6 s, então **limpar o aquário clareia tudo aos poucos**.
+  Ao abrir o jogo já aparece como estava. As cores e os limites das faixas são do usuário (as
+  faixas) e **[proposta]** meus (os tons exatos, em `render/turvacao.js`: `COR_AGUA_SUJA`,
+  `COR_CHAO_ESCURO`, `COR_SUPERFICIE_SUJA`).
+- **[fechado]** **Bolhas** (pedido do usuário em 19/11/2026): a fonte da **direita (x = 236) foi
+  tirada**; fica só a de x = 84. Foi acrescentada uma **fonte atrás da pedra grande, na camada 3**
+  (mais longe que a camada 2 das pedras): ela anda a **70%** da câmera (a pedra, a 85%), é
+  desenhada antes de tudo do fundo e fica coberta pela pedra, então as bolhas aparecem saindo de
+  trás dela. **[proposta]** Li "camada 3" como uma camada **atrás** da 2 (a da pedra grande); se
+  era outra coisa, diga.
+- **[fechado]** **Comida** (pedido do usuário em 19/11/2026), em `render/comida.js`: grãos 2×2
+  alaranjados (`#e08428`, com 1 pixel de brilho) que são jogados de cima, caem devagar (9 px/s) e
+  o peixe vai atrás. Aparecem por cima de tudo, inclusive no ar acima da água. A tela de status
+  mostra a saciedade em uma barra de 0 a 200, com uma marquinha no 100 e o que passa disso em
+  xadrez rosa (aviso de comer demais). Regras em `03-jogo.md`.
+- **[fechado]** **Cocô** (pedido do usuário em 19/11/2026), em `render/cocos.js`: tijolinho marrom
+  (`#6b3f1c`, com 1 pixel mais claro `#9a6232`) que cresce de 1×1 a 2×2 ao sair da cauda e depois cai
+  até a areia. Aparece por cima do peixe. Regras em `03-jogo.md`.
+- **[fechado]** **HUD de indicadores** (pedido do usuário em 19/11/2026), em `render/indicadores.js`:
+  botão **B** na tela do jogo mostra e oculta, **por cima do jogo** (não é uma tela nova; a câmera
+  e os outros botões continuam funcionando). São cinco caixinhas de 37×18 px, uma em cada canto:
+  **FOME** (cima, esquerda; barra de 0 a 200 com marca no 100 e o excesso em xadrez), **SAÚDE**
+  (cima, direita), **PH** (baixo, esquerda), **SUJO** (baixo, direita) e **TEMP** (baixo, meio).
+  **[proposta]** Como são 5 indicadores para 4 cantos, a temperatura ficou no meio de baixo. O
+  valor ruim fica em rosa. **A temperatura da água ainda não existe no jogo**: mostra um valor
+  fixo (`agua.temperatura`, 26 °C) até existir o clima/sensor (doc 01 prevê a temperatura real da
+  cidade, que só mexe no cenário).
+- **[fechado]** **Profundidade do peixe** (pedido do usuário em 19/11/2026), em `core/profundidade.js`
+  e `render/profundidade.js`: a cada trajeto o peixe sorteia o plano por onde passa: **frente** (50%,
+  na frente de tudo), **meio** (30%, na frente da pedra grande e atrás das algas gigantes) ou
+  **fundo** (20%, atrás da pedra grande e das algas). Ele só troca de plano quando o corpo não está
+  tocando a silhueta da alga ou da pedra (conferido por pixels), para não "pular". As chances estão
+  em `config.profundidade`. Peixe morto fica sempre na frente.
+- **[fechado]** **Bolhas** (pedido do usuário em 19/11/2026): as duas nascentes soltam o tempo todo
+  bolhas **pequenas** (um pontinho) e, de vez em quando (a cada 3,5 a 9 s), uma bolha **maior** (anel
+  3×3, e em 30% delas um anel 5×5) que sobe mais depressa.
+- **[fechado]** **Novo design do beta** (pedido do usuário em 19/11/2026, a partir de uma imagem de
+  pixel art de um beta azul com nadadeiras amarelas, cremes e lilás). O usuário escolheu as três
+  recomendações:
+  - **Tamanho:** filhote **14×11**, jovem **22×18**, adulto (e idoso) **32×26** (eram 10×8, 14×10 e
+    20×14). Em `TAMANHO_POR_FASE` (`core/fish.js`). Na tela de 120×120 o adulto ocupa mais de um
+    quarto da largura: com muitos peixes o aquário fica cheio (vale conferir na v0.4).
+  - **Desenho:** visto de lado, virado para a direita. Cauda grande em leque (a parte que ondula),
+    nadadeira de cima e de baixo, nadadeira peitoral, olho com brilho, contorno escuro em volta e
+    entre as partes. O adulto é o desenho completo; o jovem e o filhote são o mesmo desenho
+    simplificado (menos raios e sem peitoral), para o peixe crescer "virando" o adulto.
+  - **Cores:** o corpo na cor do peixe e as nadadeiras em tons claros dela, com um **segundo tom**
+    (destaque) nos raios da cauda e das nadadeiras (ex.: vermelho com raios laranja, azul com raios
+    amarelos). Cada cor passou de 3 para **8 papéis** (`PAPEIS_DO_PEIXE` em `render/palette.js`):
+    corpo, sombra, brilho, contorno, nadadeira, clara, borda e destaque. Só o corpo, a nadadeira, a
+    borda e o destaque são escolhidos à mão; o resto é mistura. Idoso (apagado) e doente (pálido)
+    seguem sendo só troca de cor do mesmo desenho.
+  - **Animação:** 4 quadros (repouso, sobe, repouso, desce) em que a cauda **ondula**: cada coluna
+    sobe ou desce e a ponta se mexe mais que a base (até 2 linhas no adulto, 1 nos menores).
+  - O desenho está em texto em `render/sprites.js` (cada letra é um papel de cor; a lista está no
+    topo do arquivo) e continua provisório: o usuário refina depois. Os sprites foram gerados por
+    um script temporário que amostra a mesma forma nos três tamanhos.
+  - Na tela de adoção o peixe aparece com escala 2× (era 3×), porque o adulto agora tem 32×26.
 - Resolução 120×120 com escala 2×, camadas, paleta indexada e tiles 8×8 continuam como **[proposta]**
   até validarmos no aparelho.
 
 ## 9. Em aberto
 
 - Cores exatas das paletas de dia e de noite (definir ao gerar o primeiro cenário).
-- Estilo do beta: formato do corpo e das nadadeiras (definir ao gerar o primeiro sprite).

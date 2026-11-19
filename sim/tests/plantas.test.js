@@ -202,24 +202,55 @@ test('as duas algas são a mesma planta: a menor é um pouco mais baixa e tem as
 
 // --- Bolhas: nascentes afastadas e tempos irregulares -----------------------------------------
 
-test('bolhas: as nascentes são bem afastadas', () => {
-  assert.ok(Math.abs(EMISSORES_X[1] - EMISSORES_X[0]) >= 150);
+test('bolhas: só há uma nascente na frente (a da direita foi tirada)', () => {
+  assert.deepEqual(EMISSORES_X, [84]);
 });
 
-test('bolhas: os intervalos entre bolhas são irregulares (rajadas e pausas)', () => {
+// Nascimentos (em segundos) das bolhas de um tamanho, perto da primeira nascente.
+function nascimentosDe(tamanhos, segundos = 600) {
   const b = criarBolhas({ aquecimento: 0 });
   const nascimentos = [];
   const vistas = new Set();
-  for (let t = 0; t < 600; t += 0.02) {
+  for (let t = 0; t < segundos; t += 0.02) {
     b.atualizar(0.02);
     for (const o of b.lista) {
-      if (!vistas.has(o) && Math.abs(o.xBase - EMISSORES_X[0]) < 3) { vistas.add(o); nascimentos.push(t); }
+      if (!vistas.has(o) && tamanhos.includes(o.tamanho) && Math.abs(o.xBase - EMISSORES_X[0]) < 3) { vistas.add(o); nascimentos.push(t); }
     }
   }
-  const intervalos = nascimentos.slice(1).map((t, i) => t - nascimentos[i]);
-  assert.ok(intervalos.length > 100);
-  assert.ok(Math.min(...intervalos) < 0.25, 'tem rajadas (bolhas coladas)');
-  assert.ok(Math.max(...intervalos) > 2.5, 'tem pausas longas');
+  return nascimentos;
+}
+const intervalosDe = (nascimentos) => nascimentos.slice(1).map((t, i) => t - nascimentos[i]);
+
+test('bolhas: as pequenas saem o tempo todo, sem pausa longa, com intervalos que variam (e às vezes duas juntas)', () => {
+  const intervalos = intervalosDe(nascimentosDe([1]));
+  assert.ok(intervalos.length > 500, `só ${intervalos.length} bolhas pequenas em 10 minutos`);
+  assert.ok(Math.max(...intervalos) < 1.2, `pausa de ${Math.max(...intervalos)} s: o fluxo tem de ser constante`);
+  assert.ok(Math.min(...intervalos) < 0.05, 'às vezes saem duas juntas');
+  assert.ok(new Set(intervalos.map((i) => Math.round(i * 10))).size > 6, 'os intervalos variam');
+});
+
+test('bolhas: de vez em quando sobe uma bolha maior (anel 3×3 ou 5×5), bem mais rara que as pequenas', () => {
+  const grandes = nascimentosDe([3, 5]);
+  const pequenas = nascimentosDe([1]);
+  assert.ok(grandes.length >= 40, `${grandes.length} bolhas grandes em 10 minutos`);
+  assert.ok(grandes.length * 10 < pequenas.length, 'as grandes são menos de 1 em cada 10');
+  const intervalos = intervalosDe(grandes);
+  assert.ok(Math.min(...intervalos) >= 3, `duas grandes coladas (${Math.min(...intervalos)} s)`);
+  assert.ok(Math.max(...intervalos) <= 10, 'mas aparecem de tempos em tempos');
+});
+
+test('bolhas: há anéis de 3×3 e de 5×5, e as grandes sobem mais depressa que as pequenas', () => {
+  const b = criarBolhas({ aquecimento: 0 });
+  const por = { 1: [], 3: [], 5: [] };
+  for (let t = 0; t < 600; t += 0.05) {
+    b.atualizar(0.05);
+    for (const o of b.lista) if (!por[o.tamanho].includes(o.velocidade)) por[o.tamanho].push(o.velocidade);
+  }
+  assert.ok(por[3].length > 0 && por[5].length > 0, 'aparecem os dois tamanhos de anel');
+  assert.ok(por[3].length > por[5].length, 'o de 3×3 é mais comum que o de 5×5');
+  const media = (v) => v.reduce((a, c) => a + c, 0) / v.length;
+  assert.ok(media([...por[3], ...por[5]]) > media(por[1]), 'as grandes são mais rápidas');
+  assert.ok(Math.min(...por[3], ...por[5]) >= 20);
 });
 
 test('bolhas: as velocidades variam bastante', () => {

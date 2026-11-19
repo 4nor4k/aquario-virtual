@@ -126,49 +126,60 @@ test('regular o pH no fundo da escala não faz ele cair de novo na hora', () => 
 
 // --- Ações de cuidado --------------------------------------------------------------------
 
-test('dar comida: +60 de saciedade e a água suja um pouco', () => {
+// A comida agora é jogada em grãos e o peixe vai comer (detalhes em comida.test.js).
+// `comerTudo` deixa passar tempo REAL (o do nado) até não sobrar grão na água.
+function comerTudo(aq, segundos = 180) {
+  for (let t = 0; t < segundos && aq.graos.length > 0; t += 0.05) aq.atualizar(0.05, 0);
+}
+
+test('dar comida: nada suja na hora e a saciedade só sobe quando o peixe come', () => {
   const { aq } = montar();
   aq.peixes[0].saciedade = 20;
   assert.deepEqual(aq.darComida(), { alimentou: true, excesso: false });
-  assert.equal(aq.peixes[0].saciedade, 80);
-  assert.equal(aq.sujeira, config.sujeira.porComida);
+  assert.equal(aq.sujeira, 0, 'jogar a comida não suja a água');
+  assert.equal(aq.peixes[0].saciedade, 20, 'ainda nada foi comido');
+  comerTudo(aq);
+  perto(aq.peixes[0].saciedade, 20 + config.comida.graos * config.comida.ganhoPorGrao, 1e-9, 'saciedade depois de comer');
+  assert.equal(aq.sujeira, 0, 'comer também não suja na hora: a sujeira vem depois, aos poucos');
 });
 
-test('dar comida com o peixe cheio (acima de 80) é excesso e suja mais', () => {
-  const { aq } = montar();
-  aq.peixes[0].saciedade = 90;
-  assert.deepEqual(aq.darComida(), { alimentou: true, excesso: true });
-  assert.equal(aq.peixes[0].saciedade, 100); // máximo
-  assert.equal(aq.sujeira, config.sujeira.porComidaEmExcesso);
+test('dar comida com o peixe cheio (100 ou mais) é excesso, e cada grão comido suja mais (devagar)', () => {
+  const comExcesso = montar();
+  const normal = montar();
+  comExcesso.aq.peixes[0].saciedade = 100;
+  normal.aq.peixes[0].saciedade = 20;
+  assert.deepEqual(comExcesso.aq.darComida(), { alimentou: true, excesso: true });
+  normal.aq.darComida();
+  comerTudo(comExcesso.aq);
+  comerTudo(normal.aq);
+  comExcesso.passar(8);
+  normal.passar(8);
+  const base = (100 / (config.sujeira.diasParaEncher * 24)) * 8; // o que a água suja sozinha em 8 h
+  perto(normal.aq.sujeira, base + config.comida.graos * config.sujeira.porGrao, 1e-6, 'comida normal');
+  perto(comExcesso.aq.sujeira, base + config.comida.graos * config.sujeira.porGraoEmExcesso, 1e-6, 'comida em excesso');
 });
 
-test('exatamente 80 ainda não é excesso (só "acima de 80")', () => {
+test('exatamente 99 ainda não é excesso (só a partir de 100)', () => {
   const { aq } = montar();
-  aq.peixes[0].saciedade = 80;
+  aq.peixes[0].saciedade = 99;
   assert.equal(aq.darComida().excesso, false);
-});
-
-test('dar comida alimenta todos os peixes; um peixe cheio basta para ser excesso', () => {
-  const { aq } = montar(2);
-  aq.peixes[0].saciedade = 10;
-  aq.peixes[1].saciedade = 95;
-  const r = aq.darComida();
-  assert.equal(r.excesso, true);
-  assert.equal(aq.peixes[0].saciedade, 70);
-  assert.equal(aq.peixes[1].saciedade, 100);
 });
 
 test('dar comida sem peixe nenhum não faz nada', () => {
   const { aq } = montar(0);
   assert.deepEqual(aq.darComida(), { alimentou: false, excesso: false });
   assert.equal(aq.sujeira, 0);
+  assert.equal(aq.graos.length, 0);
 });
 
 test('a sujeira nunca passa de 100, nem com comida', () => {
-  const { aq } = montar();
-  aq.sujeira = 95;
+  const t = montar();
+  const { aq } = t;
+  aq.sujeira = 99;
   aq.peixes[0].saciedade = 100;
   aq.darComida();
+  comerTudo(aq);
+  t.passar(8);
   assert.equal(aq.sujeira, 100);
 });
 

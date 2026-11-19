@@ -5,6 +5,8 @@ import {
   desenharTexto, larguraDoTexto, quebrarTexto, ALTURA_LINHA,
 } from './fonte.js';
 import { preencherRetangulo, contornoRetangulo } from './formas.js';
+import { desenharBarra } from './barra.js';
+import { desenharIndicadores } from './indicadores.js';
 import { TELAS } from '../core/menu.js';
 import { spritesDaCor } from './sprites.js';
 import { QUADROS_POR_SEGUNDO, QUADROS_DE_NADO } from '../core/fish.js';
@@ -66,26 +68,9 @@ export function desenharMenu(quadro, menu, textos) {
 
 // --- Tela de status (botão C) ------------------------------------------------------------------
 
-// Barra de 0 a 100: borda de 1 pixel e preenchimento por dentro.
-function desenharBarra(quadro, x, y, largura, valor, cor) {
-  contornoRetangulo(quadro, x, y, largura, 5, BORDA_SUAVE);
-  const cheio = Math.round(((largura - 2) * Math.max(0, Math.min(100, valor))) / 100);
-  if (cor !== RUIM) {
-    preencherRetangulo(quadro, x + 1, y + 1, cheio, 3, cor);
-    return;
-  }
-  // Em preto e branco o rosa e o ciano são os dois brancos; a barra imprópria vira xadrez
-  // (meio apagada) para continuar parecendo um aviso.
-  for (let by = 0; by < 3; by++) {
-    for (let bx = 0; bx < cheio; bx++) {
-      if ((bx + by) % 2 === 0) quadro[(y + 1 + by) * LARGURA + x + 1 + bx] = cor;
-    }
-  }
-}
-
-function linhaDeBarra(quadro, y, rotulo, valor, cor) {
+function linhaDeBarra(quadro, y, rotulo, valor, cor, maximo = 100, ideal = null) {
   desenharTexto(quadro, rotulo, MARGEM, y, TEXTO);
-  desenharBarra(quadro, 46, y, 50, valor, cor);
+  desenharBarra(quadro, 46, y, 50, valor, cor, maximo, ideal);
   const numero = String(Math.round(valor));
   desenharTexto(quadro, numero, LARGURA - MARGEM - larguraDoTexto(numero), y, TEXTO);
 }
@@ -104,8 +89,10 @@ export function desenharStatus(quadro, { aquario, config, textos, agoraMs }) {
     desenharTexto(quadro, `${t.fases[peixe.fase]} - ${idade}`, MARGEM, 18, TEXTO);
 
     const cfg = config;
+    // A saciedade vai de 0 a 200: até 100 está de boa, acima é comer demais.
     linhaDeBarra(quadro, 32, t.saciedade, peixe.saciedade,
-      peixe.saciedade < cfg.saciedade.improprioAbaixoDe ? RUIM : DESTAQUE);
+      peixe.saciedade < cfg.saciedade.improprioAbaixoDe ? RUIM : DESTAQUE,
+      cfg.saciedade.maximo, cfg.saciedade.ideal);
     linhaDeBarra(quadro, 44, t.sujeira, aquario.sujeira,
       aquario.sujeira > cfg.sujeira.improprioAcimaDe ? RUIM : DESTAQUE);
     linhaDeBarra(quadro, 56, t.saude, peixe.saude,
@@ -164,7 +151,7 @@ export function desenharBemVindo(quadro, { menu, textos }) {
 
 // --- Adote um peixe ----------------------------------------------------------------------------
 
-const ESCALA_DO_PEIXE = 3;
+const ESCALA_DO_PEIXE = 2;
 
 // Desenha um quadro de sprite aumentado (cada pixel vira escala × escala), com o canto de cima à
 // esquerda em (x, y). A cor 0 é transparente.
@@ -192,7 +179,7 @@ export function desenharAdocao(quadro, { menu, textos, agoraMs = 0 }) {
   const largura = sprite.largura * ESCALA_DO_PEIXE;
   const altura = sprite.altura * ESCALA_DO_PEIXE;
   const x = Math.floor((LARGURA - largura) / 2);
-  const y = 30;
+  const y = 24;
   const quadroDaCauda = Math.floor((agoraMs / 1000) * QUADROS_POR_SEGUNDO) % QUADROS_DE_NADO;
   desenharSpriteGrande(quadro, sprite, quadroDaCauda, x, y, ESCALA_DO_PEIXE);
 
@@ -228,6 +215,7 @@ export function desenharTelas(quadro, { menu, aquario, config, textos, agoraMs }
     desenharStatus(quadro, { aquario, config, textos, agoraMs });
     return;
   }
+  if (menu.tela === TELAS.JOGO && menu.hudVisivel) desenharIndicadores(quadro, { aquario, config, textos });
   if (menu.tela === TELAS.MENU) desenharMenu(quadro, menu, textos);
   if (menu.mensagem) desenharMensagem(quadro, menu.mensagem);
 }

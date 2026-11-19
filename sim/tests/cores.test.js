@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { CORES_DO_PEIXE, spritesDaCor, spriteDoPeixe, SPRITES } from '../src/render/sprites.js';
-import { COR, PALETA, TONS, COLORIDOS } from '../src/render/palette.js';
+import { COR, PALETA, TONS, COLORIDOS, PAPEIS_DO_PEIXE } from '../src/render/palette.js';
 import { FASES, criarPeixe } from '../src/core/fish.js';
 import { desenharQuadro } from '../src/render/scene.js';
 import { criarQuadro } from '../src/render/tela.js';
@@ -84,7 +84,40 @@ test('as cores se distinguem entre si (corpo vivo) e do verde das algas', () => 
 
 test('o vermelho continua exatamente como era (tons escolhidos à mão)', () => {
   assert.deepEqual(COR.PEIXE.vermelho, { vivo: COR.BETA, idoso: COR.BETA_IDOSO, doente: COR.BETA_DOENTE });
-  assert.deepEqual(COR.BETA, { corpo: 27, nadadeira: 28, borda: 29 });
+  // Os 3 tons principais continuam nos mesmos índices; os outros papéis vieram depois.
+  assert.deepEqual([COR.BETA.corpo, COR.BETA.nadadeira, COR.BETA.borda], [27, 28, 29]);
+  assert.deepEqual([COR.BETA_IDOSO.corpo, COR.BETA_IDOSO.nadadeira, COR.BETA_IDOSO.borda], [30, 31, 32]);
+  assert.deepEqual([COR.BETA_DOENTE.corpo, COR.BETA_DOENTE.nadadeira, COR.BETA_DOENTE.borda], [33, 34, 35]);
+});
+
+test('toda cor tem os 8 papéis, todos diferentes e coloridos; o contorno é o mais escuro', () => {
+  for (const cor of CORES_DO_PEIXE) {
+    for (const estado of ['vivo', 'idoso', 'doente']) {
+      const p = COR.PEIXE[cor][estado];
+      const indices = PAPEIS_DO_PEIXE.map((papel) => p[papel]);
+      assert.equal(new Set(indices).size, PAPEIS_DO_PEIXE.length, `${cor}/${estado}: índices repetidos`);
+      for (const i of indices) assert.ok(COLORIDOS.includes(i) && TONS[i] === 16, `${cor}/${estado}: ${i} não é colorido`);
+    }
+    const v = COR.PEIXE[cor].vivo;
+    assert.ok(brilho(v.contorno) < brilho(v.sombra) && brilho(v.sombra) < brilho(v.corpo), `${cor}: contorno < sombra < corpo`);
+    assert.ok(brilho(v.corpo) < brilho(v.brilho), `${cor}: o brilho do corpo é mais claro que o corpo`);
+    assert.ok(brilho(v.nadadeira) < brilho(v.clara) && brilho(v.clara) < brilho(v.borda), `${cor}: nadadeira < clara < borda`);
+    assert.ok(distancia(v.destaque, v.nadadeira) > 40, `${cor}: o destaque precisa aparecer sobre a nadadeira`);
+  }
+});
+
+test('o adulto (e o idoso) usam os 8 papéis da cor; todo sprite usa pelo menos os 3 principais', () => {
+  for (const cor of CORES_DO_PEIXE) {
+    const s = spritesDaCor(cor);
+    const usados = new Set(s.normal.beta.adulto.quadros[0]);
+    for (const papel of PAPEIS_DO_PEIXE) assert.ok(usados.has(COR.PEIXE[cor].vivo[papel]), `${cor}: o adulto não usa ${papel}`);
+    const idoso = new Set(s.normal.beta.idoso.quadros[0]);
+    for (const papel of PAPEIS_DO_PEIXE) assert.ok(idoso.has(COR.PEIXE[cor].idoso[papel]), `${cor}: o idoso não usa ${papel}`);
+    for (const fase of FASES) {
+      const todos = new Set(s.normal.beta[fase].quadros.flatMap((q) => [...q]));
+      assert.ok(![...todos].some((c) => c >= 240), `${cor}/${fase}: sobrou molde sem trocar`);
+    }
+  }
 });
 
 test('spriteDoPeixe escolhe pela cor e pela saúde; cor desconhecida dá erro', () => {

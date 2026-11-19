@@ -7,6 +7,7 @@ import { FASES, SEXOS } from './fish.js';
 
 export const VERSAO_DO_SALVAMENTO = 1;
 export const MAXIMO_DE_PEIXES = 5;
+const MAXIMO_DE_PENDENTES = 200; // cada grão comido vira uma entrada e some em ~6 h
 
 const ESTADOS = ['saudavel', 'doente', 'morto'];
 const CAUSAS = ['velhice', 'cuidado'];
@@ -29,6 +30,7 @@ export function exportarJogo(aquario, { tempoJogoMs, salvoEmMs }) {
     tempoJogoMs,
     aquario: {
       sujeira: aquario.sujeira,
+      sujeiraPendente: aquario.sujeiraPendente.map((e) => ({ inicioMs: e.inicioMs, duracaoMs: e.duracaoMs, total: e.total })),
       phPasso: aquario.phPasso,
       phProgresso: aquario.phProgresso,
       gameOver: aquario.gameOver,
@@ -66,6 +68,15 @@ export function importarJogo(dados, { config, semente = 1 }) {
 
   const a = objeto(raiz.aquario, 'aquario');
   const sujeira = numero(a.sujeira, 'sujeira', 0, 100);
+  // Arquivos de antes da comida em grãos não têm este campo: vale lista vazia.
+  const pendente = a.sujeiraPendente === undefined ? [] : lista(a.sujeiraPendente, 'sujeiraPendente', MAXIMO_DE_PENDENTES).map((e, i) => {
+    const r = objeto(e, `sujeiraPendente[${i}]`);
+    return {
+      inicioMs: numero(r.inicioMs, `sujeiraPendente[${i}].inicioMs`, 0),
+      duracaoMs: numero(r.duracaoMs, `sujeiraPendente[${i}].duracaoMs`, 1),
+      total: numero(r.total, `sujeiraPendente[${i}].total`, 0, 100),
+    };
+  });
   const phPasso = inteiro(a.phPasso, 'phPasso', 0, config.ph.valores.length - 1);
   const phProgresso = numero(a.phProgresso, 'phProgresso', 0, 1);
   const gameOver = booleano(a.gameOver, 'gameOver');
@@ -96,7 +107,7 @@ export function importarJogo(dados, { config, semente = 1 }) {
       cor: opcao(p.cor, `${rotulo}.cor`, config.cores),
       sexo: opcao(p.sexo, `${rotulo}.sexo`, SEXOS),
       fase: opcao(p.fase, `${rotulo}.fase`, FASES),
-      saciedade: numero(p.saciedade, `${rotulo}.saciedade`, 0, 100),
+      saciedade: numero(p.saciedade, `${rotulo}.saciedade`, 0, config.saciedade.maximo),
       saude: numero(p.saude, `${rotulo}.saude`, 0, 100),
       estado,
       causaDaMorte,
@@ -117,6 +128,7 @@ export function importarJogo(dados, { config, semente = 1 }) {
 
   const aquario = criarAquario({ semente, config });
   aquario.sujeira = sujeira;
+  aquario.sujeiraPendente.push(...pendente);
   aquario.phPasso = phPasso;
   aquario.phProgresso = phProgresso;
   aquario.gameOver = gameOver;
@@ -146,6 +158,13 @@ function numero(v, nome, min = -Infinity, max = Infinity) {
 function inteiro(v, nome, min = -Infinity, max = Infinity) {
   if (!Number.isInteger(v) || v < min || v > max) {
     throw new ErroDeSalvamento(`${nome}: inteiro inválido (${JSON.stringify(v)})`);
+  }
+  return v;
+}
+
+function lista(v, nome, maximo) {
+  if (!Array.isArray(v) || v.length > maximo) {
+    throw new ErroDeSalvamento(`${nome}: precisa ser uma lista de até ${maximo}`);
   }
   return v;
 }

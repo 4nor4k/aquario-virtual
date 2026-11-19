@@ -24,7 +24,11 @@ export function viverComRotina(config, { comidaH, limparH, phH, maxDias = 40 } =
     }
     horas += 1;
     if (peixe.estado === 'doente' && doenteH === null) doenteH = horas;
-    if (comidaH && horas % comidaH === 0) aquario.darComida();
+    if (comidaH && horas % comidaH === 0) {
+      aquario.darComida();
+      // Deixa o peixe ir atrás dos grãos (tempo real: 2 minutos, sem passar tempo do jogo).
+      for (let i = 0; i < 240; i++) aquario.atualizar(0.5, agora);
+    }
     if (limparH && horas % limparH === 0) aquario.limparAquario();
     if (phH && horas % phH === 0) aquario.regularPh();
   }

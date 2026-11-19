@@ -71,7 +71,8 @@ test('tons: a água é preto sólido; texto e HUD seguem branco sólido; areia e
 });
 
 test('paleta: uma cor e um tom por índice, e os desenhos guardados (hex) só usam 0 a 15 ou as letras extras', () => {
-  assert.equal(PALETA.length, 42 + 5 * 9, "42 fixas + 9 tons por cor nova (5 cores)");
+  assert.equal(PALETA.length, 51 + 5 * 3 + 5 * 24,
+    '51 fixas (com o turvo, a água suja, o bolor, a comida e o cocô) + 5 papéis a mais nos 3 estados do vermelho + 8 papéis × 3 estados em cada uma das 5 cores novas');
   assert.equal(TONS.length, PALETA.length);
   assert.ok(COLORIDOS.every((i) => i >= 0 && i < PALETA.length));
   assert.equal(new Set(COLORIDOS).size, COLORIDOS.length, 'sem índice repetido');

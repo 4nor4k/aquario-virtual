@@ -68,24 +68,27 @@ test('sem cuidado nenhum, a 3600×: doente, morto, 5 s depois Game Over, e A rec
   assert.equal(jogo.aq.sujeira, 0);
 });
 
-test('cuidando bem (comida, limpeza e pH a cada 2 dias), o peixe chega aos 30 dias e morre de velhice', () => {
+test('cuidando bem (comida a cada 10 h, limpeza e pH a cada 2 dias), o peixe chega aos 30 dias e morre de velhice', () => {
   const jogo = iniciar();
   const peixe = jogo.aq.peixes[0];
-  let ultimoCuidado = 0;
+  let ultimaComida = 0;
+  let ultimaLimpeza = 0;
   let adoeceu = false;
 
-  // 1 passo = 50 ms reais a 3600× = 3 minutos de jogo.
+  // 1 passo = 50 ms reais a 360× = 18 s de jogo. (A 3600× o peixe levaria horas de jogo para chegar
+  // aos grãos, porque eles caem em tempo REAL.)
   while (!jogo.aq.gameOver && jogo.agoraMs < 40 * 24 * HORA_MS) {
-    jogo.passo(3600);
+    jogo.passo(360);
     if (peixe.estado === 'doente') adoeceu = true;
     const horas = jogo.agoraMs / HORA_MS;
-    if (horas - ultimoCuidado >= 24) { // comida todo dia; limpeza e pH a cada 2 dias
+    if (horas - ultimaComida >= 10) { // cada porção vale 21 de saciedade; ele gasta ~50 por dia
       jogo.menu.executar('comida', jogo.aq);
-      if (Math.round(horas / 24) % 2 === 0) {
-        jogo.menu.executar('limpar', jogo.aq);
-        jogo.menu.executar('ph', jogo.aq);
-      }
-      ultimoCuidado = horas;
+      ultimaComida = horas;
+    }
+    if (horas - ultimaLimpeza >= 48) {
+      jogo.menu.executar('limpar', jogo.aq);
+      jogo.menu.executar('ph', jogo.aq);
+      ultimaLimpeza = horas;
     }
   }
   assert.equal(adoeceu, false);

@@ -20,7 +20,8 @@ test('doente: mesmo formato, cores pálidas, olho preservado, em todas as fases'
       q.forEach((cor, p) => assert.equal(qd[p] === 0, cor === 0, `${fase}: o formato não pode mudar`));
       const vivas = [...Object.values(COR.BETA), ...Object.values(COR.BETA_IDOSO)];
       assert.ok(!vivas.some((c) => qd.includes(c)), `${fase}: sobrou cor de peixe saudável ou idoso`);
-      assert.ok(Object.values(COR.BETA_DOENTE).every((c) => qd.includes(c)), `${fase}: faltou o vermelho pálido`);
+      const principais = [COR.BETA_DOENTE.corpo, COR.BETA_DOENTE.nadadeira, COR.BETA_DOENTE.borda];
+      assert.ok(principais.every((c) => qd.includes(c)), `${fase}: faltou o vermelho pálido`);
       assert.ok(qd.includes(13), `${fase}: pupila`);
     });
   }

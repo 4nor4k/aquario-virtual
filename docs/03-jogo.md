@@ -17,20 +17,50 @@ Estados do peixe: **Saudável**, **Doente** e **Morto**.
 
 ## 2. Indicadores
 
-Os indicadores são de 0 a 100, onde 100 é o ideal.
+Sujeira, pH e saúde são de 0 a 100. A saciedade é de **0 a 200** (veja abaixo).
 
-### Fome / saciedade [proposta]
-- Por peixe. Cai de 100 para 0 em ~48 h.
-- Uma refeição por dia mantém o peixe bem; duas também.
+### Fome / saciedade [fechado em 2026-11-19: escala 0 a 200 e comida em grãos]
+- Por peixe. Vai de **0 a 200**. De 0 a 100 o peixe está "de boa" (100 = cheio); acima de 100 ele
+  está comendo demais; **em 200 ele passa mal e fica doente na hora**.
+- De 100 até 0 cai devagar: 100 pontos a cada ~48 h. **O excesso (acima de 100) é digerido bem
+  mais depressa:** de 200 até 100 leva **5 horas** (`saciedade.horasParaDigerirExcesso`).
 - Imprópria: saciedade abaixo de 30.
-- **Dar comida:** +60 de saciedade (máx. 100) e alimenta todos os peixes.
-- Excesso de comida (saciedade acima de 80 ao alimentar) suja a água.
+- **Dar comida:** joga **3 grãos** de cima, um depois do outro, no meio do que você está vendo. Os
+  grãos caem **devagar** e os peixes vivos **vão atrás deles e comem, mesmo sem fome** (mais
+  animados que no passeio). Cada grão comido dá **+7** de saciedade (pedido do usuário em
+  2026-11-19): uma porção de 3 grãos vale **21**, e o peixe gasta ~50 por dia. Para manter a barra
+  estável é preciso alimentar a cada 8 a 10 h (uma vez por dia é pouco). Passar de 100 não adoece:
+  ele digere o excesso depressa (cada grão comido com ele já cheio só suja mais a água). Se achar
+  apertado, os caminhos são mais grãos por porção (`comida.graos`) ou fome mais lenta
+  (`saciedade.horasParaZerar`).
+- A saciedade **só sobe quando o peixe come**, não na hora do botão.
+- **A água suja DEPOIS de comer, aos poucos, nunca na hora** (pedido do usuário em 2026-11-19: não
+  é realista a sujeira pular quando o peixe come). Cada grão comido vira uma "sujeira pendente" que
+  só **começa a subir 5 segundos depois** de comer e vai entrando **bem devagar, ao longo de 6 horas
+  de jogo**. Um grão normal rende **+1** de sujeira; comido com a saciedade já em 100 ou mais
+  (**comer demais**), **+5**. O grão que ninguém come some depois de 20 s na areia e rende **+1**,
+  do mesmo jeito. Jogar a comida não suja nada. A sujeira pendente é guardada no arquivo e também
+  entra durante o tempo com o jogo fechado.
+- **Passar mal** (pedido do usuário em 2026-11-19): só quem é empanturrado até **200** adoece: a
+  saúde cai para logo abaixo do limite de doença. **A saúde só volta a melhorar quando a
+  saciedade desce até 100** (enquanto estiver acima, fica parada). Como o excesso é digerido em 5 h,
+  o peixe leva **uns 5 horas** para melhorar (5 h até chegar a 100 e uns 10 min para a saúde
+  passar de 30), se a água estiver boa.
+- Para a saúde, a **nota da saciedade** é a própria saciedade até 100 e depois **cai de volta**
+  (150 vale 50, 200 vale 0): comer demais pesa como passar fome.
+- Os grãos são só movimento em tempo real: não vão para o arquivo salvo.
+- **Cocô** [fechado em 2026-11-19, só animação]: o peixe faz cocô **de vez em quando** (sorteio de 1 a 3
+  minutos reais) e **10 segundos depois de comer** (a contagem recomeça a cada grão: uma refeição dá
+  um cocô). Ele para por ~1 s, o cocô sai da cauda (cresce de 1 a 2 pixels), solta, cai devagar
+  (7 px/s), fica 15 s na areia (piscando no fim) e some. **Não muda sujeira nem saúde** e não vai
+  para o arquivo salvo. Números em `config.coco`.
 
 ### Sujeira da água [proposta]
 - Do aquário. Sobe de 0 a 100 em ~4 dias.
-- Cada peixe a mais acelera 25% o ritmo; dar comida sobe a sujeira um pouco.
+- Cada peixe a mais acelera 25% o ritmo. Comer também suja, mas devagar e depois (veja "Fome / saciedade").
 - Imprópria: acima de 70.
-- Dar comida suja a água em **+3**; em excesso (saciedade acima de 80), em **+15** [proposta, v0.2].
+- Comida: ver "Fome / saciedade". A sujeira da comida entra aos poucos, 5 s depois de comer (mudou em
+  2026-11-19; antes era +3 na hora de dar comida e +15 de uma vez em excesso).
 - **Limpar aquário:** zera a sujeira.
 
 ### pH [proposta, faixa fechada]
@@ -60,7 +90,8 @@ por 5 h 20 min. Bem-vindo de volta!". Detalhes e números em `09-plano-v0.3.md`.
 ## 3. Saúde [fechado: pesos e limite de doença]
 
 - Os três indicadores têm **peso igual**.
-- **Média** = (saciedade + (100 − sujeira) + nota do pH) / 3.
+- **Média** = (nota da saciedade + (100 − sujeira) + nota do pH) / 3. A nota da saciedade vai de 0
+  a 100 (veja "Fome / saciedade").
 - A saúde (0 a 100) muda lentamente, conforme a média [proposta]:
 
 | Média | Efeito na saúde |

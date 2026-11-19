@@ -7,7 +7,7 @@
 
   "mensagens": {
     "comida": "Comida servida",
-    "comidaEmExcesso": "Ele já estava cheio! A água suja.",
+    "comidaEmExcesso": "Ele já está cheio! Comer demais faz mal.",
     "semPeixe": "Não há peixe vivo.",
     "limpeza": "Aquário limpo",
     "phSubiu": "pH subiu para {ph}",
@@ -27,6 +27,15 @@
     "phNotas": { "ideal": "ideal", "aceitavel": "aceitável", "ruim": "ruim" },
     "semPeixe": "Sem peixe",
     "dica": "C: voltar"
+  },
+
+  "hud": {
+    "fome": "FOME",
+    "saude": "SAÚDE",
+    "temperatura": "TEMP",
+    "ph": "PH",
+    "sujeira": "SUJO",
+    "semPeixe": "--"
   },
 
   "gameOver": {

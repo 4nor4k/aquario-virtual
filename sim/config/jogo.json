@@ -29,16 +29,50 @@
 
   "saciedade": {
     "horasParaZerar": 48,
-    "ganhoPorComida": 60,
-    "excessoAcimaDe": 80,
+    "horasParaDigerirExcesso": 5,
+    "ideal": 100,
+    "maximo": 200,
+    "excessoAcimaDe": 100,
     "improprioAbaixoDe": 30
+  },
+
+  "comida": {
+    "graos": 3,
+    "ganhoPorGrao": 7,
+    "intervaloEntreGraosSeg": 0.5,
+    "espalhamentoX": 12,
+    "velocidadeQueda": 9,
+    "segundosNaAreia": 20,
+    "maximoNaAgua": 12
+  },
+
+  "profundidade": {
+    "chanceNoFundo": 0.2,
+    "chanceNoMeio": 0.3
+  },
+
+  "agua": {
+    "temperatura": 26
+  },
+
+  "coco": {
+    "segundosAposComer": 10,
+    "intervaloMinSeg": 60,
+    "intervaloMaxSeg": 180,
+    "segundosSaindo": 0.9,
+    "velocidadeQueda": 7,
+    "segundosNaAreia": 15,
+    "maximo": 20
   },
 
   "sujeira": {
     "diasParaEncher": 4,
     "aumentoPorPeixeExtra": 0.25,
-    "porComida": 3,
-    "porComidaEmExcesso": 15,
+    "porGrao": 1,
+    "porGraoEmExcesso": 5,
+    "porGraoPerdido": 1,
+    "atrasoSeg": 5,
+    "duracaoHoras": 6,
     "improprioAcimaDe": 70
   },
 

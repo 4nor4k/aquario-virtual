@@ -22,10 +22,10 @@ test('todas as fases têm tamanho definido', () => {
   }
 });
 
-test('tamanhos do doc 04: filhote 10×8, jovem 14×10, adulto 20×14; idoso = adulto', () => {
-  assert.deepEqual(TAMANHO_POR_FASE.filhote, { largura: 10, altura: 8 });
-  assert.deepEqual(TAMANHO_POR_FASE.jovem, { largura: 14, altura: 10 });
-  assert.deepEqual(TAMANHO_POR_FASE.adulto, { largura: 20, altura: 14 });
+test('tamanhos do doc 04: filhote 14×11, jovem 22×18, adulto 32×26; idoso = adulto', () => {
+  assert.deepEqual(TAMANHO_POR_FASE.filhote, { largura: 14, altura: 11 });
+  assert.deepEqual(TAMANHO_POR_FASE.jovem, { largura: 22, altura: 18 });
+  assert.deepEqual(TAMANHO_POR_FASE.adulto, { largura: 32, altura: 26 });
   assert.deepEqual(TAMANHO_POR_FASE.idoso, TAMANHO_POR_FASE.adulto);
 });
 

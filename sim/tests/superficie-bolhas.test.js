@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { criarBolhas, EMISSORES_X } from '../src/core/bolhas.js';
+import { criarBolhas, EMISSORES_X, MAXIMO_DE_BOLHAS } from '../src/core/bolhas.js';
 import { SUPERFICIE_Y, AMPLITUDE_ONDA, AREIA_Y, COLUNAS, LINHA_AREIA, TILE, MUNDO_LARGURA, MUNDO_ALTURA } from '../src/core/mundo.js';
 import { FASES, limitesDoPeixe, TAMANHO_POR_FASE } from '../src/core/fish.js';
 import { deslocamentoDaOnda, desenharSuperficie } from '../src/render/superficie.js';
@@ -71,10 +71,10 @@ test('o peixe fica sempre abaixo da crista mais alta da onda, em todas as fases'
 
 // --- Bolhas ---------------------------------------------------------------------------------
 
-test('bolhas: já começam com uma coluna formada, nos dois pontos', () => {
+test('bolhas: já começam com uma coluna formada, no ponto da frente', () => {
   const b = criarBolhas();
-  assert.equal(EMISSORES_X.length, 2);
-  assert.ok(b.lista.length >= 8, `${b.lista.length} bolhas`);
+  assert.equal(EMISSORES_X.length, 1, 'a fonte da direita foi tirada');
+  assert.ok(b.lista.length >= 10, `${b.lista.length} bolhas`);
   for (const x of EMISSORES_X) {
     assert.ok(b.lista.some((o) => Math.abs(o.x - x) < 3), `nenhuma bolha perto de x=${x}`);
   }
@@ -92,16 +92,16 @@ test('bolhas: sobem, ficam entre a areia e a superfície e balançam pouco', () 
       vistas.set(o, o.y);
     }
   }
-  assert.ok(vistas.size > 20, 'saem bolhas novas o tempo todo');
+  assert.ok(vistas.size > 50, 'saem bolhas novas o tempo todo');
 });
 
 test('bolhas: somem ao chegar na superfície e há um teto de quantidade', () => {
   const b = criarBolhas({ aquecimento: 0 });
   for (let i = 0; i < 2000; i++) b.atualizar(0.05);
-  assert.ok(b.lista.length <= 40);
+  assert.ok(b.lista.length <= MAXIMO_DE_BOLHAS);
   assert.ok(b.lista.every((o) => o.y > SUPERFICIE_Y));
   b.atualizar(30); // um salto grande de tempo não quebra nada
-  assert.ok(b.lista.length <= 40);
+  assert.ok(b.lista.length <= MAXIMO_DE_BOLHAS);
 });
 
 test('bolhas: mesma semente, mesmas bolhas', () => {
@@ -121,6 +121,16 @@ test('os pontos das bolhas são colunas sem rocha, em qualquer cenário', () => 
       }
     }
   }
+});
+
+test('desenharBolhas: o anel grande (5×5) tem 12 pixels, sem cantos e com o meio vazio', () => {
+  const q = criarQuadro();
+  desenharBolhas(q, [{ x: 50, y: 50, tamanho: 5, anel: true }], camera(0, 0));
+  assert.equal(q.filter((v) => v === 12).length, 12);
+  assert.equal(q[50 * LARGURA + 50], 0, 'o meio é vazio');
+  assert.equal(q[48 * LARGURA + 48], 0, 'sem cantos');
+  assert.equal(q[48 * LARGURA + 50], 12);
+  assert.equal(q[50 * LARGURA + 52], 12);
 });
 
 test('desenharBolhas: pontinho vira 1 pixel branco e anel vira 8; corta o que sai da tela', () => {

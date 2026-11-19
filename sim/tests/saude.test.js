@@ -258,21 +258,36 @@ test('rotina: sem nenhum cuidado o peixe morre entre 3 e 4 dias', () => {
   assert.ok(r.doenteDias < r.morteDias);
 });
 
-test('rotina: só comida, 1 vez por dia, não basta (morre em até 5 dias)', () => {
-  const r = viver({ comidaH: 24 });
+// Cada grão dá 7 de saciedade: uma porção (3 grãos) vale 21 e o peixe gasta 50 por dia. A rotina
+// que o mantém bem é comida a cada 8 a 10 h; uma vez por dia é pouco. Passar de 100 não adoece
+// (ele digere o excesso depressa): só adoece quem é empanturrado de uma vez até 200.
+test('rotina: só comida, a cada 10 h, não basta (morre em até 5 dias)', () => {
+  const r = viver({ comidaH: 10 });
   assert.equal(r.causa, 'cuidado');
   assert.ok(r.morteDias > 4 && r.morteDias <= 5.5, `morreu em ${r.morteDias} dias`);
 });
 
-test('rotina: comida todo dia, limpar e regular o pH a cada 2 dias: vive até a velhice, sem adoecer', () => {
-  const r = viver({ comidaH: 24, limparH: 48, phH: 48 });
+test('rotina: comida a cada 10 h, limpar e regular o pH a cada 2 dias: vive até a velhice, sem adoecer', () => {
+  const r = viver({ comidaH: 10, limparH: 48, phH: 48 });
   assert.equal(r.doenteDias, null);
   assert.equal(r.causa, 'velhice');
   perto(r.morteDias, 30, 0.1, 'morte natural');
 });
 
+test('rotina: comida só 1 vez por dia dá pouco (21 contra 50 gastos): passa fome e morre cedo', () => {
+  const r = viver({ comidaH: 24, limparH: 48, phH: 48 });
+  assert.equal(r.causa, 'cuidado');
+  assert.ok(r.morteDias > 7 && r.morteDias < 11, `morreu em ${r.morteDias} dias`);
+});
+
+test('rotina: comida a cada 8 h também serve (o que passa de 100 ele digere depressa)', () => {
+  const r = viver({ comidaH: 8, limparH: 48, phH: 48 });
+  assert.equal(r.doenteDias, null);
+  assert.equal(r.causa, 'velhice');
+});
+
 test('rotina: limpar e regular o pH só a cada 4 dias ainda mata, mas bem depois do que sem cuidado', () => {
-  const r = viver({ comidaH: 24, limparH: 96, phH: 96 });
+  const r = viver({ comidaH: 10, limparH: 96, phH: 96 });
   assert.equal(r.causa, 'cuidado');
   assert.ok(r.morteDias > 6 && r.morteDias < 9, `morreu em ${r.morteDias} dias`);
 });

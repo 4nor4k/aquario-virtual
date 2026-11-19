@@ -25,10 +25,9 @@ function aplicarPasso(aquario, horas, agoraMs, config) {
   const vivos = aquario.vivos();
   if (vivos.length === 0) return;
 
-  // Saciedade: cada peixe vivo fica com fome no mesmo ritmo.
-  const queda = (100 / config.saciedade.horasParaZerar) * horas;
+  // Saciedade: cada peixe vivo fica com fome no mesmo ritmo (e digere o excesso mais depressa).
   for (const peixe of vivos) {
-    peixe.saciedade = Math.max(0, peixe.saciedade - queda);
+    peixe.saciedade = saciedadeDepoisDe(peixe.saciedade, horas, config.saciedade);
   }
 
   // Sujeira: cada peixe vivo a mais acelera o ritmo.
@@ -36,6 +35,8 @@ function aplicarPasso(aquario, horas, agoraMs, config) {
   const fator = 1 + cfgSujeira.aumentoPorPeixeExtra * (vivos.length - 1);
   const subida = (100 / (cfgSujeira.diasParaEncher * 24)) * fator * horas;
   aquario.sujeira = Math.min(100, aquario.sujeira + subida);
+  // E o que os peixes comeram vai sujando a água aos poucos (veja sujar).
+  liberarSujeiraPendente(aquario, agoraMs - horas * HORA_MS, agoraMs);
 
   // pH: cai um passo de tempos em tempos; quanto mais suja a água, mais rápido.
   // phProgresso é "quanto do próximo passo já andou" (de 0 a 1).
@@ -57,7 +58,9 @@ function aplicarPasso(aquario, horas, agoraMs, config) {
       continue;
     }
 
-    const variacao = taxaDaSaude(mediaDoPeixe(peixe, aquario, config), config.saude) * horas;
+    let variacao = taxaDaSaude(mediaDoPeixe(peixe, aquario, config), config.saude) * horas;
+    // Comeu demais: a saúde só volta a melhorar quando a barriga desce até o ideal (100).
+    if (variacao > 0 && peixe.saciedade > config.saciedade.ideal) variacao = 0;
     peixe.saude = Math.min(100, Math.max(0, peixe.saude + variacao));
     if (peixe.saude <= 0) {
       morrer(aquario, peixe, 'cuidado');
@@ -117,9 +120,87 @@ export function avisosDoAquario(aquario, config) {
   };
 }
 
+// Como a saciedade muda em `horas` horas sem ninguém comer. Até o ideal (100) ela cai devagar:
+// 100 pontos a cada `horasParaZerar` (48 h). O que passa do ideal (comer demais) é digerido bem
+// mais depressa: de 200 até 100 leva `horasParaDigerirExcesso` (5 h). Se o tempo do passo atravessa
+// o 100, a parte de cima usa o ritmo rápido e o resto o ritmo normal (o resultado é o mesmo em
+// passos pequenos ou grandes).
+export function saciedadeDepoisDe(saciedade, horas, cfg) {
+  let s = saciedade;
+  let resta = horas;
+  if (s > cfg.ideal) {
+    const porHora = (cfg.maximo - cfg.ideal) / cfg.horasParaDigerirExcesso;
+    const gasta = Math.min(resta, (s - cfg.ideal) / porHora);
+    s -= porHora * gasta;
+    resta -= gasta;
+  }
+  return Math.max(0, s - (100 / cfg.horasParaZerar) * resta);
+}
+
+// A nota da saciedade, de 0 a 100: até o ideal (100) a nota é a própria saciedade; passou disso é
+// comer demais, e a nota cai de volta (200 vale 0, como estar de barriga vazia).
+export function notaDaSaciedade(saciedade, cfgSaciedade) {
+  const { ideal, maximo } = cfgSaciedade;
+  if (saciedade <= ideal) return saciedade;
+  return Math.max(0, (100 * (maximo - saciedade)) / (maximo - ideal));
+}
+
 // Média dos três indicadores, de 0 a 100, com pesos iguais (doc 03, seção 3).
 export function mediaDoPeixe(peixe, aquario, config) {
-  return (peixe.saciedade + (100 - aquario.sujeira) + notaDoPh(aquario, config)) / 3;
+  const fome = notaDaSaciedade(peixe.saciedade, config.saciedade);
+  return (fome + (100 - aquario.sujeira) + notaDoPh(aquario, config)) / 3;
+}
+
+// A água NÃO suja na hora: o que o peixe comeu (ou o grão que ficou na areia) vira sujeira
+// pendente, que só começa a subir depois de `atrasoSeg` segundos e vai entrando aos poucos,
+// ao longo de `duracaoHoras` horas de jogo. Tudo em hora do jogo, então o resultado é o mesmo
+// a 1×, 60× ou 3600×. agoraMs = a hora do jogo de agora.
+export function sujar(aquario, quantidade, agoraMs, config) {
+  if (!(quantidade > 0)) return;
+  const cfg = config.sujeira;
+  aquario.sujeiraPendente.push({
+    inicioMs: agoraMs + cfg.atrasoSeg * 1000,
+    duracaoMs: cfg.duracaoHoras * HORA_MS,
+    total: quantidade,
+  });
+}
+
+// Põe na água a parte da sujeira pendente que cai entre deMs e ateMs (hora do jogo).
+function liberarSujeiraPendente(aquario, deMs, ateMs) {
+  const lista = aquario.sujeiraPendente;
+  let soma = 0;
+  for (let i = lista.length - 1; i >= 0; i--) {
+    const e = lista[i];
+    const fim = e.inicioMs + e.duracaoMs;
+    const de = Math.max(deMs, e.inicioMs);
+    const ate = Math.min(ateMs, fim);
+    if (ate > de) soma += (e.total * (ate - de)) / e.duracaoMs;
+    if (ateMs >= fim) lista.splice(i, 1); // já entrou tudo
+  }
+  aquario.sujeira = Math.min(100, aquario.sujeira + soma);
+}
+
+// O peixe comeu um grão (core/comida.js chama). Devolve { excesso, passouMal }:
+//   excesso   = ele já estava cheio (saciedade a partir de `excessoAcimaDe`): suja mais, devagar;
+//   passouMal = chegou no máximo (200): comeu demais e fica doente na hora.
+export function peixeComeu(aquario, peixe, config, agoraMs = 0) {
+  const cfg = config.saciedade;
+  const excesso = peixe.saciedade >= cfg.excessoAcimaDe;
+  peixe.saciedade = Math.min(cfg.maximo, peixe.saciedade + config.comida.ganhoPorGrao);
+  sujar(aquario, excesso ? config.sujeira.porGraoEmExcesso : config.sujeira.porGrao, agoraMs, config);
+  peixe.cocoEm = config.coco.segundosAposComer; // faz cocô 10 s depois de comer (recomeça a cada grão)
+
+  const passouMal = peixe.saciedade >= cfg.maximo;
+  if (passouMal) {
+    // A saúde cai para logo abaixo do limite de doença. Ele se recupera sozinho conforme a
+    // barriga esvazia (a nota da saciedade volta a subir), se a água estiver boa.
+    peixe.saude = Math.min(peixe.saude, config.saude.doenteAbaixoDe - 1);
+    if (peixe.estado === 'saudavel') {
+      peixe.estado = 'doente';
+      aquario.eventos.registrar({ tipo: 'adoeceu', peixeId: peixe.id, motivo: 'comeuDemais' });
+    }
+  }
+  return { excesso, passouMal };
 }
 
 // Quanto a saúde muda por hora, conforme a média (faixas do config, da maior para a menor).

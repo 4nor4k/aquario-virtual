@@ -55,6 +55,19 @@ export const PALETA = [
   [0x2b, 0x2a, 0x25], // 39 pedra grande: rachadura
   [0x3f, 0x8f, 0x52], // 40 musgo
   [0x5d, 0xb3, 0x6b], // 41 musgo claro (o pixel de cima)
+  // A água suja: grãos de sujeira escuros (na areia) e claros (no ar da água e boiando).
+  [0x2a, 0x25, 0x12], // 42 turvo escuro: grão de sujeira na areia
+  [0x8e, 0x88, 0x4a], // 43 turvo claro: partículas boiando e grãos sobre a areia
+  // A comida (grãos de ração): um corpo alaranjado e um brilho.
+  [0xe0, 0x84, 0x28], // 44 grão de comida
+  [0xf7, 0xc0, 0x6a], // 45 brilho do grão de comida
+  // O cocô do peixe: marrom e um pixel mais claro em cima.
+  [0x6b, 0x3f, 0x1c], // 46 cocô
+  [0x9a, 0x62, 0x32], // 47 cocô: pixel claro
+  // A cor da água suja (muda de preto a marrom-esverdeado; turvacao.js mexe nela) e o bolor do vidro.
+  [0x00, 0x00, 0x00], // 48 água suja (começa preta, igual à água limpa)
+  [0x2f, 0x5a, 0x1f], // 49 bolor no vidro: verde escuro
+  [0x58, 0x86, 0x2e], // 50 bolor no vidro: verde mais claro (borda)
 ];
 
 // Quão claro cada índice aparece em preto e branco: 0 = preto, 16 = branco (mono.js).
@@ -104,13 +117,23 @@ export const TONS = [
   16, // 39
   16, // 40
   16, // 41
+  16, // 42 a 43: o turvo da água suja (colorido)
+  16, // 43
+  16, // 44 a 45: a comida (colorida)
+  16, // 45
+  16, // 46 a 47: o cocô (colorido)
+  16, // 47
+  16, // 48 água suja (colorida)
+  16, // 49 a 50: bolor (colorido)
+  16, // 50
 ];
 
 // Índices que não passam pelo preto e branco: são pintados sólidos, na cor da PALETA.
-export const COLORIDOS = [2, 3, 4, 5, 6, 7, 8, 9, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41];
+export const COLORIDOS = [2, 3, 4, 5, 6, 7, 8, 9, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50];
 
 // Nomes para quem desenha (os números acima são os índices da PALETA).
 export const COR = {
+  AGUA: 1,
   PEDRA_FUNDO: 2,
   PEDRA_FUNDO_BORDA: 3,
   VERDE_ALGA: 4,
@@ -134,20 +157,43 @@ export const COR = {
   BETA_DOENTE: { corpo: 33, nadadeira: 34, borda: 35 },
   // A pedra grande do fundo e o musgo dela.
   PEDRA_GRANDE: { base: 36, clara: 37, escura: 38, rachadura: 39, musgo: 40, musgoClaro: 41 },
+  // A água suja (turvacao.js): os grãos de sujeira, a cor da água e o bolor do vidro (bolor.js).
+  TURVO: 42,
+  TURVO_CLARO: 43,
+  AGUA_SUJA: 48,
+  BOLOR: 49,
+  BOLOR_CLARO: 50,
+  // A comida (comida.js).
+  GRAO: 44,
+  GRAO_BRILHO: 45,
+  // O cocô do peixe (cocos.js).
+  COCO: 46,
+  COCO_CLARO: 47,
 };
 
-// --- As cores do peixe (doc 09, seção 5) ---------------------------------------------------------
-// O vermelho é o de sempre (tons escolhidos à mão, índices 27 a 35). As outras cores têm só 3 tons
-// escolhidos (corpo, nadadeira/cauda e borda da cauda); o tom de IDOSO (apagado) e de DOENTE
-// (pálido) sai por conta, a partir deles, e entra no fim da PALETA, depois do índice 41.
-// Para acrescentar uma cor: ponha o nome em config/jogo.json ("cores") e os 3 tons aqui.
+// --- As cores do peixe (doc 09, seção 5; novo desenho no doc 04, seção 8) ----------------------
+// Cada cor do peixe tem 8 "papéis" (PAPEIS_DO_PEIXE), que o desenho do beta usa:
+//   corpo       o corpo (tom médio)               sombra     o corpo embaixo (mais escuro)
+//   brilho      o corpo em cima (mais claro)      contorno   a linha escura em volta e entre as partes
+//   nadadeira   nadadeira e cauda (base)          clara      nadadeira e cauda (meio)
+//   borda       nadadeira e cauda (pontas, o mais claro)
+//   destaque    o "segundo tom": os raios coloridos da cauda e das nadadeiras
+// O vermelho é o de sempre (corpo, nadadeira e borda escolhidos à mão, índices 27 a 35). Nas outras
+// cores se escolhem 4 tons à mão (corpo, nadadeira, borda e destaque). O resto sai por conta
+// (contorno, sombra, brilho e clara são misturas), assim como o tom de IDOSO (apagado) e o de
+// DOENTE (pálido); tudo isso entra no fim da PALETA, depois do índice 47.
+// Para acrescentar uma cor: ponha o nome em config/jogo.json ("cores") e os 4 tons aqui.
+export const PAPEIS_DO_PEIXE = ['corpo', 'nadadeira', 'borda', 'contorno', 'sombra', 'brilho', 'clara', 'destaque'];
+
 const TONS_DAS_CORES = {
-  azul:    { corpo: [0x2f, 0x5f, 0xc0], nadadeira: [0x5a, 0x8c, 0xf0], borda: [0x9f, 0xc4, 0xff] },
-  roxo:    { corpo: [0x7a, 0x3f, 0xb5], nadadeira: [0xa3, 0x6b, 0xe0], borda: [0xd1, 0xaa, 0xf5] },
-  laranja: { corpo: [0xd9, 0x74, 0x1a], nadadeira: [0xf2, 0x9a, 0x3d], borda: [0xff, 0xd0, 0x8a] },
-  verde:   { corpo: [0x3a, 0xa6, 0x4a], nadadeira: [0x5f, 0xc8, 0x6a], borda: [0xb0, 0xea, 0xa6] },
-  rosa:    { corpo: [0xd9, 0x4f, 0x9a], nadadeira: [0xf2, 0x7a, 0xb8], borda: [0xff, 0xbf, 0xe0] },
+  azul:    { corpo: [0x2f, 0x5f, 0xc0], nadadeira: [0x5a, 0x8c, 0xf0], borda: [0x9f, 0xc4, 0xff], destaque: [0xff, 0xd2, 0x4a] },
+  roxo:    { corpo: [0x7a, 0x3f, 0xb5], nadadeira: [0xa3, 0x6b, 0xe0], borda: [0xd1, 0xaa, 0xf5], destaque: [0xff, 0x8a, 0xd8] },
+  laranja: { corpo: [0xd9, 0x74, 0x1a], nadadeira: [0xf2, 0x9a, 0x3d], borda: [0xff, 0xd0, 0x8a], destaque: [0xff, 0xe4, 0x5e] },
+  verde:   { corpo: [0x3a, 0xa6, 0x4a], nadadeira: [0x5f, 0xc8, 0x6a], borda: [0xb0, 0xea, 0xa6], destaque: [0xe8, 0xf2, 0x6a] },
+  rosa:    { corpo: [0xd9, 0x4f, 0x9a], nadadeira: [0xf2, 0x7a, 0xb8], borda: [0xff, 0xbf, 0xe0], destaque: [0xc7, 0xa2, 0xff] },
 };
+// O destaque do vermelho (o corpo, a nadadeira e a borda dele já estão na PALETA, índices 27 a 35).
+const DESTAQUE_DO_VERMELHO = [0xff, 0xb3, 0x47];
 
 const misturar = (a, b, parte) => a.map((v, i) => Math.round(v * (1 - parte) + b[i] * parte));
 const brilho = (c) => Math.round(0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]);
@@ -165,17 +211,40 @@ function registrar(rgb) {
   return indice;
 }
 
-const registrarTons = (t) => ({
-  corpo: registrar(t.corpo), nadadeira: registrar(t.nadadeira), borda: registrar(t.borda),
-});
-const transformar = (tons, f) => ({ corpo: f(tons.corpo), nadadeira: f(tons.nadadeira), borda: f(tons.borda) });
+const PRETO = [0, 0, 0];
+const BRANCO = [255, 255, 255];
 
-// COR.PEIXE[cor] = { vivo, idoso, doente }, cada um com { corpo, nadadeira, borda } (índices).
+// Dos 3 tons principais (corpo, nadadeira, borda) e do destaque saem os outros 4 papéis.
+function completar(t) {
+  return {
+    ...t,
+    contorno: misturar(t.corpo, PRETO, 0.62),
+    sombra: misturar(t.corpo, PRETO, 0.3),
+    brilho: misturar(t.corpo, BRANCO, 0.32),
+    clara: misturar(t.nadadeira, t.borda, 0.5),
+  };
+}
+const transformar = (tons, f) => Object.fromEntries(PAPEIS_DO_PEIXE.map((p) => [p, f(tons[p])]));
+const registrarTons = (tons, jaRegistrados = {}) => Object.fromEntries(
+  PAPEIS_DO_PEIXE.map((p) => [p, jaRegistrados[p] ?? registrar(tons[p])]),
+);
+
+// COR.PEIXE[cor] = { vivo, idoso, doente }, cada um com os 8 papéis (índices da PALETA).
+// No vermelho, os 3 tons principais já estavam na PALETA (COR.BETA, COR.BETA_IDOSO, COR.BETA_DOENTE);
+// aqui entram só os outros 5 papéis, e as mesmas pastas passam a ter os 8.
+const principais = (c) => ({ corpo: PALETA[c.corpo], nadadeira: PALETA[c.nadadeira], borda: PALETA[c.borda] });
+{
+  const vivo = completar({ ...principais(COR.BETA), destaque: DESTAQUE_DO_VERMELHO });
+  Object.assign(COR.BETA, registrarTons(vivo, COR.BETA));
+  Object.assign(COR.BETA_IDOSO, registrarTons(transformar(vivo, apagar), COR.BETA_IDOSO));
+  Object.assign(COR.BETA_DOENTE, registrarTons(transformar(vivo, empalidecer), COR.BETA_DOENTE));
+}
 COR.PEIXE = { vermelho: { vivo: COR.BETA, idoso: COR.BETA_IDOSO, doente: COR.BETA_DOENTE } };
-for (const [nome, tons] of Object.entries(TONS_DAS_CORES)) {
+for (const [nome, base] of Object.entries(TONS_DAS_CORES)) {
+  const vivo = completar(base);
   COR.PEIXE[nome] = {
-    vivo: registrarTons(tons),
-    idoso: registrarTons(transformar(tons, apagar)),
-    doente: registrarTons(transformar(tons, empalidecer)),
+    vivo: registrarTons(vivo),
+    idoso: registrarTons(transformar(vivo, apagar)),
+    doente: registrarTons(transformar(vivo, empalidecer)),
   };
 }

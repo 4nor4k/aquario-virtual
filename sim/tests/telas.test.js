@@ -90,22 +90,30 @@ test('status: peixe morto mostra a causa; sem peixe não dá erro', () => {
   assert.ok(contar(q3, 12) > 0);
 });
 
-test('status: a barra de saciedade enche na proporção do valor', () => {
+test('status: a barra de saciedade vai de 0 a 200 e 100 é o meio', () => {
   const t = montar();
   const ctx = { aquario: t.aq, config, textos, agoraMs: 0 };
-  const cheiosDe = (saciedade) => {
+  // A barra de saciedade fica na linha y = 32+1..3 (3 linhas por dentro), x de 47 a 94 (48 pixels).
+  const contarNaBarra = (saciedade, cor) => {
     t.aq.peixes[0].saciedade = saciedade;
     const q = criarQuadro();
     desenharStatus(q, ctx);
-    // A barra de saciedade fica na linha y = 32+1..3 (3 linhas por dentro), x de 47 a 94.
     let n = 0;
-    for (let x = 47; x < 95; x++) if (q[33 * LARGURA + x] === 11 || q[33 * LARGURA + x] === 10) n++;
+    for (let x = 47; x < 95; x++) if (q[33 * LARGURA + x] === cor) n++;
     return n;
   };
-  assert.equal(cheiosDe(100), 48);
-  assert.equal(cheiosDe(50), 24);
-  assert.equal(cheiosDe(0), 0);
+  assert.equal(config.saciedade.maximo, 200);
+  assert.equal(contarNaBarra(100, 11), 24, '100 enche até a metade, em ciano');
+  assert.equal(contarNaBarra(50, 11), 12);
+  assert.equal(contarNaBarra(0, 11), 0);
+  assert.equal(contarNaBarra(100, 10), 0, 'sem comer demais, nada rosa');
+  // Acima de 100 (comer demais) o ciano para na metade e o resto vira xadrez rosa.
+  assert.equal(contarNaBarra(150, 11), 24);
+  assert.ok(contarNaBarra(150, 10) > 0, 'o excesso aparece em rosa');
+  assert.equal(contarNaBarra(200, 11), 24);
+  assert.ok(contarNaBarra(200, 10) > contarNaBarra(150, 10), 'quanto mais comeu, mais rosa');
 });
+
 
 test('desenharTelas: tela do jogo não desenha nada; menu e status sim', () => {
   const t = montar();

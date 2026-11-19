@@ -44,7 +44,8 @@ Para economizar, o WiFi só liga quando necessário.
 - Joystick (menu fechado): move a câmera.
 - **A**: abre o menu de ações (comida, limpar, pH...) e confirma.
 - Joystick (menu aberto): navega no menu.
-- **B**: voltar/cancelar.
+- **B**: voltar/cancelar; na tela do jogo (sem menu), mostra/oculta o **HUD de indicadores**
+  [fechado em 2026-11-19: camada por cima do jogo, não uma tela nova].
 - **C**: tela de status (indicadores, idade, nome).
 
 Vantagem: novas tarefas (filtro, plantas) viram itens de menu sem mudar o hardware.

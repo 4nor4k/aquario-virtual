@@ -62,22 +62,29 @@ test('abrir o menu de novo começa no primeiro item', () => {
   assert.equal(menu.item, 0);
 });
 
-test('A no item "Dar comida" alimenta, volta ao jogo e mostra a mensagem', () => {
+test('A no item "Dar comida" joga os grãos, volta ao jogo e mostra a mensagem', () => {
   const { menu, aq } = novo();
   aq.peixes[0].saciedade = 20;
   menu.apertar(aperto('a'), aq);
   menu.apertar(aperto('a'), aq);
-  assert.equal(aq.peixes[0].saciedade, 80);
+  assert.equal(aq.graos.length, config.comida.graos);
+  assert.equal(aq.peixes[0].saciedade, 20, 'a saciedade só sobe quando ele comer');
   assert.equal(menu.tela, TELAS.JOGO);
   assert.equal(menu.mensagem, textos.mensagens.comida);
 });
 
-test('comida com o peixe cheio: mensagem de excesso', () => {
+test('comida com o peixe cheio: mensagem de que comer demais faz mal', () => {
   const { menu, aq } = novo();
   menu.apertar(aperto('a'), aq);
   menu.apertar(aperto('a'), aq); // saciedade 100: excesso
   assert.equal(menu.mensagem, textos.mensagens.comidaEmExcesso);
-  assert.equal(aq.sujeira, config.sujeira.porComidaEmExcesso);
+});
+
+test('a comida cai onde a interface mandar (posicaoDaComida)', () => {
+  const m = criarMenu({ textos, posicaoDaComida: () => 200 });
+  const { aq } = novo();
+  m.executar('comida', aq);
+  for (const g of aq.graos) assert.ok(Math.abs(g.x - 200) <= config.comida.espalhamentoX, `grão em x=${g.x}`);
 });
 
 test('limpar aquário zera a sujeira e avisa', () => {

@@ -4,6 +4,7 @@
 //   FUNDO  (anda a 85% da câmera, só para os lados): pedras em cinza escuro, UMA pedra grande
 //          com musgo (pedra-grande.js) e umas poucas plantas ramificadas em verde escuro. O
 //          efeito é SUTIL de propósito;
+//   CAMADA 3 (anda a 70%): só uma fonte de bolhas, atrás da pedra grande;
 //   JOGO   (anda a 100%):          rochas, areia, plantas, peixes e bolhas (o resto do render).
 //
 // Quanto mais longe, mais escuro: o cinza das pedras do fundo é mais escuro que o das rochas da
@@ -22,10 +23,13 @@ import { montarModelo, balanco } from './plantas.js';
 import { LARGURA, ALTURA } from './tela.js';
 import { COR } from './palette.js';
 import { desenharPedraGrande } from './pedra-grande.js';
+import { desenharBolhas } from './bolhas.js';
 
 // 0 = o fundo ficaria colado na tela, 1 = andaria junto com o jogo (sem profundidade nenhuma).
 // Perto de 1 o efeito é sutil: o fundo anda só 15% menos que a câmera.
 export const PARALAXE_FUNDO = 0.85;
+// A camada 3 (a fonte de bolhas de trás da pedra grande) é mais longe, então anda ainda mais devagar.
+export const PARALAXE_CAMADA_3 = 0.7;
 
 const COR_PEDRA = COR.PEDRA_FUNDO;         // miolo das pedras do fundo: cinza escuro, sólido
 const COR_BORDA = COR.PEDRA_FUNDO_BORDA;   // borda de cima das pedras: cinza um pouco mais claro
@@ -109,6 +113,11 @@ function deslocamentoX(camera, k) {
   return Math.round(meioX + (camera.x - meioX) * k);
 }
 
+// Quanto a camada do fundo (com a pedra grande) está deslocada na tela agora.
+export function deslocamentoDoFundo(camera) {
+  return deslocamentoX(camera, PARALAXE_FUNDO);
+}
+
 const dentro = (x, y) => x >= 0 && x < LARGURA && y >= 0 && y < ALTURA;
 
 // Altura da pedra na coluna dx (a partir do centro): meia elipse com a borda irregular.
@@ -158,10 +167,17 @@ function desenharPlantas(quadro, fundo, ox, oy, tempo) {
 
 // Desenha a camada de fundo: primeiro as pedras e a pedra grande, depois as plantas na frente. Chame logo
 // depois de pintar a água e antes do cenário (areia e rochas), que a cobre.
-export function desenharFundo(quadro, fundo, camera, tempo = 0) {
+// entreAsPedras (opcional): chamada depois das pedras pequenas e ANTES da pedra grande; é onde a cena
+// desenha os peixes que passam atrás da pedra grande.
+// bolhasDoFundo (opcional): a fonte de bolhas de trás da pedra grande, na CAMADA 3 (mais longe que a
+// camada 2 das pedras: anda a 70% da câmera, contra 85% das pedras). É desenhada antes de tudo do
+// fundo, então a pedra grande e as pedras pequenas a cobrem.
+export function desenharFundo(quadro, fundo, camera, tempo = 0, entreAsPedras = null, bolhasDoFundo = []) {
   const ox = deslocamentoX(camera, PARALAXE_FUNDO);
   const oy = Math.round(camera.y);
+  if (bolhasDoFundo.length) desenharBolhas(quadro, bolhasDoFundo, { x: deslocamentoX(camera, PARALAXE_CAMADA_3), y: oy });
   desenharPedras(quadro, fundo, ox, oy);
+  if (entreAsPedras) entreAsPedras();
   if (fundo.pedraGrande) desenharPedraGrande(quadro, fundo.pedraGrande.x, ox, AREIA_Y - oy);
   desenharPlantas(quadro, fundo, ox, oy, tempo);
 }

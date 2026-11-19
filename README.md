@@ -45,9 +45,11 @@ Depois abra **http://localhost:8080** no navegador. Para parar, use `Ctrl+C` no 
 O beta é um **bichinho que precisa de cuidado**. Ele nasce filhote, cresce em tempo real
 (filhote, jovem, adulto e idoso, em 30 dias) e:
 
-- **sente fome** (a saciedade cai de 100 a 0 em 48 h);
-- **suja a água** (sobe de 0 a 100 em 4 dias) e o **pH cai** com o tempo (quanto mais suja a água,
-  mais rápido);
+- **sente fome** (a saciedade cai 100 pontos a cada 48 h). Ela vai de 0 a 200: até 100 está bem,
+  acima é comer demais, e em 200 o peixe **passa mal e adoece**. A comida é jogada em 3 grãos que
+  caem devagar, e o peixe vai atrás deles mesmo sem fome;
+- **suja a água** (sobe de 0 a 100 em 4 dias, e a água fica cada vez mais **turva**; ao limpar, ela
+  clareia aos poucos) e o **pH cai** com o tempo (quanto mais suja a água, mais rápido);
 - tem uma **saúde** que sobe ou desce conforme a média dessas três coisas;
 - **adoece** (saúde abaixo de 30: cores pálidas, nada devagar) e **morre** (saúde 0, ou 30 dias
   de idade);
@@ -62,11 +64,12 @@ Para não esperar, o painel acelera o tempo.
 |---|---|---|---|
 | Joystick | Setas ou WASD | Move a câmera | Escolhe o item |
 | Botão A | **Z** | Abre o menu | Confirma |
-| Botão B | **X** | (nada) | Volta |
+| Botão B | **X** | Mostra/oculta o HUD de indicadores | Volta |
 | Botão C | **C** | Abre o status | (nada) |
 
 O menu tem **Dar comida**, **Limpar aquário** e **Regular pH**. O jogo **não pausa** com o menu
-aberto. No Game Over, **Z** abre a tela de adoção.
+aberto. O **HUD de indicadores** (B na tela do jogo) aparece por cima do jogo, sem trocar de tela, com
+um indicador em cada canto: fome, saúde, pH, temperatura da água e sujeira. No Game Over, **Z** abre a tela de adoção.
 
 Avisos na tela: no cantinho de cima, **F** (fome), **S** (sujeira) e **P** (pH) aparecem quando
 aquele indicador está ruim; sobre o peixe, **F** (fome) e **+** (doente).

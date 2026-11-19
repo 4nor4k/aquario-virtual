@@ -1,115 +1,183 @@
 // Sprites provisórios do beta, desenhados em texto. Você pode editar à vontade!
 //
-// Cada letra é uma cor da paleta (palette.js), em hexadecimal, usada como "molde":
-//   .  transparente      e  corpo      a  nadadeiras e cauda
-//   b  borda da cauda    c  branco (olho)    d  escuro (pupila)
-// Na hora de montar, o corpo (e), as nadadeiras (a) e a borda (b) viram os tons da cor do peixe
-// (vermelho, azul...; veja COR.PEIXE em palette.js); o olho e a pupila ficam como estão.
+// Cada letra é um "papel" de cor. Na hora de montar, cada papel vira um tom da cor do peixe
+// (vermelho, azul...; veja COR.PEIXE e PAPEIS_DO_PEIXE em palette.js):
+//   .  transparente
+//   o  contorno (a linha escura em volta e entre as partes)
+//   e  corpo (tom médio)     l  brilho (o corpo em cima, mais claro)     s  sombra (o corpo embaixo)
+//   a  nadadeira/cauda: a base, perto do corpo
+//   f  nadadeira/cauda: o meio
+//   b  nadadeira/cauda: as pontas (o tom mais claro)
+//   h  destaque: os raios coloridos (o "segundo tom")
+//   c  branco (brilho do olho)     d  escuro (pupila)     (c e d ficam como estão)
 //
 // O desenho é virado para a DIREITA. Quando o peixe nada para a esquerda, o sprite é espelhado.
 // Cada tamanho (filhote, jovem, adulto) tem:
 //   - corpo:  o desenho inteiro, com a parte da cauda em branco;
 //   - cauda:  só a parte da esquerda (a cauda), em repouso.
-// Os 4 quadros da animação de nadar saem da cauda: repouso, para cima, repouso, para baixo.
+// Os 4 quadros da animação de nadar saem da cauda: repouso, ondula para cima, repouso, ondula para
+// baixo (a ponta da cauda se mexe mais que a base; veja quadrosDaCauda).
 import { LARGURA, ALTURA } from './tela.js';
-import { COR } from './palette.js';
+import { COR, PAPEIS_DO_PEIXE, PALETA } from './palette.js';
+
+// Papel de cada letra, como "molde": números FORA da paleta (a paleta tem menos de 250 cores),
+// que na montagem viram os tons da cor do peixe. O olho (12) e a pupila (13) já são cores finais.
+const MOLDE = { e: 240, l: 241, s: 242, a: 243, f: 244, b: 245, o: 246, h: 247, c: 12, d: 13 };
+const PAPEL_DO_MOLDE = { 240: 'corpo', 241: 'brilho', 242: 'sombra', 243: 'nadadeira', 244: 'clara', 245: 'borda', 246: 'contorno', 247: 'destaque' };
 
 const CORPO_ADULTO = [
-  '....................',
-  '...........aa.......',
-  '..........aaaa......',
-  '..........aeeeee....',
-  '..........eeeeeeee..',
-  '.........eeeeeecde..',
-  '.........eeeeeeeeee.',
-  '.........eeeeeeeeee.',
-  '.........eeeeeeeee..',
-  '..........eeeeeee...',
-  '...........eeeaa....',
-  '..........aaaa......',
-  '..........aa........',
-  '....................',
+  '................................',
+  '................................',
+  '...............ooooo............',
+  '..............obbbbbo...........',
+  '..............bbfbbfboo.........',
+  '..............bfhffhfffo........',
+  '..............ffhffhffhbo.......',
+  '..............faaaooooofo.......',
+  '..............aooollllloo.......',
+  '..............ollllllllllo......',
+  '..............lllllelellllooo...',
+  '..............elelelelelslecdo..',
+  '..............eeeeeeeeeeseeddeo.',
+  '..............eeeeeeeeeeseeeeeeo',
+  '..............eeeeeeeeeooseseso.',
+  '..............ssseseseooooosso..',
+  '..............sssssssoobbbooo...',
+  '..............ossssssoobbbo.....',
+  '..............aoosssssoooo......',
+  '..............faaoooooooo.......',
+  '..............ffhffhffho........',
+  '..............bfhffhfbo.........',
+  '..............obfbbfbo..........',
+  '...............oooooo...........',
+  '................................',
+  '................................',
 ];
 const CAUDA_ADULTO = [
-  '.........',
-  '.........',
-  'ba.......',
-  'baaa.....',
-  'baaaaaa..',
-  'baaaaaaaa',
-  'baaaaaaaa',
-  'baaaaaaaa',
-  'baaaaaaaa',
-  'baaaaaaaa',
-  'baaaaaa..',
-  'baaa.....',
-  'ba.......',
-  '.........',
+  '..............',
+  '..............',
+  '......oo......',
+  '.....obo......',
+  '....obbbo....o',
+  '...obbffo....o',
+  '..obbfffbo..of',
+  '.obbbbfhho..oh',
+  '.obbbbfhhho.oh',
+  '.obfbbffhho.oa',
+  'obbffhfffhaooo',
+  'obfffhhhhaooee',
+  'obbbbffhhoeeee',
+  'obbbbffffossss',
+  'obbbfhhhhaosss',
+  'obbffhhhffaoss',
+  'obbffhfffhhooo',
+  '.obbbbffhho.oa',
+  '.obbbbbhhfo.oh',
+  '..obbfffho..oh',
+  '..obbfffbo..of',
+  '...obbfbo....o',
+  '....obbbo.....',
+  '.....ooo......',
+  '.......o......',
+  '..............',
 ];
 
 const CORPO_JOVEM = [
-  '..............',
-  '........aa....',
-  '......aeeee...',
-  '......eeeeee..',
-  '......eeeeecde',
-  '......eeeeeeee',
-  '......eeeeeee.',
-  '.......eeeaa..',
-  '.......aaa....',
-  '..............',
+  '......................',
+  '...........oo.........',
+  '..........obboo.......',
+  '.........obbbbbo......',
+  '.........obaaaabo.....',
+  '.........oaoooooo.....',
+  '.........oollllllo....',
+  '.........ollelelelocd.',
+  '.........eeeeeeeeeeeo.',
+  '.........eeeeeeeoeeeeo',
+  '.........seseseoooeso.',
+  '.........ossssoobooo..',
+  '.........oosssoooo....',
+  '.........oaoooooo.....',
+  '.........obbaabo......',
+  '.........obbbbo.......',
+  '..........oooo........',
+  '......................',
 ];
 const CAUDA_JOVEM = [
-  '......',
-  '......',
-  'b.....',
-  'baa...',
-  'baaaaa',
-  'baaaaa',
-  'baaaaa',
-  'baaa..',
-  'ba....',
-  '......',
+  '.........',
+  '.........',
+  '...ooo...',
+  '..obbo...',
+  '.obbbfo..',
+  '.obbffo..',
+  'obbffffo.',
+  'obbfffao.',
+  'obbfffolo',
+  'obbfffoee',
+  'obbfffaoo',
+  'obbffffo.',
+  '.obbffo..',
+  '.obbffo..',
+  '..obbo...',
+  '...obo...',
+  '....o....',
+  '.........',
 ];
 
 const CORPO_FILHOTE = [
-  '..........',
-  '......a...',
-  '....eeee..',
-  '....eeecd.',
-  '....eeeeee',
-  '....eeeee.',
-  '.....eea..',
-  '..........',
+  '..............',
+  '......ooo.....',
+  '......obboo...',
+  '......ooooo...',
+  '......lllelocd',
+  '......eeeeeeeo',
+  '......sseseso.',
+  '......osssso..',
+  '......boooo...',
+  '......oooo....',
+  '..............',
 ];
 const CAUDA_FILHOTE = [
-  '....',
-  'b...',
-  'baa.',
-  'baaa',
-  'baaa',
-  'baaa',
-  'baa.',
-  'b...',
+  '......',
+  '..oo..',
+  '.obo..',
+  'obbboo',
+  'obbboo',
+  'obbaoe',
+  'obbbos',
+  'obbboo',
+  '.obo.o',
+  '..oo..',
+  '......',
 ];
 
 // --- Variações da cauda para a animação -------------------------------------------------
 
-const vazia = (linha) => '.'.repeat(linha.length);
-
-// Cauda sobe 1 pixel
-const subir = (cauda) => [...cauda.slice(1), vazia(cauda[0])];
-// Cauda desce 1 pixel
-const descer = (cauda) => [vazia(cauda[0]), ...cauda.slice(0, -1)];
+// A cauda ondula: cada coluna sobe ou desce algumas linhas, e quanto mais longe do corpo, mais ela
+// se mexe (a ponta até 2 linhas no adulto, 1 nos menores; junto do corpo, nada).
+// sinal = 0 (repouso), -1 (sobe) ou +1 (desce).
+function ondularCauda(cauda, sinal, amplitude) {
+  const altura = cauda.length;
+  const largura = cauda[0].length;
+  const linhas = Array.from({ length: altura }, () => Array(largura).fill('.'));
+  for (let x = 0; x < largura; x++) {
+    const longe = (largura - 1 - x) / Math.max(1, largura - 1); // 0 junto do corpo, 1 na ponta
+    const deslocamento = sinal * Math.round(amplitude * longe ** 1.1);
+    for (let y = 0; y < altura; y++) {
+      const origem = y - deslocamento;
+      if (origem >= 0 && origem < altura) linhas[y][x] = cauda[origem][x];
+    }
+  }
+  return linhas.map((l) => l.join(''));
+}
 
 // Balanço da cauda: repouso, sobe, repouso, desce.
-function quadrosDaCauda(cauda) {
-  return [cauda, subir(cauda), cauda, descer(cauda)];
+function quadrosDaCauda(cauda, amplitude) {
+  return [cauda, ondularCauda(cauda, -1, amplitude), cauda, ondularCauda(cauda, 1, amplitude)];
 }
 
 // --- Montagem ---------------------------------------------------------------------------
 
-// Junta a cauda (parte da esquerda) com o corpo e converte as letras em números da paleta.
+// Junta a cauda (parte da esquerda) com o corpo e converte as letras nos moldes (números).
 function montarQuadro(corpo, cauda) {
   const largura = corpo[0].length;
   const altura = corpo.length;
@@ -121,17 +189,20 @@ function montarQuadro(corpo, cauda) {
   for (let y = 0; y < altura; y++) {
     const linha = cauda[y] + corpo[y].slice(larguraCauda);
     for (let x = 0; x < largura; x++) {
-      pix[y * largura + x] = linha[x] === '.' ? 0 : parseInt(linha[x], 16);
+      if (linha[x] === '.') continue;
+      const molde = MOLDE[linha[x]];
+      if (molde === undefined) throw new Error(`sprite: letra desconhecida "${linha[x]}"`);
+      pix[y * largura + x] = molde;
     }
   }
   return pix;
 }
 
-function montarSprite(corpo, cauda) {
+function montarSprite(corpo, cauda, amplitude) {
   return {
     largura: corpo[0].length,
     altura: corpo.length,
-    quadros: quadrosDaCauda(cauda).map((c) => montarQuadro(corpo, c)),
+    quadros: quadrosDaCauda(cauda, amplitude).map((c) => montarQuadro(corpo, c)),
   };
 }
 
@@ -145,20 +216,16 @@ function recolorir(sprite, trocas) {
   };
 }
 
-// As trocas de cor de uma cor do peixe (COR.PEIXE em palette.js), em números da paleta:
-//   vivo:   do molde (14 corpo, 10 nadadeira, 11 borda) para os tons da cor;
+// As trocas de uma cor do peixe (COR.PEIXE em palette.js), em números da paleta:
+//   vivo:   dos moldes para os tons da cor;
 //   idoso:  os tons da cor viram os apagados (é assim que o idoso e o morto ficam "apagados");
 //   doente: pálido; também troca os do idoso, para o idoso doente continuar parecendo doente.
 function trocasDaCor(p) {
+  const de = (origem, destino) => Object.fromEntries(PAPEIS_DO_PEIXE.map((papel) => [origem[papel], destino[papel]]));
   return {
-    vivo: { 14: p.vivo.corpo, 10: p.vivo.nadadeira, 11: p.vivo.borda },
-    idoso: {
-      [p.vivo.corpo]: p.idoso.corpo, [p.vivo.nadadeira]: p.idoso.nadadeira, [p.vivo.borda]: p.idoso.borda,
-    },
-    doente: {
-      [p.vivo.corpo]: p.doente.corpo, [p.vivo.nadadeira]: p.doente.nadadeira, [p.vivo.borda]: p.doente.borda,
-      [p.idoso.corpo]: p.doente.corpo, [p.idoso.nadadeira]: p.doente.nadadeira, [p.idoso.borda]: p.doente.borda,
-    },
+    vivo: Object.fromEntries(Object.entries(PAPEL_DO_MOLDE).map(([molde, papel]) => [molde, p.vivo[papel]])),
+    idoso: de(p.vivo, p.idoso),
+    doente: { ...de(p.vivo, p.doente), ...de(p.idoso, p.doente) },
   };
 }
 
@@ -173,18 +240,21 @@ const variar = (porEspecie, trocas) => Object.fromEntries(
 // Todos os sprites de uma cor: { normal, doente, morto }, cada um por espécie e fase.
 function montarCor(cor) {
   const trocas = trocasDaCor(COR.PEIXE[cor]);
-  const pintar = (corpo, cauda) => recolorir(montarSprite(corpo, cauda), trocas.vivo);
-  const ADULTO = pintar(CORPO_ADULTO, CAUDA_ADULTO);
+  const pintar = (corpo, cauda, amplitude) => recolorir(montarSprite(corpo, cauda, amplitude), trocas.vivo);
+  const ADULTO = pintar(CORPO_ADULTO, CAUDA_ADULTO, 2);
   const normal = {
     beta: {
-      filhote: pintar(CORPO_FILHOTE, CAUDA_FILHOTE),
-      jovem: pintar(CORPO_JOVEM, CAUDA_JOVEM),
+      filhote: pintar(CORPO_FILHOTE, CAUDA_FILHOTE, 1),
+      jovem: pintar(CORPO_JOVEM, CAUDA_JOVEM, 1),
       adulto: ADULTO,
       idoso: recolorir(ADULTO, trocas.idoso),
     },
   };
   return { normal, doente: variar(normal, trocas.doente), morto: variar(normal, trocas.idoso) };
 }
+
+// Os moldes (240 a 247) precisam ficar fora da paleta, senão se confundem com cores de verdade.
+if (PALETA.length >= 240) throw new Error('palette: a PALETA chegou a 240 cores; mude os moldes de sprites.js');
 
 // As cores que existem e o que foi montado para cada uma (montado uma vez, ao abrir).
 export const CORES_DO_PEIXE = Object.keys(COR.PEIXE);

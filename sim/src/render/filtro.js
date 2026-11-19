@@ -9,9 +9,11 @@ import { deslocamentoDaOnda } from './superficie.js';
 import { LARGURA, ALTURA } from './tela.js';
 import { COR } from './palette.js';
 
-const BRANCO = 12;
+// O filtro é de plástico cinza escuro, em cores sólidas: o contorno (tubo, bico e bordas da caixa)
+// é um cinza um pouco mais claro que o miolo, para a forma aparecer contra a água preta.
+export const CONTORNO = COR.PEDRA_SOMBRA; // #4f535b
+export const MIOLO = COR.PEDRA_FUNDO;     // #3a3e45
 const AZUL = COR.AZUL_AGUA; // a água que cai, os respingos e as bolhinhas, no mesmo azul da superfície
-const XADREZ = 14; // meio-tom
 
 // Medidas, em pixels do mundo (o canto de cima à esquerda é (0, 0)).
 export const CAIXA = { x: 1, y: 2, largura: 13, altura: 16 };
@@ -43,21 +45,21 @@ export function desenharFiltro(quadro, camera, tempo = 0) {
   };
 
   // Tubo de sucção e a grade na ponta (dentro da água, embaixo da caixa).
-  retangulo(TUBO.x, TUBO.y, 2, TUBO.comprimento, BRANCO);
+  retangulo(TUBO.x, TUBO.y, 2, TUBO.comprimento, CONTORNO);
   const fimDoTubo = TUBO.y + TUBO.comprimento;
-  retangulo(TUBO.x - 2, fimDoTubo, 6, 5, XADREZ);
-  for (let i = 0; i < 6; i++) { pixel(TUBO.x - 2 + i, fimDoTubo, BRANCO); pixel(TUBO.x - 2 + i, fimDoTubo + 4, BRANCO); }
+  retangulo(TUBO.x - 2, fimDoTubo, 6, 5, MIOLO);
+  for (let i = 0; i < 6; i++) { pixel(TUBO.x - 2 + i, fimDoTubo, CONTORNO); pixel(TUBO.x - 2 + i, fimDoTubo + 4, CONTORNO); }
 
-  // Caixa: contorno branco, miolo em xadrez e três fendas escuras (a saída de ar do motor).
+  // Caixa: contorno cinza, miolo cinza escuro e três fendas pretas (a saída de ar do motor).
   const { x, y, largura, altura } = CAIXA;
-  retangulo(x, y, largura, altura, XADREZ);
-  for (let i = 0; i < largura; i++) { pixel(x + i, y, BRANCO); pixel(x + i, y + altura - 1, BRANCO); }
-  for (let j = 0; j < altura; j++) { pixel(x, y + j, BRANCO); pixel(x + largura - 1, y + j, BRANCO); }
+  retangulo(x, y, largura, altura, MIOLO);
+  for (let i = 0; i < largura; i++) { pixel(x + i, y, CONTORNO); pixel(x + i, y + altura - 1, CONTORNO); }
+  for (let j = 0; j < altura; j++) { pixel(x, y + j, CONTORNO); pixel(x + largura - 1, y + j, CONTORNO); }
   for (let k = 0; k < 3; k++) retangulo(x + 3 + k * 3, y + 4, 1, 8, 0);
 
   // Bico: uma calha de 2 pixels que sai da caixa, com a pontinha virada para baixo.
-  retangulo(BICO.x, BICO.y, BICO.comprimento, 2, BRANCO);
-  pixel(BICO.x + BICO.comprimento - 1, BICO.y + 2, BRANCO);
+  retangulo(BICO.x, BICO.y, BICO.comprimento, 2, CONTORNO);
+  pixel(BICO.x + BICO.comprimento - 1, BICO.y + 2, CONTORNO);
 
   // A queda: um fio de 2 colunas de água descendo até a linha da superfície naquele ponto, com
   // uma terceira coluna mais rala ao lado, como o respingo da borda.

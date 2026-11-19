@@ -51,8 +51,10 @@ export function criarPainel({
   }
 
   botaoPular.addEventListener('click', () => {
-    const ms = msAteProximaFase(obterPeixe(), clock.agoraMs());
-    if (ms !== null) clock.avancar(ms);
+    // Só o peixe fica mais velho; o relógio e a água não andam (senão ele morreria de fome no caminho).
+    const peixe = obterPeixe();
+    const ms = msAteProximaFase(peixe, clock.agoraMs());
+    if (ms !== null) obterAquario().envelhecer(peixe, ms);
     atualizar(true);
   });
 
@@ -107,14 +109,14 @@ export function criarPainel({
   });
 
   // Editar os valores à mão (para testar sem esperar o tempo passar).
-  function aoEditar(campo, aplicar) {
+  function aoEditar(campo, aplicar, max = 100) {
     campo.addEventListener('change', () => {
-      const n = lerNumero(campo.value);
+      const n = lerNumero(campo.value, 0, max);
       if (n !== null) aplicar(n);
       atualizar(true);
     });
   }
-  aoEditar(campoSaciedade, (n) => { obterPeixe().saciedade = n; });
+  aoEditar(campoSaciedade, (n) => { obterPeixe().saciedade = n; }, config.saciedade.maximo);
   aoEditar(campoSujeira, (n) => { obterAquario().sujeira = n; });
   aoEditar(campoSaude, (n) => { obterPeixe().saude = n; });
   campoPh.addEventListener('change', () => {

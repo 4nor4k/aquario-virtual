@@ -38,9 +38,9 @@ test('ida e volta: peixe vivo, saudável', () => {
   assert.equal(r.aquario.gameOver, false);
 });
 
-// O que o salvamento guarda do peixe (não guarda o nado: destino, espera, animação).
+// O que o salvamento guarda do peixe (não guarda o nado nem o cocô: só animação em tempo real).
 function esconderNado(p) {
-  const { destino, movimento, espera, tempoAnimacao, ...resto } = p;
+  const { destino, movimento, espera, tempoAnimacao, cocoEm, cocoAleatorioEm, fazendoCoco, ...resto } = p;
   return resto;
 }
 

@@ -74,6 +74,18 @@ bateria + USB), gerenciado também pelo celular via WiFi. Veja `README.md` e `do
   - Estrutura: `criarMenu({ textos, cores, aoNovoJogo({cor}), aoAgir })`; telas `ADOCAO` e
     `BEM_VINDO`; `SPRITES*` são os do vermelho, `spritesDaCor(cor)` tem todos.
   - Pendente da v0.3: nada. Não foi feita à mão a espera de 1 minuto com o servidor desligado.
+- **Depois da v0.3 (19/11/2026, sem tag ainda):** (1) "Pular fase" do painel agora só **envelhece o
+  peixe** (`aquario.envelhecer`); antes avançava o relógio dias e o peixe morria de fome no caminho;
+  (2) filtro em **cinza escuro** sólido; (3) **água suja em 4 faixas, sem pontilhado** (refeita no mesmo dia; `04`, seção 8): 0-40 limpo; 41-60 chão escurece + grãos no chão + partículas flutuando/caindo; 61-90 água muda de cor sólida (preto -> marrom-esverdeado) e a superfície vai de azul a amarelo-barrento; **bolor no vidro das paredes laterais do aquário, preso ao mundo e atrás de tudo, de 61 a 100** (`render/bolor.js`); 91-100 cor inteira; transição de 6 s ao limpar. **Bolhas:** a fonte da direita (x=236) foi tirada; há uma fonte atrás da pedra grande na **camada 3** (paralaxe 70%, `PARALAXE_CAMADA_3`). 480 testes; bolhas mais fortes (~2,5×); a sujeira da comida só entra 5 s depois de comer e bem devagar (6 h; `sujeiraPendente`, `rules.js`, `sujar`); cada grão dá +7 de saciedade (porção = 21; manter o peixe pede comida a cada 8 a 10 h; o excesso acima de 100 é digerido em 5 h; empanturrado até 200 adoece e só melhora ao voltar a 100)
+  (`render/turvacao.js`); (4) **comida em grãos** (`core/comida.js`, `render/comida.js`): 3 grãos caem
+  devagar, o peixe vai atrás mesmo sem fome; (5) **saciedade de 0 a 200** (100 = cheio; 200 = doente
+  por comer demais). Números em `config/jogo.json` (`saciedade`, `comida`, `sujeira`). Decisões em
+  `03` (Fome/saciedade) e `04` (seção 8). **cocô** do peixe (`core/coco.js`: de vez em quando e 10 s depois de comer; só animação). **HUD de indicadores** (B na tela do jogo, `render/indicadores.js`; temperatura ainda é valor fixo), **profundidade do peixe** (passa atrás/na frente das algas e da pedra grande) e bolhas pequenas constantes + grandes de vez em quando. 460 testes.
+- **Novo design do beta (19/11/2026, sem tag):** adulto **32×26**, jovem 22×18, filhote 14×11 (cauda
+  em leque, nadadeiras de cima e de baixo, peitoral, contorno escuro; referência: imagem de pixel art
+  do usuário). 8 papéis de cor por cor de peixe (`PAPEIS_DO_PEIXE` em `palette.js`: corpo, sombra,
+  brilho, contorno, nadadeira, clara, borda, destaque); cauda ondula por coluna. Desenho em texto em
+  `render/sprites.js` (provisório, o usuário refina). Decisões em `04`, seção 8. 474 testes.
 - Próximo: **v0.4** (reprodução e vários peixes: casal, ovos, limite de 5, parceiro adulto).
   Escrever `docs/10-plano-v0.4.md` e fechar com o usuário antes de codar. As dúvidas de ovos além do
   limite e segundo parceiro (`03`, seção 8) entram nesse plano. O código e as regras já aceitam

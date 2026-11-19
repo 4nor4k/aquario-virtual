@@ -3,7 +3,8 @@
 // Não desenha nada e não conhece o navegador (o desenho fica em render/telas.js).
 //
 // Controles:
-//   tela do jogo : A abre o menu · C abre o status · joystick move a câmera
+//   tela do jogo : A abre o menu · C abre o status · B mostra/oculta o HUD de indicadores ·
+//                  joystick move a câmera
 //   menu         : joystick (cima/baixo) escolhe · A confirma · B volta
 //   status       : C ou B voltam
 //   game over    : A vai para a tela de adoção
@@ -24,14 +25,18 @@ export const SEGUNDOS_ATE_O_GAME_OVER = 5;
 
 // textos: o conteúdo de config/textos.json. cores: os nomes das cores que se pode escolher ao
 // adotar. aoNovoJogo({ cor }): o que fazer quando o jogador adota (aperta A na tela de adoção). aoAgir: avisa a interface depois de cada ação de
-// cuidado (comida, limpar, pH), por exemplo para salvar o jogo.
-export function criarMenu({ textos, cores = ['vermelho'], aoNovoJogo, aoAgir = () => {} }) {
+// cuidado (comida, limpar, pH), por exemplo para salvar o jogo. posicaoDaComida: devolve o x do
+// mundo de onde a comida cai (a interface entrega o meio da tela; sem ela cai sobre o peixe).
+export function criarMenu({
+  textos, cores = ['vermelho'], aoNovoJogo, aoAgir = () => {}, posicaoDaComida = () => undefined,
+}) {
   let tela = TELAS.JOGO;
   let item = 0;
   let mensagem = null; // { texto, restante } (segundos)
   let esperaGameOver = 0;
   let cor = 0; // posição da cor escolhida na tela de adoção (em `cores`)
   let bemVindo = null; // { ausenciaMs, morreu }: o que a tela de boas-vindas mostra
+  let hudVisivel = false; // o HUD de indicadores por cima do jogo (B liga e desliga; não é uma tela)
 
   // Faz a ação de cuidado e mostra a mensagem. É o que o menu e o painel de testes chamam.
   // Devolve o texto da mensagem.
@@ -39,7 +44,7 @@ export function criarMenu({ textos, cores = ['vermelho'], aoNovoJogo, aoAgir = (
     const t = textos.mensagens;
     let texto;
     if (acao === 'comida') {
-      const r = aquario.darComida();
+      const r = aquario.darComida({ x: posicaoDaComida() });
       texto = !r.alimentou ? t.semPeixe : r.excesso ? t.comidaEmExcesso : t.comida;
     } else if (acao === 'limpar') {
       aquario.limparAquario();
@@ -67,6 +72,7 @@ export function criarMenu({ textos, cores = ['vermelho'], aoNovoJogo, aoAgir = (
     get item() { return item; },
     get mensagem() { return mensagem ? mensagem.texto : null; },
     get bemVindo() { return bemVindo; },
+    get hudVisivel() { return hudVisivel; },
     get corEscolhida() { return cores[cor]; },
     cores,
     itens: textos.menu.itens,
@@ -102,6 +108,7 @@ export function criarMenu({ textos, cores = ['vermelho'], aoNovoJogo, aoAgir = (
         }
       } else if (tela === TELAS.JOGO) {
         if (botoes.a) { tela = TELAS.MENU; item = 0; } else if (botoes.c) tela = TELAS.STATUS;
+        else if (botoes.b) hudVisivel = !hudVisivel; // o HUD é só uma camada: a tela continua a do jogo
       } else if (tela === TELAS.MENU) {
         const n = ACOES.length;
         if (botoes.cima) item = (item - 1 + n) % n;

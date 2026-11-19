@@ -7,6 +7,8 @@ import { gerarPlantas } from './render/plantas.js';
 import { gerarFundo } from './render/fundo.js';
 import { desenharQuadro } from './render/scene.js';
 import { desenharTelas } from './render/telas.js';
+import { criarTurvacao, nivelDaSujeira } from './render/turvacao.js';
+import { atualizarPlanos } from './render/profundidade.js';
 import { criarTeclado } from './input/keyboard.js';
 import { criarPainel } from './sim/panel.js';
 import { MUNDO_LARGURA, MUNDO_ALTURA } from './core/mundo.js';
@@ -43,7 +45,11 @@ const camera = criarCamera({
 
 // Enfeites que não afetam o jogo: bolhas e a onda da superfície, em tempo real (não aceleram).
 const bolhas = criarBolhas();
+// A fonte de bolhas da camada 3: sai de trás da pedra grande (camada mais longe, com paralaxe de 70%).
+const bolhasDoFundo = criarBolhas({ semente: 21, emissores: [fundo.pedraGrande.x] });
 let tempoVisual = 0;
+// O quanto a água está turva na tela: acompanha a sujeira aos poucos (limpar clareia em segundos).
+const turvacao = criarTurvacao();
 
 // Câmera automática: segue o peixe quando o jogador está AFK e ele sai da tela.
 const seguidor = criarSeguidorDeCamera({ camera, janelaLargura: LARGURA, janelaAltura: ALTURA });
@@ -94,7 +100,14 @@ async function salvar({ keepalive = false } = {}) {
 const novaSemente = () => (Date.now() + numeroDoJogo) >>> 0;
 
 // O menu e as telas (A abre o menu, C abre o status...). No Game Over, A abre a adoção; adotar recomeça.
-const menu = criarMenu({ textos, cores: config.cores, aoNovoJogo: ({ cor }) => adotar({ cor }), aoAgir: () => salvar() });
+const menu = criarMenu({
+  textos,
+  cores: config.cores,
+  aoNovoJogo: ({ cor }) => adotar({ cor }),
+  aoAgir: () => salvar(),
+  // A comida cai no meio do que você está vendo.
+  posicaoDaComida: () => camera.x + LARGURA / 2,
+});
 
 // Adota: começa um aquário novo, com um filhote da cor escolhida e o relógio em zero.
 // Sem nome, ele se chama "Beta" até você mudar (pelo painel; o aparelho não tem teclado).
@@ -105,6 +118,7 @@ function adotar({ cor, nome }) {
   aquario = criarAquario({ semente: novaSemente(), config });
   beta = aquario.adicionarPeixe({ nome: config.nome.padrao, especie: 'beta', cor, x: 120, y: 80 }, clock.agoraMs());
   if (nome != null) aquario.renomear(beta, nome, aceitaNoNome);
+  turvacao.irPara(nivelDaSujeira(aquario.sujeira));
   semJogo = false;
   jaSalvouOGameOver = false;
   salvar();
@@ -118,6 +132,7 @@ function esperarAdocao() {
   menu.reiniciar();
   aquario = criarAquario({ semente: novaSemente(), config });
   beta = aquario.adicionarPeixe({ nome: config.nome.padrao, especie: 'beta', x: 120, y: 80 }, clock.agoraMs());
+  turvacao.irPara(nivelDaSujeira(aquario.sujeira));
   semJogo = true;
   jaSalvouOGameOver = false;
   menu.abrirAdocao();
@@ -149,6 +164,7 @@ async function carregarJogoSalvo() {
     menu.reiniciar();
     aquario = carregado;
     beta = aquario.peixes[0];
+    turvacao.irPara(nivelDaSujeira(aquario.sujeira)); // abre já com a água como estava
     jaSalvouOGameOver = aquario.gameOver;
     salvar(); // grava já o estado depois da ausência (e da hora de agora)
     // Só avisa se ficou fora por um tempo; dar F5 não mostra nada.
@@ -210,18 +226,23 @@ function atualizar(dt) {
   const { largura, altura } = TAMANHO_POR_FASE[beta.fase];
   seguidor.atualizar(dt, { alvo: { x: beta.x, y: beta.y, largura, altura }, joystick: dir, livre });
   aquario.atualizar(dt, clock.agoraMs());
+  // Por onde o peixe passa (atrás ou na frente das algas e da pedra): troca quando não está sobre elas.
+  atualizarPlanos(aquario.peixes, { plantas, fundo, camera });
   if (aquario.gameOver && !jaSalvouOGameOver) {
     jaSalvouOGameOver = true;
     salvar();
   }
   bolhas.atualizar(dt);
+  bolhasDoFundo.atualizar(dt);
+  turvacao.atualizar(dt, nivelDaSujeira(aquario.sujeira));
   tempoVisual += dt;
   menu.atualizar(dt, aquario);
 }
 
 function desenhar() {
   desenharQuadro(quadro, {
-    mapa, camera, peixes: aquario.peixes, aquario, config, bolhas: bolhas.lista, plantas, fundo, tempo: tempoVisual,
+    mapa, camera, peixes: aquario.peixes, aquario, config, bolhas: bolhas.lista, bolhasDoFundo: bolhasDoFundo.lista, plantas, fundo, tempo: tempoVisual,
+    turvacao: turvacao.nivel, graos: aquario.graos, cocos: aquario.cocos,
   });
   desenharTelas(quadro, { menu, aquario, config, textos, agoraMs: clock.agoraMs() });
   mostrarQuadro(ctx, quadro);
@@ -247,7 +268,7 @@ function ciclo(agora) {
 // Ajuda para desenvolver: abrindo http://localhost:8080/?debug, dá para mexer no jogo pelo
 // console do navegador (ex.: __debug.camera.irPara(0, 0)). Sem "?debug" nada disso existe.
 if (new URLSearchParams(location.search).has('debug')) {
-  window.__debug = { camera, seguidor, clock, config, textos, menu, aquario: () => aquario, salvamento, salvar };
+  window.__debug = { camera, seguidor, clock, config, textos, menu, turvacao, aquario: () => aquario, salvamento, salvar };
 }
 
 desenhar();

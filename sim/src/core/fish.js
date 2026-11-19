@@ -21,16 +21,17 @@ export const INICIO_DA_FASE_MS = {};
 
 // Tamanho do sprite em cada fase (doc 04, seção 5). O idoso usa o tamanho do adulto.
 export const TAMANHO_POR_FASE = {
-  filhote: { largura: 10, altura: 8 },
-  jovem: { largura: 14, altura: 10 },
-  adulto: { largura: 20, altura: 14 },
-  idoso: { largura: 20, altura: 14 },
+  filhote: { largura: 14, altura: 11 },
+  jovem: { largura: 22, altura: 18 },
+  adulto: { largura: 32, altura: 26 },
+  idoso: { largura: 32, altura: 26 },
 };
 
 export const VELOCIDADE_NADO = 15;      // pixels por segundo
 export const QUADROS_POR_SEGUNDO = 6;   // velocidade da animação de nadar
 export const QUADROS_DE_NADO = 4;
 export const FATOR_VELOCIDADE_DOENTE = 0.5; // peixe doente: metade da velocidade
+export const FATOR_VELOCIDADE_COMIDA = 1.6; // indo atrás de comida, nada mais animado
 export const VELOCIDADE_BOIA = 8;           // peixe morto sobe a 8 pixels por segundo
 
 const MARGEM_SUPERFICIE = 4;  // o peixe não encosta na superfície (nem na crista da onda)
@@ -53,6 +54,11 @@ export function limitesDoPeixe(fase) {
 
 export const SEXOS = ['macho', 'femea'];
 
+// Em que "plano" o peixe nada, de trás para a frente (só para o desenho): no FUNDO ele passa atrás
+// da pedra grande (e, por consequência, atrás das algas), no MEIO passa na frente da pedra mas atrás
+// das algas gigantes, e na FRENTE passa na frente de tudo. Ele sorteia o plano a cada novo trajeto.
+export const PLANOS = ['fundo', 'meio', 'frente'];
+
 export function criarPeixe({
   id = 0, nome = 'Beta', especie = 'beta', cor = 'vermelho', sexo = 'macho', fase = 'filhote',
   saciedade = 100, saude = 100, estado = 'saudavel', causaDaMorte = null, direcao = 1,
@@ -66,7 +72,7 @@ export function criarPeixe({
     cor,                   // nome da cor (config.cores), ex.: 'vermelho'
     sexo,                  // 'macho' ou 'femea'; sorteado na adoção, só é revelado na v0.4
     fase,
-    saciedade,             // 0 a 100 (100 = de barriga cheia)
+    saciedade,             // 0 a 200: até 100 está bem (100 = cheio); acima é comer demais; 200 = passa mal
     saude,                 // 0 a 100 (em 0 o peixe morre)
     estado,                // 'saudavel', 'doente' ou 'morto'
     causaDaMorte,          // 'velhice' ou 'cuidado' (falta de cuidado), só depois de morrer
@@ -78,6 +84,17 @@ export function criarPeixe({
     movimento: 'esperando', // 'nadando' ou 'esperando' (o que está fazendo; não é a saúde)
     espera: 0.5,           // segundos que ainda vai ficar parado
     tempoAnimacao: 0,      // segundos acumulados, para escolher o quadro da animação
+    // O cocô (core/coco.js): contagens em segundos REAIS, só da animação, fora do arquivo salvo.
+    cocoEm: null,          // segundos até o cocô de "depois de comer" (null = nenhum agendado)
+    cocoAleatorioEm: null, // segundos até o cocô "de vez em quando" (sorteado na primeira vez)
+    fazendoCoco: 0,        // segundos que ainda fica parado fazendo cocô
+    // A profundidade (só desenho, não é salva): o plano onde ele está e o que sorteou para o
+    // trajeto atual. A interface só troca de um para o outro quando ele não está sobre uma alga
+    // gigante nem sobre a pedra grande (render/profundidade.js), para ele não "pular" na frente.
+    plano: 'frente',
+    planoDesejado: 'frente',
+    trajeto: 0,            // conta os trajetos (cada vez que escolhe um destino novo)
+    trajetoDoPlano: 0,     // o trajeto para o qual o plano já foi sorteado
   };
 }
 
@@ -154,15 +171,22 @@ function escolherDestino(peixe, rng) {
 }
 
 // Um passo do peixe (dt em segundos): nada até o destino, espera um pouco e sorteia outro.
-export function atualizarPeixe(peixe, dt, rng) {
+// comida: o grão que ele deve perseguir agora ({ x, y }), ou null. Com comida na água ele vai atrás
+// dela, esteja com fome ou não, e deixa o passeio para depois.
+export function atualizarPeixe(peixe, dt, rng, comida = null) {
   // Peixe doente nada e bate a cauda na metade da velocidade (doc 03 e 04).
   const ritmo = peixe.estado === 'doente' ? FATOR_VELOCIDADE_DOENTE : 1;
   peixe.tempoAnimacao += dt * ritmo;
 
-  if (peixe.movimento === 'esperando') {
+  if (comida) {
+    const lim = limitesDoPeixe(peixe.fase);
+    peixe.destino = { x: limitar(comida.x, lim.minX, lim.maxX), y: limitar(comida.y, lim.minY, lim.maxY) };
+    peixe.movimento = 'nadando';
+  } else if (peixe.movimento === 'esperando') {
     peixe.espera -= dt;
     if (peixe.espera <= 0) {
       peixe.destino = escolherDestino(peixe, rng);
+      peixe.trajeto++;
       peixe.movimento = 'nadando';
       virarParaODestino(peixe); // já vira antes de sair nadando
     }
@@ -172,7 +196,7 @@ export function atualizarPeixe(peixe, dt, rng) {
   const dx = peixe.destino.x - peixe.x;
   const dy = peixe.destino.y - peixe.y;
   const distancia = Math.sqrt(dx * dx + dy * dy);
-  const passo = VELOCIDADE_NADO * ritmo * dt;
+  const passo = VELOCIDADE_NADO * ritmo * (comida ? FATOR_VELOCIDADE_COMIDA : 1) * dt;
 
   if (distancia <= passo) {
     peixe.x = peixe.destino.x;
@@ -186,6 +210,12 @@ export function atualizarPeixe(peixe, dt, rng) {
   peixe.x += (dx / distancia) * passo;
   peixe.y += (dy / distancia) * passo;
   virarParaODestino(peixe);
+}
+
+// Peixe parado (fazendo cocô): não sai do lugar, mas a cauda continua batendo.
+export function atualizarPeixeParado(peixe, dt) {
+  const ritmo = peixe.estado === 'doente' ? FATOR_VELOCIDADE_DOENTE : 1;
+  peixe.tempoAnimacao += dt * ritmo;
 }
 
 // Peixe morto: não nada; sobe devagar até a superfície e fica boiando lá, de barriga para cima.
