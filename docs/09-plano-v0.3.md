@@ -2,7 +2,7 @@
 
 Legenda: **[fechado]** decidido pelo usuário · **[proposta]** sugestão a confirmar.
 
-**Status: plano fechado em 2026-11-19**, com as recomendações da seção 8 (o usuário disse
+**Status: v0.3 concluída em 2026-11-19 (tag `v0.3`).** Plano fechado em 2026-11-19, com as recomendações da seção 8 (o usuário disse
 "manda brasa" sem alterar nenhuma; pode reabrir qualquer uma). Três decisões vieram dele
 (marcadas **[fechado]**); o resto é recomendação minha, agora adotada.
 Progresso dos passos: ver seção 10.
@@ -262,3 +262,40 @@ A confirmar (a recomendação vem primeiro; se nada for dito, entra a recomenda�
   (`spritesDaCor`, `spriteDoPeixe` escolhe pela cor); `SPRITES`, `SPRITES_DOENTES` e
   `SPRITES_MORTOS` continuam existindo e são os do vermelho. Os tons são **provisórios**, para
   o usuário refinar.
+- **Passo 5 (adoção) feito em 2026-11-19:** tela **Adote um peixe** (`menu.abrirAdocao`,
+  `desenharAdocao`: peixe 3× batendo a cauda, setas `<` `>` e nome da cor), `core/nome.js`
+  (`normalizarNome`) e `aquario.renomear`, sorteio do sexo, campo **Nome** e seção **Adoção** no
+  painel, botão **Apagar jogo** (pede um segundo clique). Na primeira vez (sem arquivo) o aquário
+  de trás é só um enfeite e **nada é salvo** até adotar. O Game Over passou a levar à adoção (A),
+  e adotar é que recomeça o jogo. A fonte ganhou o `<`.
+- **Passo 6 (fechamento) feito em 2026-11-19:** conferência abaixo, README, `CLAUDE.md`, versão
+  0.3.0 e tag `v0.3`.
+
+## 11. Resultado da conferência da v0.3 (2026-11-19)
+
+| # | Critério (seção 9) | Resultado | Como foi conferido |
+|---|---|---|---|
+| 1 | `node --test` passa, com os casos listados | ok | **367 testes, 0 falhas**: ida e volta (vivo, doente, morto, Game Over), recusa de arquivo ruim, ausência de 0, 1 h, 10 h e 48 h igual a jogar o tempo todo, 5 dias com morte e Game Over, relógio voltando, velhice, crescimento e teto, `formatarDuracao`, servidor numa pasta temporária (grava, lê, apaga, recusa corpo grande e JSON inválido, Host de fora, `../`), 6 cores com todos os sprites e estados, nome (corte em 12, símbolos, acento decomposto), textos que cabem e só usam letras da fonte |
+| 2 | Adotar "Nemo" azul/roxo, fechar e abrir de novo, tudo continua e sem aviso | ok, com ressalva | No navegador: adotei, renomeei para "Nemo", recarreguei e nome, cor, saciedade e hora do jogo continuaram, sem aviso. **Não** esperei 1 minuto nem desliguei o servidor entre uma abertura e outra |
+| 3 | Arquivo com 5 h atrás: "dormiu por 5 h", indicadores refletem | ok | Editei `salvoEmMs` para 5 h 20 min atrás: tela "SEU PEIXE DORMIU POR 5 H 20 MIN. BEM-VINDO DE VOLTA!", relógio do jogo em 05:20, saciedade 100 → 89 e sujeira 0 → 6 (esperado: 11 e 5,5) |
+| 4 | Idem com 5 dias: não resistiu, depois Game Over | ok | Tela "VOCÊ FICOU FORA POR 5 DIAS. SEU PEIXE NÃO RESISTIU." e, com A, o Game Over com as condolências |
+| 5 | Game Over, A, adoção, outra cor, adotar | ok | "Matar peixe", Game Over, A abre a adoção, joystick troca a cor, A adota; arquivo novo com o peixe novo, id 1, sem Game Over |
+| 6 | Arquivo estragado: aquário novo, aviso, arquivo guardado | ok | Escrevi `{ quebrado` no arquivo: o painel avisou e o arquivo ficou como `aquario.corrompido.json` |
+| 7 | Nada em `src/core/` usa `document`, `canvas`, `localStorage`, `window`, `fetch`, `Date` | ok | Busca no código: nada |
+
+**Extras conferidos:** "Apagar jogo" (1º clique pede confirmação, 2º apaga e abre a adoção); fechar a
+página na tela de adoção **não** grava nada; o nome "  Nemo @#  " virou "Nemo".
+
+**Defeitos achados e corrigidos pelo caminho:** nenhum no jogo. Dois testes meus estavam
+errados (um esperava que o `fetch` mandasse `../` sem arrumar; outro apertava duas setas no
+mesmo passo) e foram corrigidos. Na aba de automação, apertos de tecla dentro do mesmo quadro
+valem como um só (comportamento do teclado, igual ao da v0.2).
+
+**Para o usuário decidir/ajustar:** os tons das 5 cores novas (`TONS_DAS_CORES` em
+`render/palette.js`); o texto de "não resistiu" (`bemVindo.morto`); se quer um teto para a
+ausência (`salvamento.ausenciaMaximaHoras`); o sorteio do sexo ainda não aparece em lugar nenhum
+(v0.4).
+
+**Fica para as próximas versões:** vários peixes, casal, ovos e o limite de 5 (v0.4); espécies
+novas; clima e dia/noite (v0.5); resumo do que aconteceu durante a ausência; o salvamento no
+ESP32 (flash e hora pelo celular, seção 7).

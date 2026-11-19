@@ -22,7 +22,7 @@ bateria + USB), gerenciado também pelo celular via WiFi. Veja `README.md` e `do
   Usuário ainda não tem nenhuma peça.
 - Fechado: `05-arquitetura.md` (a seção 9, Fase B, fica como proposta até o hardware chegar).
 - Git: só local por enquanto. Pasta `C:\dev\aquario-virtual`; autor dos commits "Anorak".
-  Nome do projeto provisório: "Aquário". Uma tag por versão (`v0.1` e `v0.2` criadas).
+  Nome do projeto provisório: "Aquário". Uma tag por versão (`v0.1`, `v0.2` e `v0.3` criadas).
   Pendente: apagar cópia antiga do OneDrive (se existir).
 - Fechado: `06-web.md` (página do celular; design visual fica para depois do v0.5).
 - **v0.1 do simulador concluída** (`sim/`, doc `07-plano-v0.1.md`, resultado na seção 8):
@@ -58,12 +58,26 @@ bateria + USB), gerenciado também pelo celular via WiFi. Veja `README.md` e `do
   (10) **pedra grande com musgo** na camada de fundo (`render/pedra-grande.js`, referência de pixel art);
   (11) rochas da frente trocadas por **5 pedrinhas de 1 bloco de altura**.
   Decisões de (2) a (11) na seção 8 do `docs/04`. Não existe captura de tela sem navegador no projeto (foi um script temporário).
-- Próximo: **v0.3** (salvamento, adoção e nomes pelo painel, espécie e cor). **Plano escrito em
-  19/11/2026: `docs/09-plano-v0.3.md`, esperando o usuário confirmar a seção 8 antes de codar.**
-  Já decidido por ele: salvar em **arquivo** (`sim/saves/`, via `servidor.js`); só beta, em
-  **cores diferentes**; o tempo com o jogo fechado **conta inteiro** e aparece a mensagem
-  "Seu peixe dormiu por X horas, bem-vindo de volta" (regra também no `03`). As dúvidas de ovos e
-  segundo parceiro (`03`, seção 8) entram no plano da v0.4.
+- **v0.3 concluída em 19/11/2026** (plano e resultado em `docs/09-plano-v0.3.md`, seção 11; tag
+  `v0.3`; 367 testes). O usuário disse "manda brasa" e aceitou todas as recomendações. Entregue:
+  - **Salvamento em arquivo** `sim/saves/aquario.json` (no `.gitignore`), gravado pelo
+    `servidor.js` (`/api/salvo`); `core/salvar.js` só transforma aquário <-> dados; a hora real
+    (`Date.now`) só existe no `main.js`. Grava a cada 10 s, depois de ações/Game Over e ao fechar a
+    aba. Arquivo estragado vira `aquario.corrompido.json`. Sem jogo (adoção pendente) nada é salvo.
+  - **Tempo com o jogo fechado conta inteiro** (`core/ausencia.js`), sem teto (`salvamento.ausenciaMaximaHoras`
+    vazio no `jogo.json`); tela "Seu peixe dormiu por X. Bem-vindo de volta!" só se ficou fora
+    10 min ou mais. Fim de semana fora mata o peixe (3,7 dias sem cuidado).
+  - **6 cores de beta** (vermelho, azul, roxo, laranja, verde, rosa; tons provisórios em
+    `render/palette.js`), tela **Adote um peixe** no aparelho (joystick escolhe a cor, A adota) e
+    seção **Adoção**, campo **Nome** e **Apagar jogo** no painel. Nome até 12 letras, só o que a
+    fonte desenha. Game Over -> A -> adoção. Sexo sorteado e guardado, ainda invisível (v0.4).
+  - Estrutura: `criarMenu({ textos, cores, aoNovoJogo({cor}), aoAgir })`; telas `ADOCAO` e
+    `BEM_VINDO`; `SPRITES*` são os do vermelho, `spritesDaCor(cor)` tem todos.
+  - Pendente da v0.3: nada. Não foi feita à mão a espera de 1 minuto com o servidor desligado.
+- Próximo: **v0.4** (reprodução e vários peixes: casal, ovos, limite de 5, parceiro adulto).
+  Escrever `docs/10-plano-v0.4.md` e fechar com o usuário antes de codar. As dúvidas de ovos além do
+  limite e segundo parceiro (`03`, seção 8) entram nesse plano. O código e as regras já aceitam
+  N peixes, mas o `main.js`, a tela de status, o HUD e o painel ainda olham só `aquario.peixes[0]`.
 - O usuário costuma ter o servidor aberto na porta 8080: não encerrar processos dele;
   testar em outra porta (`PORT=`) e parar só o meu processo.
 

@@ -3,7 +3,7 @@
 Tamagotchi de aquário rodando em um ESP32, com display colorido, joystick e botões.
 Pode ser gerenciado pelo smartphone via WiFi e também funciona offline.
 
-> Status: **v0.2 do simulador pronta** (Fase A). O firmware do ESP32 (Fase B) começa quando
+> Status: **v0.3 do simulador pronta** (Fase A). O firmware do ESP32 (Fase B) começa quando
 > as peças chegarem.
 
 ## Como rodar o simulador
@@ -24,9 +24,25 @@ Depois abra **http://localhost:8080** no navegador. Para parar, use `Ctrl+C` no 
 - Se aparecer `EADDRINUSE`, a porta já está em uso (talvez o simulador esteja aberto em outro
   terminal). Feche o outro ou use outra porta.
 
-## O que a v0.2 faz
+## O que o simulador faz
 
-Agora o beta é um **bichinho que precisa de cuidado**. Ele nasce filhote, cresce em tempo real
+### v0.3: o aquário dura de verdade
+
+- **O jogo é salvo** no arquivo `sim/saves/aquario.json` (a cada 10 segundos, depois de cada
+  cuidado e ao fechar a aba). Ao abrir de novo, o peixe continua de onde parou.
+- **O tempo com o jogo fechado conta.** Ao voltar, aparece "Seu peixe dormiu por 5 h 20 min.
+  Bem-vindo de volta!" (só se ficou fora 10 min ou mais). Fome, sujeira, pH, saúde e idade andaram
+  esse tempo todo, e o peixe pode ter morrido. **Um fim de semana fora mata o peixe**, a não ser
+  que você ponha um teto em `salvamento.ausenciaMaximaHoras` no `jogo.json`.
+- **Adoção:** na primeira vez, e depois do Game Over, a tela **Adote um peixe** deixa escolher a
+  cor com o joystick (esquerda e direita) e adotar com **A** (Z no teclado). São 6 cores de beta.
+  O nome nasce "Beta"; para mudar, use o painel (campo **Nome** do peixe, ou a seção **Adoção**).
+- O arquivo estragado nunca é apagado: ele vira `saves/aquario.corrompido.json` e o jogo começa
+  um aquário novo, com um aviso no painel.
+
+### v0.2: o bichinho precisa de cuidado
+
+O beta é um **bichinho que precisa de cuidado**. Ele nasce filhote, cresce em tempo real
 (filhote, jovem, adulto e idoso, em 30 dias) e:
 
 - **sente fome** (a saciedade cai de 100 a 0 em 48 h);
@@ -36,7 +52,7 @@ Agora o beta é um **bichinho que precisa de cuidado**. Ele nasce filhote, cresc
 - **adoece** (saúde abaixo de 30: cores pálidas, nada devagar) e **morre** (saúde 0, ou 30 dias
   de idade);
 - quando morre o último peixe, aparece o **Game Over**, com uma mensagem de condolências, e você
-  pode começar de novo com um filhote.
+  pode adotar outro.
 
 Para não esperar, o painel acelera o tempo.
 
@@ -50,7 +66,7 @@ Para não esperar, o painel acelera o tempo.
 | Botão C | **C** | Abre o status | (nada) |
 
 O menu tem **Dar comida**, **Limpar aquário** e **Regular pH**. O jogo **não pausa** com o menu
-aberto. No Game Over, **Z** começa com um filhote novo.
+aberto. No Game Over, **Z** abre a tela de adoção.
 
 Avisos na tela: no cantinho de cima, **F** (fome), **S** (sujeira) e **P** (pH) aparecem quando
 aquele indicador está ruim; sobre o peixe, **F** (fome) e **+** (doente).
@@ -61,20 +77,22 @@ aquele indicador está ruim; sobre o peixe, **F** (fome) e **+** (doente).
 |---|---|
 | 1× / 60× / 3600× | Velocidade do tempo. A 3600×, 1 dia de vida leva 24 segundos |
 | Pular fase | Vai direto para o começo da próxima fase |
-| Reiniciar | Volta ao começo, com um filhote novo |
+| Apagar jogo | Apaga o jogo salvo e volta à adoção (pede um segundo clique para confirmar) |
+| Nome (do peixe) | Escreva e aperte Enter para renomear (até 12 letras) |
+| Adoção | Nome, cor e botão **Adotar**; só vale sem peixe vivo (Game Over ou primeira vez) |
 | Saciedade, sujeira, pH, saúde | Mostram os valores; escreva um número para testar |
 | Dar comida, Limpar, Regular pH | Os mesmos cuidados do menu |
 | Matar peixe | Para testar o Game Over |
 | Tela 2× / 4× | Só aumenta a imagem no computador |
 
-Ainda **não há**: salvamento, adoção e nomes, reprodução, clima, dia e noite, som.
+Ainda **não há**: reprodução e vários peixes, clima, dia e noite, som.
 Ver o roadmap em [docs/01-visao.md](docs/01-visao.md).
 
 ## Como ajustar o jogo
 
 - **Números do jogo** (fome, sujeira, pH, saúde): `sim/config/jogo.json`.
 - **Todos os textos** (menu, mensagens, status, condolências): `sim/config/textos.json`.
-  Só dá para usar letras de A a Z (com acentos), números e `. , : ! ? - + / % ' ( ) >`.
+  Só dá para usar letras de A a Z (com acentos), números e `. , : ! ? - + / % ' ( ) < >`.
   Se escrever algo que a fonte não tem, o teste `node --test` avisa qual é.
 - Depois de mexer, **recarregue a página** (F5).
 - **Quanto tempo o peixe aguenta?** Rode `node tools/balanco.js` (dentro de `sim/`). Ele mostra
@@ -88,7 +106,8 @@ sujeira mais devagar (por exemplo, pH em 48 / 36 / 18 h e `diasParaEncher` em 6)
 "a cada 3 dias" bastar.
 
 Para desenvolvedores: abrindo `http://localhost:8080/?debug`, o objeto `__debug` fica
-disponível no console do navegador (`camera`, `clock`, `config`, `textos`, `menu`, `aquario()`).
+disponível no console do navegador (`camera`, `clock`, `config`, `textos`, `menu`, `aquario()`,
+`salvamento`, `salvar()`).
 
 ## Documentação
 
@@ -102,6 +121,7 @@ disponível no console do navegador (`camera`, `clock`, `config`, `textos`, `men
 | [06-web.md](docs/06-web.md) | Página no celular, conexão, API | fechado |
 | [07-plano-v0.1.md](docs/07-plano-v0.1.md) | Plano e resultado da v0.1 | concluído |
 | [08-plano-v0.2.md](docs/08-plano-v0.2.md) | Plano e resultado da v0.2 | concluído |
+| [09-plano-v0.3.md](docs/09-plano-v0.3.md) | Plano e resultado da v0.3 (salvar, adotar, cores) | concluído |
 
 ## Como trabalhamos
 
