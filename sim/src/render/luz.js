@@ -79,7 +79,11 @@ const ORIGINAIS = PALETA.map((cor) => [...cor]);
 
 // Os índices que a luz NÃO multiplica: o céu do relâmpago e os raios de luz têm cor própria (a luz os
 // calcula), e as estrelas e o gelo do ícone de frio têm de aparecer sempre.
-const SEM_TOM = new Set([COR.CEU_RELAMPAGO, COR.RAIO_DE_LUZ, COR.ESTRELA_FRACA, COR.GELO]);
+// As cores do PEIXE também ficam de fora (pedido do usuário em 19/11/2026): o peixe é o mesmo de dia e de noite.
+const CORES_DO_PEIXE = Object.values(COR.PEIXE).flatMap((estados) => Object.values(estados).flatMap((papeis) => Object.values(papeis)));
+const SEM_TOM = new Set([
+  COR.CEU_RELAMPAGO, COR.RAIO_DE_LUZ, COR.SPOT, COR.SPOT_MIOLO, COR.ESTRELA_FRACA, COR.GELO, ...CORES_DO_PEIXE,
+]);
 const DA_TURVACAO = new Set(INDICES_DA_TURVACAO);
 
 // Os índices que recebem o tom: as cores sólidas do cenário.
@@ -108,6 +112,9 @@ export function aplicarLuz(luz) {
   }
   // O céu só tem cor durante o clarão do relâmpago.
   pintar(COR.CEU_RELAMPAGO, misturar([0, 0, 0], COR_DO_CEU_NO_RAIO, Math.min(1, luz.raio)).map(limitar255));
-  // Os raios de luz só existem de dia (e somem na chuva).
+  // Os reflexos de vidro só existem de dia (e somem na chuva).
   pintar(COR.RAIO_DE_LUZ, ORIGINAIS[COR.RAIO_DE_LUZ].map((v) => limitar255(v * Math.max(0, luz.dia))));
+  // O spot só existe de noite (acende ao escurecer; no clarão do relâmpago fica mais fraco).
+  const spot = Math.max(0, luz.noite) * (luz.raio > 0.3 ? 0.4 : 1);
+  for (const i of [COR.SPOT, COR.SPOT_MIOLO]) pintar(i, ORIGINAIS[i].map((v) => limitar255(v * spot)));
 }

@@ -8,6 +8,7 @@ import {
 } from '../src/render/luz.js';
 import { desenharCeu, ESTRELAS, QUANTAS_ESTRELAS, gerarEstrelas } from '../src/render/ceu.js';
 import { desenharRaiosDeLuz, RAIOS, centroDoRaio } from '../src/render/raios.js';
+import { desenharSpot } from '../src/render/spot.js';
 import { aplicarCores } from '../src/render/turvacao.js';
 import { desenharQuadro } from '../src/render/scene.js';
 import { gerarMapa } from '../src/render/cenario.js';
@@ -263,6 +264,81 @@ test('raios de luz: só pintam água pura (cor 1): plantas, pedras, peixes e ág
   for (let y = 0; y <= SUPERFICIE_Y + 2; y++) for (let x = 0; x < LARGURA; x++) assert.equal(ar[y * LARGURA + x], COR.AGUA);
 });
 
+// --- O spot da noite -------------------------------------------------------------------------
+
+test('spot: um cone que sai do centro do topo e abre para baixo, em duas cores sólidas (halo e miolo)', () => {
+  const q = criarQuadro().fill(COR.AGUA);
+  desenharSpot(q, camera(60, 0));
+  const largura = (sy) => {
+    let n = 0;
+    for (let x = 0; x < LARGURA; x++) if (q[sy * LARGURA + x] !== COR.AGUA) n++;
+    return n;
+  };
+  assert.ok(contar(q, COR.SPOT) > 300 && contar(q, COR.SPOT_MIOLO) > 100, 'tem halo e miolo');
+  assert.ok(largura(SUPERFICIE_Y + 5) < largura(SUPERFICIE_Y + 30) && largura(SUPERFICIE_Y + 30) < largura(SUPERFICIE_Y + 60), 'abre para baixo');
+  // Centrado no meio do mundo: com a câmera em x=60 o meio do aquário é a coluna 60 da tela.
+  const linha = SUPERFICIE_Y + 40;
+  const colunas = [...Array(LARGURA).keys()].filter((x) => q[linha * LARGURA + x] !== COR.AGUA);
+  assert.ok(Math.abs((colunas[0] + colunas.at(-1)) / 2 - (MUNDO_LARGURA / 2 - 60)) <= 1);
+  // Nada no ar, e anda com o mundo quando a câmera anda.
+  for (let y = 0; y <= SUPERFICIE_Y + 2; y++) for (let x = 0; x < LARGURA; x++) assert.equal(q[y * LARGURA + x], COR.AGUA);
+  const outra = criarQuadro().fill(COR.AGUA);
+  desenharSpot(outra, camera(100, 0));
+  assert.notDeepEqual(Array.from(q), Array.from(outra));
+});
+
+test('spot: só pinta água pura (plantas, pedras, peixes e água suja ficam como estão)', () => {
+  const q = criarQuadro().fill(COR.AGUA);
+  for (let i = 0; i < q.length; i++) if (i % 3 === 0) q[i] = COR.PEDRA;
+  const antes = Array.from(q);
+  desenharSpot(q, camera(60, 0));
+  for (let i = 0; i < q.length; i++) if (antes[i] !== COR.AGUA) assert.equal(q[i], antes[i]);
+  const suja = criarQuadro().fill(COR.AGUA_SUJA);
+  desenharSpot(suja, camera(60, 0));
+  assert.equal(contar(suja, COR.SPOT) + contar(suja, COR.SPOT_MIOLO), 0);
+});
+
+test('spot: só existe de noite (a cor é preta de dia) e fica mais fraco no clarão do relâmpago', () => {
+  limpar();
+  restaurarPaleta();
+  aplicarLuz(luzDoClima({ horaMin: H(12) }, horas));
+  assert.deepEqual(PALETA[COR.SPOT], [0, 0, 0]);
+  assert.deepEqual(PALETA[COR.SPOT_MIOLO], [0, 0, 0]);
+  restaurarPaleta();
+  aplicarLuz(luzDoClima({ horaMin: H(2) }, horas));
+  assert.deepEqual(PALETA[COR.SPOT], ORIGINAL[COR.SPOT], 'de noite: a cor cheia');
+  assert.deepEqual(PALETA[COR.SPOT_MIOLO], ORIGINAL[COR.SPOT_MIOLO]);
+  assert.ok(PALETA[COR.SPOT_MIOLO][2] > PALETA[COR.SPOT][2], 'o miolo é mais claro que o halo');
+  restaurarPaleta();
+  aplicarLuz(luzDoClima({ horaMin: H(2), raio: 1 }, horas));
+  assert.ok(PALETA[COR.SPOT][2] < ORIGINAL[COR.SPOT][2], 'no relâmpago fica mais fraco');
+  limpar();
+});
+
+test('cena: de noite há spot e não há reflexos de vidro; de dia é o contrário', () => {
+  limpar();
+  const noite = cena({ horaMin: H(2), chuvaNivel: 0, raio: 0 });
+  assert.ok(contar(noite, COR.SPOT) > 0 && contar(noite, COR.SPOT_MIOLO) > 0);
+  assert.equal(contar(noite, COR.RAIO_DE_LUZ), 0);
+  const dia = cena({ horaMin: H(12), chuvaNivel: 0, raio: 0 });
+  assert.equal(contar(dia, COR.SPOT) + contar(dia, COR.SPOT_MIOLO), 0);
+  assert.ok(contar(dia, COR.RAIO_DE_LUZ) > 0);
+  limpar();
+});
+
+test('o peixe tem as mesmas cores de dia e de noite (e na chuva e no relâmpago)', () => {
+  limpar();
+  const cores = Object.values(COR.PEIXE).flatMap((e) => Object.values(e).flatMap((p) => Object.values(p)));
+  assert.ok(cores.length > 100);
+  for (const clima of [{ horaMin: H(2) }, { horaMin: H(6) }, { horaMin: H(2), chuvaNivel: 1, raio: 1 }]) {
+    restaurarPaleta();
+    aplicarLuz(luzDoClima(clima, horas));
+    for (const i of cores) assert.deepEqual(PALETA[i], ORIGINAL[i], `cor de peixe ${i}`);
+  }
+  assert.ok(!INDICES_DA_LUZ.some((i) => cores.includes(i)));
+  limpar();
+});
+
 // --- Na cena ---------------------------------------------------------------------------------
 
 function cena(clima, cam = camera(60, 32), extra = {}) {
@@ -308,14 +384,14 @@ test('cena: dá para ir do dia para a noite e voltar e tudo volta exatamente ao 
   cena({ horaMin: H(18), chuvaNivel: 0, raio: 0 });
   const d2 = cena({ horaMin: H(12), chuvaNivel: 0, raio: 0 });
   assert.deepEqual(Array.from(d2), Array.from(d1));
-  assert.deepEqual(copiaDaPaleta().slice(0, 60), antes.slice(0, 60));
+  assert.deepEqual(copiaDaPaleta().slice(0, 62), antes.slice(0, 62));
   limpar();
 });
 
 // --- Pureza ----------------------------------------------------------------------------------
 
 test('a luz e o céu não usam Math.random nem Date (o sorteio tem semente)', () => {
-  for (const arq of ['luz.js', 'ceu.js', 'raios.js']) {
+  for (const arq of ['luz.js', 'ceu.js', 'raios.js', 'spot.js']) {
     const fonte = readFileSync(new URL(`../src/render/${arq}`, import.meta.url), 'utf8');
     const semComentarios = fonte.split('\n').filter((l) => !l.trim().startsWith('//')).join('\n');
     assert.ok(!semComentarios.includes('Math.random'), arq);

@@ -30,9 +30,9 @@ Depois abra **http://localhost:8080** no navegador. Para parar, use `Ctrl+C` no 
 
 O cenário ganha **hora do dia** e **clima** (só visuais: o clima **não afeta o peixe**):
 
-- **Dia e noite** pela hora do relógio do computador: de dia é o visual de sempre, com 3 **raios de luz**
+- **Dia e noite** pela hora do relógio do computador: de dia é o visual de sempre, com 3 **reflexos de vidro**
   suaves; no amanhecer e no entardecer tudo fica alaranjado; à noite o cenário escurece e azula, aparecem
-  **estrelas** no ar, e as bolhas e os olhos dos peixes continuam brilhando. A água continua preta.
+  **estrelas** no ar e um **spot de luz** abre em cone do centro do topo; o **peixe mantém as cores do dia**, e as bolhas e os olhos continuam brilhando. A água continua preta.
 - **Chuva** (sozinha, de tempos em tempos): gotas no ar, anéis na superfície, o cenário escurece um pouco e
   caem **relâmpagos** (o céu e o cenário clareiam por um instante).
 - **Frio:** temperatura abaixo de **18 °C** mostra o **ícone de frio** (floco de neve) no canto de cima à

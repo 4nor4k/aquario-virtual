@@ -79,7 +79,10 @@ export const PALETA = [
   [0x9a, 0xa8, 0xd0], // 56 estrela fraca
   [0x8f, 0xb4, 0xd8], // 57 chuva: gotas e anéis
   [0xa8, 0xe8, 0xff], // 58 gelo: ícone de frio
-  [0x0a, 0x22, 0x3a], // 59 raio de luz (cor com o dia no máximo)
+  [0x0a, 0x22, 0x3a], // 59 reflexo de vidro (de dia; antes "raio de luz")
+  // O spot de luz da noite (render/spot.js; a luz.js escolhe a intensidade): halo e miolo.
+  [0x0f, 0x2c, 0x4e], // 60 spot: halo do cone (cor com a noite no máximo)
+  [0x1b, 0x4d, 0x7c], // 61 spot: miolo do cone
 ];
 
 // Quão claro cada índice aparece em preto e branco: 0 = preto, 16 = branco (mono.js).
@@ -147,10 +150,12 @@ export const TONS = [
   16, // 57
   16, // 58
   16, // 59
+  16, // 60 a 61: spot de luz da noite (colorido)
+  16, // 61
 ];
 
 // Índices que não passam pelo preto e branco: são pintados sólidos, na cor da PALETA.
-export const COLORIDOS = [2, 3, 4, 5, 6, 7, 8, 9, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59];
+export const COLORIDOS = [2, 3, 4, 5, 6, 7, 8, 9, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61];
 
 // Nomes para quem desenha (os números acima são os índices da PALETA).
 export const COR = {
@@ -194,7 +199,9 @@ export const COR = {
   ESTRELA_FRACA: 56,
   CHUVA: 57,
   GELO: 58,
-  RAIO_DE_LUZ: 59,
+  RAIO_DE_LUZ: 59, // os reflexos de vidro do dia (raios.js)
+  SPOT: 60,        // o spot da noite (spot.js): halo e miolo
+  SPOT_MIOLO: 61,
   // A comida (comida.js).
   GRAO: 44,
   GRAO_BRILHO: 45,

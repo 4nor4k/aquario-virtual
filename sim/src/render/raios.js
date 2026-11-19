@@ -1,4 +1,5 @@
-// Os raios de luz do dia (doc 11, seção 4; referências do doc 04): três faixas inclinadas e suaves, de um
+// Os REFLEXOS DE VIDRO do dia (começaram como "raios de sol"; o usuário disse em 19/11/2026 que não precisa
+// de sol, mas gostou do efeito de vidro e quer que fique assim): três faixas inclinadas e suaves, de um
 // azul quase preto, que descem da superfície e balançam devagar. Só pintam a água que ainda é água pura (cor
 // 1), então a água suja, as plantas, as pedras e os peixes ficam como estão. A cor deles (índice
 // RAIO_DE_LUZ) é calculada pela luz.js: de noite é preta, então nada aparece.
