@@ -37,7 +37,8 @@ export const CELULAS = {
 // O que cada caixinha mostra (função pura, para testar): { texto, valor, maximo, ideal, ruim }.
 // valor = null: sem barra. Sem peixe vivo, fome e saúde viram "--".
 // peixe: o peixe em foco (o padrão é o primeiro). Passe null para "sem peixe".
-export function valoresDoHud(aquario, config, textos, peixe = aquario.peixes[0]) {
+// temperatura: a do clima simulado (o padrão é o valor fixo do config, de antes do clima existir).
+export function valoresDoHud(aquario, config, textos, peixe = aquario.peixes[0], temperatura = config.agua.temperatura) {
   const ph = notaDoPh(aquario, config);
   return {
     fome: peixe
@@ -53,7 +54,7 @@ export function valoresDoHud(aquario, config, textos, peixe = aquario.peixes[0])
       ? { texto: String(Math.round(peixe.saude)), valor: peixe.saude, maximo: 100, ideal: null, ruim: peixe.saude < config.saude.doenteAbaixoDe }
       : { texto: textos.hud.semPeixe, valor: 0, maximo: 100, ideal: null, ruim: false },
     ph: { texto: formatarPh(valorDoPh(aquario, config)), valor: ph, maximo: 100, ideal: null, ruim: ph <= config.ph.improprioNotaAte },
-    temperatura: { texto: `${Math.round(config.agua.temperatura)}°C`, valor: null, maximo: null, ideal: null, ruim: false },
+    temperatura: { texto: `${Math.round(temperatura)}°C`, valor: null, maximo: null, ideal: null, ruim: false },
     sujeira: {
       texto: String(Math.round(aquario.sujeira)), valor: aquario.sujeira, maximo: 100, ideal: null, ruim: aquario.sujeira > config.sujeira.improprioAcimaDe,
     },
@@ -74,7 +75,7 @@ function desenharCelula(quadro, { x, y }, rotulo, v) {
   desenharBarra(quadro, x + FOLGA, y + 11, LARGURA_CELULA - 2 * FOLGA, v.valor, v.ruim ? COR_RUIM : DESTAQUE, v.maximo, v.ideal);
 }
 
-export function desenharIndicadores(quadro, { aquario, config, textos, peixe }) {
-  const v = valoresDoHud(aquario, config, textos, peixe);
+export function desenharIndicadores(quadro, { aquario, config, textos, peixe, temperatura }) {
+  const v = valoresDoHud(aquario, config, textos, peixe, temperatura);
   for (const nome of Object.keys(CELULAS)) desenharCelula(quadro, CELULAS[nome], textos.hud[nome], v[nome]);
 }

@@ -101,5 +101,5 @@ export function desenharQuadro(quadro, {
   desenharGraos(quadro, graos, camera);
   desenharBolhas(quadro, bolhas, camera);
   if (luz) aplicarLuz(luz);                   // a luz do dia e da noite: troca as cores do cenário (nunca as da tela)
-  if (aquario && config) desenharHud(quadro, { aquario, config, camera });
+  if (aquario && config) desenharHud(quadro, { aquario, config, camera, frio: !!clima?.frio });
 }

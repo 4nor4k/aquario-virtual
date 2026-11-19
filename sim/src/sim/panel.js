@@ -2,7 +2,7 @@
 // Aqui ficam só botões e campos; as regras ficam no core.
 import { idadeMs, msAteProximaFase, faseDaIdade } from '../core/fish.js';
 import { formatarPh } from '../core/formatar.js';
-import { formatarHoraDoJogo, formatarIdade } from './formatar.js';
+import { formatarHoraDoJogo, formatarIdade, formatarEstadoDoClima } from './formatar.js';
 import { lerNumero } from './campos.js';
 import { sexoRevelado } from '../render/telas.js';
 import { MINUTO_MS } from '../core/clock.js';
@@ -24,7 +24,7 @@ const MOTIVO_DO_PARCEIRO = {
 // O painel faz o papel da página do celular (doc 06): adotar e dar nome.
 export function criarPainel({
   clock, menu, config, textos, obterAquario, obterPeixe, obterSalvamento, camera,
-  aguardandoAdocao, podeAdotar, aoAdotar, aoRenomear, aoApagar, aoAdotarParceiro,
+  aguardandoAdocao, podeAdotar, aoAdotar, aoRenomear, aoApagar, aoAdotarParceiro, clima,
 }) {
   const $ = (id) => document.getElementById(id);
   const botoesVelocidade = [...document.querySelectorAll('#velocidades button')];
@@ -42,6 +42,10 @@ export function criarPainel({
   const botaoParceiro = $('adotar-parceiro');
   const botaoNamorar = $('acao-namorar');
   const campoPeixe = $('campo-peixe');
+  const campoHoraModo = $('clima-hora-modo');
+  const campoHora = $('clima-hora');
+  const campoChuva = $('clima-chuva');
+  const campoTemperatura = $('clima-temperatura');
   const botaoApagar = $('apagar');
   let ultimaAtualizacao = -Infinity;
   let escala = 2;
@@ -123,6 +127,22 @@ export function criarPainel({
     casal.boasMs = config.reproducao.boasCondicoesMin * MINUTO_MS;
     casal.ultimaMs = null;
     for (const id of [casal.aId, casal.bId]) aquario.peixePorId(id).saude = 100;
+    atualizar(true);
+  });
+
+  // Clima (doc 11): força a hora, a chuva e a temperatura do cenário. Não afeta o peixe.
+  const aplicarHora = () => {
+    clima.definirHora(campoHoraModo.value, lerNumero(campoHora.value, 0, 23.99) ?? 12);
+    atualizar(true);
+  };
+  campoHoraModo.addEventListener('change', aplicarHora);
+  campoHora.addEventListener('change', aplicarHora);
+  campoChuva.addEventListener('change', () => {
+    clima.forcarChuva({ auto: null, ligada: true, desligada: false }[campoChuva.value]);
+    atualizar(true);
+  });
+  campoTemperatura.addEventListener('change', () => {
+    clima.forcarTemperatura(lerNumero(campoTemperatura.value, -30, 60)); // vazio = automática
     atualizar(true);
   });
 
@@ -255,6 +275,9 @@ export function criarPainel({
       campo.disabled = aquario.gameOver || aguardando;
     }
     botaoMatar.disabled = !peixe || peixe.estado === 'morto' || aguardando;
+
+    $('clima-estado').textContent = formatarEstadoDoClima(clima);
+    campoHora.disabled = clima.modoHora !== 'fixa';
 
     for (const botao of botoesVelocidade) {
       botao.classList.toggle('ativo', Number(botao.dataset.vel) === clock.velocidade);

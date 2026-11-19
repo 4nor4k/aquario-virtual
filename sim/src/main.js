@@ -218,6 +218,7 @@ const painel = criarPainel({
     if (peixe) aquario.renomear(peixe, bruto, aceitaNoNome);
     salvar();
   },
+  clima,
   aoAdotarParceiro: ({ nome, cor }) => {
     const r = menu.adotarParceiro(aquario, { cor });
     if (r.ok && nome) aquario.renomear(r.parceiro, nome, aceitaNoNome);
@@ -276,7 +277,7 @@ function desenhar() {
     mapa, camera, peixes: aquario.peixes, aquario, config, bolhas: bolhas.lista, bolhasDoFundo: bolhasDoFundo.lista, plantas, fundo, tempo: tempoVisual,
     turvacao: turvacao.nivel, graos: aquario.graos, cocos: aquario.cocos, ovos: aquario.ovos, casais: aquario.casais, agoraMs: clock.agoraMs(), clima,
   });
-  desenharTelas(quadro, { menu, aquario, config, textos, agoraMs: clock.agoraMs() });
+  desenharTelas(quadro, { menu, aquario, config, textos, agoraMs: clock.agoraMs(), clima });
   mostrarQuadro(ctx, quadro);
 }
 

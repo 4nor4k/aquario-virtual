@@ -89,6 +89,31 @@
       </section>
 
       <section>
+        <h2>Clima</h2>
+        <p id="clima-estado"></p>
+        <div class="campos">
+          <label for="clima-hora-modo">Hora</label>
+          <select id="clima-hora-modo">
+            <option value="relogio">Relógio do computador</option>
+            <option value="ciclo">Ciclo rápido (24 h em 1 min)</option>
+            <option value="fixa">Fixa</option>
+          </select>
+          <label for="clima-hora">Hora fixa</label>
+          <input id="clima-hora" type="number" min="0" max="23.9" step="0.5" value="12">
+          <label for="clima-chuva">Chuva</label>
+          <select id="clima-chuva">
+            <option value="auto">Automática</option>
+            <option value="ligada">Ligada</option>
+            <option value="desligada">Desligada</option>
+          </select>
+          <label for="clima-temperatura">Temperatura</label>
+          <input id="clima-temperatura" type="number" min="-30" max="60" step="1" placeholder="automática">
+        </div>
+        <p class="dica">Só muda o cenário (o clima não afeta o peixe). Frio: abaixo de 18 °C aparece o ícone no
+          canto de cima à direita. Deixe a temperatura vazia para voltar à automática.</p>
+      </section>
+
+      <section>
         <h2>Botões do aparelho</h2>
         <p class="dica">
           Z = A (abre o menu e confirma) · X = B (volta; no jogo, mostra/oculta o HUD) · C = C (status)<br>

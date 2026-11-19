@@ -220,7 +220,8 @@ export function desenharAdocao(quadro, { menu, textos, agoraMs = 0 }) {
 // --- Qual tela mostrar -------------------------------------------------------------------------
 
 // Desenha por cima do aquário o que a tela atual pede.
-export function desenharTelas(quadro, { menu, aquario, config, textos, agoraMs }) {
+// clima (opcional): dá a temperatura do indicador TEMP.
+export function desenharTelas(quadro, { menu, aquario, config, textos, agoraMs, clima = null }) {
   if (menu.tela === TELAS.ADOCAO) {
     desenharAdocao(quadro, { menu, textos, agoraMs });
     return;
@@ -238,7 +239,9 @@ export function desenharTelas(quadro, { menu, aquario, config, textos, agoraMs }
     return;
   }
   if (menu.tela === TELAS.JOGO && menu.hudVisivel) {
-    desenharIndicadores(quadro, { aquario, config, textos, peixe: menu.peixeEmFoco(aquario) });
+    desenharIndicadores(quadro, {
+      aquario, config, textos, peixe: menu.peixeEmFoco(aquario), temperatura: clima ? clima.temperatura : undefined,
+    });
   }
   if (menu.tela === TELAS.MENU) desenharMenu(quadro, menu, textos);
   if (menu.mensagem) desenharMensagem(quadro, menu.mensagem);
