@@ -15,6 +15,8 @@ import { criarBolhas } from './core/bolhas.js';
 import { TAMANHO_POR_FASE } from './core/fish.js';
 import { criarClock } from './core/clock.js';
 import { criarMenu } from './core/menu.js';
+import { exportarJogo, importarJogo, ErroDeSalvamento } from './core/salvar.js';
+import { criarArmazenamento } from './sim/armazenamento.js';
 
 const PASSO_MS = 50;           // passo fixo: 20 por segundo (igual no ESP32)
 const VELOCIDADE_CAMERA = 60;  // pixels por segundo
@@ -61,18 +63,83 @@ let aquario;
 let beta;
 let numeroDoJogo = 0;
 
+// --- Salvamento (doc 09) ------------------------------------------------------------------
+// O jogo é gravado em sim/saves/aquario.json pelo servidor. O core só transforma o aquário em
+// dados (salvar.js); a hora REAL (Date.now) só existe aqui, na interface.
+const armazenamento = criarArmazenamento();
+const salvamento = {
+  bloqueado: false, // true: não consegui ler o que existe; não posso gravar por cima
+  quando: null,     // hora real da última gravação que deu certo
+  falhou: false,    // a última gravação não deu certo
+  aviso: null,      // texto para o painel (arquivo estragado, servidor fora...)
+};
+let jaSalvouOGameOver = false;
+
+async function salvar({ keepalive = false } = {}) {
+  if (salvamento.bloqueado) return;
+  const agora = Date.now();
+  const dados = exportarJogo(aquario, { tempoJogoMs: clock.agoraMs(), salvoEmMs: agora });
+  const ok = await armazenamento.gravar(dados, { keepalive });
+  salvamento.falhou = !ok;
+  if (ok) salvamento.quando = agora;
+}
+
+// A semente do sorteio do nado muda a cada abertura, para o peixe não repetir o mesmo caminho.
+const novaSemente = () => (Date.now() + numeroDoJogo) >>> 0;
+
 // O menu e as telas (A abre o menu, C abre o status...). Ao apertar A no Game Over, recomeça.
-const menu = criarMenu({ textos, aoNovoJogo: () => novoJogo() });
+const menu = criarMenu({ textos, aoNovoJogo: () => novoJogo(), aoAgir: () => salvar() });
 
 // Começa (ou recomeça) com um filhote novo e o relógio em zero.
 function novoJogo() {
   numeroDoJogo++;
   clock.reiniciar();
   menu.reiniciar();
-  aquario = criarAquario({ semente: numeroDoJogo, config });
+  aquario = criarAquario({ semente: novaSemente(), config });
   beta = aquario.adicionarPeixe({ nome: 'Beta', especie: 'beta', x: 120, y: 80 }, clock.agoraMs());
+  jaSalvouOGameOver = false;
+  salvar();
 }
-novoJogo();
+
+// Tenta voltar ao jogo salvo. Devolve true se conseguiu.
+async function carregarJogoSalvo() {
+  const lido = await armazenamento.carregar();
+  if (lido.estado === 'vazio') return false;
+  if (lido.estado === 'sem-servidor') {
+    salvamento.bloqueado = true;
+    salvamento.aviso = 'Não consegui falar com o servidor: este jogo não será salvo. Recarregue a página.';
+    return false;
+  }
+  try {
+    if (lido.estado === 'ilegivel') throw new ErroDeSalvamento('o arquivo não é um JSON válido');
+    const { aquario: carregado, tempoJogoMs } = importarJogo(lido.dados, { config, semente: novaSemente() });
+    clock.reiniciar();
+    clock.avancar(tempoJogoMs);
+    menu.reiniciar();
+    aquario = carregado;
+    beta = aquario.peixes[0];
+    jaSalvouOGameOver = aquario.gameOver;
+    return true;
+  } catch (erro) {
+    if (!(erro instanceof ErroDeSalvamento)) throw erro;
+    // Não apago nada: o arquivo ruim fica guardado com outro nome e o jogo recomeça.
+    const guardou = await armazenamento.guardarComoCorrompido();
+    salvamento.aviso = guardou
+      ? `O jogo salvo estava estragado (${erro.message}). Guardei como saves/aquario.corrompido.json e comecei um aquário novo.`
+      : `O jogo salvo está estragado (${erro.message}) e não consegui guardá-lo. Nada foi gravado.`;
+    if (!guardou) salvamento.bloqueado = true;
+    return false;
+  }
+}
+
+if (!(await carregarJogoSalvo())) novoJogo();
+
+// Grava de tempos em tempos e quando a aba vai embora.
+setInterval(() => salvar(), config.salvamento.intervaloSegundos * 1000);
+addEventListener('pagehide', () => salvar({ keepalive: true }));
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') salvar({ keepalive: true });
+});
 
 const painel = criarPainel({
   clock,
@@ -81,6 +148,7 @@ const painel = criarPainel({
   config,
   obterAquario: () => aquario,
   obterPeixe: () => beta,
+  obterSalvamento: () => salvamento,
   aoReiniciar: novoJogo,
 });
 
@@ -98,6 +166,10 @@ function atualizar(dt) {
   const { largura, altura } = TAMANHO_POR_FASE[beta.fase];
   seguidor.atualizar(dt, { alvo: { x: beta.x, y: beta.y, largura, altura }, joystick: dir, livre });
   aquario.atualizar(dt, clock.agoraMs());
+  if (aquario.gameOver && !jaSalvouOGameOver) {
+    jaSalvouOGameOver = true;
+    salvar();
+  }
   bolhas.atualizar(dt);
   tempoVisual += dt;
   menu.atualizar(dt, aquario);
@@ -131,7 +203,7 @@ function ciclo(agora) {
 // Ajuda para desenvolver: abrindo http://localhost:8080/?debug, dá para mexer no jogo pelo
 // console do navegador (ex.: __debug.camera.irPara(0, 0)). Sem "?debug" nada disso existe.
 if (new URLSearchParams(location.search).has('debug')) {
-  window.__debug = { camera, seguidor, clock, config, textos, menu, aquario: () => aquario };
+  window.__debug = { camera, seguidor, clock, config, textos, menu, aquario: () => aquario, salvamento, salvar };
 }
 
 desenhar();

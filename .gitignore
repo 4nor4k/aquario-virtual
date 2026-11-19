@@ -15,3 +15,6 @@ Thumbs.db
 *.log
 *.tmp
 .claude/settings.local.json
+
+# O jogo salvo do simulador (é o seu aquário, não faz parte do código)
+sim/saves/

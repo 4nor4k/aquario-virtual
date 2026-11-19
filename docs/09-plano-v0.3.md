@@ -235,3 +235,16 @@ A confirmar (a recomendação vem primeiro; se nada for dito, entra a recomenda�
 6. Estragar o arquivo à mão: o jogo abre um aquário novo, o painel avisa e o arquivo ruim fica
    guardado com o outro nome.
 7. Nada em `src/core/` usa `document`, `canvas`, `localStorage`, `window`, `fetch` nem `Date`.
+
+## 10. Andamento
+
+- **Passo 1 (núcleo) feito em 2026-11-19:** `core/salvar.js` (ida e volta e recusa de arquivo
+  ruim), `cor` e `sexo` no peixe, `restaurarPeixe` no aquário. `nome` (padrão e máximo de 12) e
+  `cores` entraram no `config/jogo.json`.
+- **Passo 2 (arquivo) feito em 2026-11-19:** servidor com `GET/PUT/DELETE /api/salvo` e
+  `POST /api/salvo/corrompido` (grava atômico, uma gravação por vez, corpo até 64 KB, só aceita
+  Host localhost), `sim/armazenamento.js`, o `main.js` carrega ao abrir e grava a cada 10 s, depois
+  das ações, no Game Over e ao fechar a aba. O painel mostra "Salvo às ...". Se o servidor não
+  responder ao abrir, o jogo **não grava** (para não apagar um jogo salvo que ele não conseguiu ler).
+  Conferido no navegador: adotar "Nemo", recarregar e continuar; arquivo estragado vira
+  `aquario.corrompido.json` e abre um aquário novo.

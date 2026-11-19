@@ -21,8 +21,9 @@ export const SEGUNDOS_DA_MENSAGEM = 2.5;
 export const SEGUNDOS_ATE_O_GAME_OVER = 5;
 
 // textos: o conteúdo de config/textos.json. aoNovoJogo: o que fazer quando o jogador
-// aperta A na tela de Game Over (recomeçar).
-export function criarMenu({ textos, aoNovoJogo }) {
+// aperta A na tela de Game Over (recomeçar). aoAgir: avisa a interface depois de cada ação de
+// cuidado (comida, limpar, pH), por exemplo para salvar o jogo.
+export function criarMenu({ textos, aoNovoJogo, aoAgir = () => {} }) {
   let tela = TELAS.JOGO;
   let item = 0;
   let mensagem = null; // { texto, restante } (segundos)
@@ -46,6 +47,7 @@ export function criarMenu({ textos, aoNovoJogo }) {
       throw new RangeError(`ação desconhecida: ${acao}`);
     }
     mensagem = { texto, restante: SEGUNDOS_DA_MENSAGEM };
+    aoAgir(acao);
     return texto;
   }
 

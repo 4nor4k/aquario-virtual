@@ -12,7 +12,7 @@ const TEXTO_DA_CAUSA = { velhice: 'de velhice', cuidado: 'por falta de cuidado' 
 
 // Pede para o main: o relógio, o menu (para as ações valerem como no aparelho, com mensagem na
 // tela), o aquário e o peixe atuais (mudam ao reiniciar) e o que fazer ao reiniciar.
-export function criarPainel({ clock, menu, config, obterAquario, obterPeixe, aoReiniciar, camera }) {
+export function criarPainel({ clock, menu, config, obterAquario, obterPeixe, obterSalvamento, aoReiniciar, camera }) {
   const $ = (id) => document.getElementById(id);
   const botoesVelocidade = [...document.querySelectorAll('#velocidades button')];
   const botaoPular = $('pular');
@@ -90,6 +90,23 @@ export function criarPainel({ clock, menu, config, obterAquario, obterPeixe, aoR
     if (document.activeElement !== campo) campo.value = texto;
   }
 
+  // Diz se o jogo está sendo salvo, e avisa quando algo deu errado.
+  function mostrarSalvamento(s) {
+    const linha = $('salvamento');
+    const aviso = $('aviso-salvamento');
+    if (s.bloqueado) {
+      linha.textContent = 'Jogo NÃO está sendo salvo';
+    } else if (s.falhou) {
+      linha.textContent = 'Falha ao salvar: servidor fora do ar?';
+    } else if (s.quando) {
+      linha.textContent = `Salvo às ${new Date(s.quando).toLocaleTimeString('pt-BR')}`;
+    } else {
+      linha.textContent = 'Ainda não salvou';
+    }
+    aviso.hidden = !s.aviso;
+    if (s.aviso) aviso.textContent = s.aviso;
+  }
+
   // forcar = true atualiza já, sem esperar o intervalo.
   function atualizar(forcar = false) {
     const agora = performance.now();
@@ -111,6 +128,8 @@ export function criarPainel({ clock, menu, config, obterAquario, obterPeixe, aoR
       $('aviso-vida').textContent =
         `Game Over: o peixe morreu ${TEXTO_DA_CAUSA[aquario.causaDoGameOver] ?? ''}. Use Reiniciar.`;
     }
+
+    mostrarSalvamento(obterSalvamento());
 
     mostrar(campoSaciedade, Math.round(peixe.saciedade));
     mostrar(campoSujeira, Math.round(aquario.sujeira));
