@@ -83,21 +83,21 @@ test('o alto do mundo é só água', () => {
   for (let col = 0; col < COLUNAS; col++) assert.equal(em(mapa, col, 0), ID.agua);
 });
 
-test('rochas existem, ficam sobre a areia e têm no máximo 3 blocos de altura', () => {
+test('pedras existem, ficam sobre a areia e são pequenas: só 1 bloco (8 px) de altura', () => {
   const mapa = gerarMapa();
   const rocha = new Set([ID.rochaTopo, ID.rocha]);
   let total = 0;
   for (let col = 0; col < COLUNAS; col++) {
     let altura = 0;
     for (let lin = LINHA_AREIA - 1; lin >= 0 && rocha.has(em(mapa, col, lin)); lin--) altura++;
-    assert.ok(altura <= 3, `coluna ${col} com altura ${altura}`);
+    assert.ok(altura <= 1, `coluna ${col} com altura ${altura}: pedra grande demais`);
     total += altura;
     // Nenhuma rocha solta mais acima, longe da areia
     for (let lin = 0; lin < LINHA_AREIA - altura; lin++) assert.ok(!rocha.has(em(mapa, col, lin)));
     // Se a coluna tem rocha, o bloco mais alto é o "topo"
     if (altura > 0) assert.equal(em(mapa, col, LINHA_AREIA - altura), ID.rochaTopo);
   }
-  assert.ok(total > 0, 'o cenário deveria ter rochas');
+  assert.ok(total >= 5 && total <= 10, `5 pedrinhas de 1 ou 2 blocos: ${total} colunas`);
 });
 
 test('as rochas nunca encostam nas bordas do mundo (200 sementes)', () => {

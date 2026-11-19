@@ -158,15 +158,19 @@ não de resolução.
   de pixel art de uma alga): em vez de talo com folhinhas, agora é uma **roseta de folhas largas
   em forma de chama** saindo de um centro estreito, como na imagem. Em `render/plantas.js`
   (`algaRoseta`), gerada por código a partir de curvas de Bézier:
-  - 5 folhas na alga de 60 px e 4 na de 52 px (espelhada): uma alta em S, uma menor que se curva
+  - 5 folhas na alga de 60 px e 4 na de 48 px: a alga de 60 tem uma folha alta em S, uma menor que se curva
     para dentro e folhas curtas na frente; cada folha cresce rápido, tem a largura máxima no primeiro
     terço e afina até a ponta; as de trás são pintadas antes e as da frente se sobrepõem.
-  - **Cores como na referência**, todas sólidas: corpo no **#10AB8C** na base, **oliva** no meio e
-    **ocre** perto da ponta (degradê com a divisa irregular), **fio de borda escuro** de 1 pixel
-    num dos lados de cada folha, **manchas de brilho** claras e um núcleo mais vivo na base.
-    **[proposta]** A ponta amarelada vem da imagem; se preferir tudo verde, é só trocar a divisa
-    do degradê em `algaRoseta` (as constantes 0,55 e 0,76).
-  - Cores novas na paleta (índices 20 a 23): borda #0A5C4C, brilho #6FE0BE, oliva #9CB04A, ocre #D9A441.
+  - **Cores, só em verdes** (pedido do usuário depois de ver: "muita variação de cor, remova o
+    amarelo"): corpo no **#10AB8C** na base, **#2AB280** no meio e **#58BD6E** (verde-folha) perto da
+    ponta, em degradê com a divisa irregular; **fio de borda escuro** (#0A5C4C) de 1 pixel num dos
+    lados de cada folha e **brilhos discretos** (#6FE0BE). Antes tinha oliva e ocre, como na
+    referência; foram tirados. **[proposta]** Os verdes do degradê são palpite meu.
+  - **As duas algas são da mesma planta, mas a menor é uma variação própria** (pedido do usuário):
+    tem **48 px** (a maior tem 60) e as folhas saem em **outra ordem**: a folha alta fica à direita e
+    mais reta, uma folha à esquerda abre bem para o lado e volta, e há uma média à direita. Não é a
+    maior espelhada (há teste que confere).
+  - Cores na paleta (índices 20 a 23): borda #0A5C4C, brilho #6FE0BE, meio #2AB280 e ponta #58BD6E.
   - Continuam balançando com a água. A base reserva 16 px de areia para as outras plantas.
 - **[fechado]** **Peixe vermelho** (pedido do usuário em 18/11/2026): o beta agora é "na cor padrão em
   tons de vermelho", **cor sólida** (não mais dithering). Saudável: corpo #C0302D, nadadeira e cauda
@@ -181,12 +185,35 @@ não de resolução.
   escuros e uns acinzentados (#B3A58A, pedrinhas). Cada camada tem **3 variações de bloco**,
   sorteadas ao longo da areia para o padrão não repetir de 8 em 8 pixels (`areiaComGraos` em
   `render/cenario.js`; as letras `g`, `h` e `i` nos blocos são os grãos).
+- **[fechado]** **Pedra grande no fundo** (pedido do usuário em 19/11/2026, com uma imagem de pixel art de um
+  rochedo): uma pedra **relativamente grande**, de 66×40 px, na **camada de fundo** (a 2ª camada, a
+  que tem paralaxe), em `render/pedra-grande.js`. Segue a referência: um **bloco largo e facetado**
+  de cinza-amarronzado, com **rachaduras escuras** entre as facetas, **musgo verde** no alto, uma
+  **pedra menor na frente, à esquerda** (também com musgo) e **duas pedrinhas soltas** na base.
+  - Gerada por código, sempre igual: silhueta com topo largo e degraus; 16 pontos dentro da pedra
+    dividem-na em facetas (cada pixel é da faceta do ponto mais próximo), cada faceta tem um tom
+    (mais clara no alto e à esquerda, de onde vem a luz); onde duas facetas se encontram o pixel
+    vira rachadura; o musgo é uma faixa irregular logo abaixo do topo.
+  - Fica perto do meio do mundo (x entre 105 e 135), então aparece logo na tela inicial; é
+    desenhada atrás das pedras comuns do fundo e das plantas, e atrás de tudo o que é da frente.
+  - Cores novas na paleta (índices 36 a 41): pedra #5A5850 (base), #706D62 (faceta clara), #45443D
+    (faceta escura), rachadura #2B2A25, musgo #3F8F52 e musgo claro #5DB36B. **[proposta]** Os tons
+    são escuros por estar longe; o musgo é **verde** (na referência é amarelo-limão) para combinar
+    com as algas e porque você tirou o amarelo delas. Se quiser o limão, é só trocar os 2 índices.
+- **[fechado]** **Pedras da frente bem menores** (pedido do usuário em 19/11/2026: "remover ou mudar para
+  pedras bem menores"; escolhi **menores**, para a areia não ficar vazia e a pedra grande do fundo
+  ter contra o que contrastar). No lugar dos 3 montes de rocha de até 3 blocos (24 px) de altura,
+  agora são **5 pedrinhas de 1 ou 2 blocos de largura e só 1 de altura (8 px)**, em
+  `render/cenario.js`, ainda em cinza cheio. Ocupam as colunas 2 a 4, 6 a 8, 14 a 16, 19 a 21 e
+  24 a 26; ficam livres as colunas 0 e 1, 9 a 13, 17 e 18, 22 e 23 e 27 a 29 (de onde sobem as
+  bolhas, em x = 84 e x = 236). **[proposta]** Li "camada 1" como a camada do jogo (a da frente).
+  Para remover de vez, é só tirar o laço das pedrinhas em `gerarMapa`.
 - **[fechado]** **Queda d'água do filtro corrigida**: as falhas do fio estavam andando para cima.
   Agora descem (há teste que confere o sentido).
 - **[fechado]** **Aquário menor** (pedido do usuário em 18/11/2026: "a sensação é de que está muito
   grande"): o mundo passou de 360×240 para **240×160** (30×20 blocos) e, depois, para **240×152** (30×19, ver "Areia" abaixo). A areia sobe para a linha 16
   (y = 128), a superfície vai para y = 20 (20 pixels de ar em cima), há **3 montes de rocha** em vez
-  de 4, as nascentes de bolhas ficam em x = 84 e x = 236, as algas gigantes baixaram para 60 e 52 px
+  de 4 (depois trocados por 5 pedrinhas, ver "Pedras da frente bem menores"), as nascentes de bolhas ficam em x = 84 e x = 236, as algas gigantes baixaram para 60 e 52 px
   (de novo cerca de metade da água, que agora tem ~108 px) e o peixe começa em (120, 80).
   **[proposta]** Escolhi esse tamanho; se ainda parecer grande ou ficou pequeno, é só trocar
   `COLUNAS`, `LINHAS` e `LINHA_AREIA` em `core/mundo.js`. Plantas: só o pé precisa estar em areia

@@ -1,8 +1,9 @@
 // O fundo com paralaxe: uma camada atrás do jogo que anda mais devagar que a câmera, o que dá
 // sensação de profundidade (como na referência "Marine Life", de Bela Toth).
 //
-//   FUNDO  (anda a 85% da câmera, só para os lados): pedras grandes em cinza escuro e umas
-//          poucas plantas ramificadas em verde escuro. O efeito é SUTIL de propósito;
+//   FUNDO  (anda a 85% da câmera, só para os lados): pedras em cinza escuro, UMA pedra grande
+//          com musgo (pedra-grande.js) e umas poucas plantas ramificadas em verde escuro. O
+//          efeito é SUTIL de propósito;
 //   JOGO   (anda a 100%):          rochas, areia, plantas, peixes e bolhas (o resto do render).
 //
 // Quanto mais longe, mais escuro: o cinza das pedras do fundo é mais escuro que o das rochas da
@@ -20,6 +21,7 @@ import { SEMENTE_CENARIO } from './cenario.js';
 import { montarModelo, balanco } from './plantas.js';
 import { LARGURA, ALTURA } from './tela.js';
 import { COR } from './palette.js';
+import { desenharPedraGrande } from './pedra-grande.js';
 
 // 0 = o fundo ficaria colado na tela, 1 = andaria junto com o jogo (sem profundidade nenhuma).
 // Perto de 1 o efeito é sutil: o fundo anda só 15% menos que a câmera.
@@ -68,7 +70,8 @@ const MODELOS_PLANTA = [
   montarModelo(ramo(22, { passo: 5, comprimento: 5 }), COR_PLANTA),
 ];
 
-// Sorteia o fundo: as pedras ({ x, largura, altura, fase }) e as plantas ({ modelo, x }).
+// Sorteia o fundo: as pedras ({ x, largura, altura, fase }), as plantas ({ modelo, x }) e onde fica
+// a pedra grande ({ x }).
 // A mesma semente dá sempre o mesmo fundo.
 export function gerarFundo(semente = SEMENTE_CENARIO + 2) {
   const rng = criarRng(semente);
@@ -94,7 +97,10 @@ export function gerarFundo(semente = SEMENTE_CENARIO + 2) {
     });
     vez++;
   }
-  return { pedras, plantas };
+  // A pedra grande fica perto do meio do mundo (aparece logo na tela inicial). Sorteada por último,
+  // para não mudar o resto do fundo.
+  const pedraGrande = { x: rng.inteiro(105, 135) };
+  return { pedras, plantas, pedraGrande };
 }
 
 // Quanto a camada é deslocada na tela, para os lados (x do mundo que fica na borda esquerda).
@@ -150,11 +156,12 @@ function desenharPlantas(quadro, fundo, ox, oy, tempo) {
   }
 }
 
-// Desenha a camada de fundo: primeiro as pedras, depois as plantas na frente delas. Chame logo
+// Desenha a camada de fundo: primeiro as pedras e a pedra grande, depois as plantas na frente. Chame logo
 // depois de pintar a água e antes do cenário (areia e rochas), que a cobre.
 export function desenharFundo(quadro, fundo, camera, tempo = 0) {
   const ox = deslocamentoX(camera, PARALAXE_FUNDO);
   const oy = Math.round(camera.y);
   desenharPedras(quadro, fundo, ox, oy);
+  if (fundo.pedraGrande) desenharPedraGrande(quadro, fundo.pedraGrande.x, ox, AREIA_Y - oy);
   desenharPlantas(quadro, fundo, ox, oy, tempo);
 }

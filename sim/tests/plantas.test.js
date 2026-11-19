@@ -12,7 +12,7 @@ import { COR } from '../src/render/palette.js';
 
 const SEMENTES = [1, 2, 3, 42, 2024, 99999];
 const CAM_Y = MUNDO_ALTURA - ALTURA; // câmera toda embaixo
-const VERDES_ALGA = [COR.VERDE_ALGA, COR.ALGA_BORDA, COR.ALGA_BRILHO, COR.ALGA_OLIVA, COR.ALGA_OCRE];
+const VERDES_ALGA = [COR.VERDE_ALGA, COR.ALGA_BORDA, COR.ALGA_BRILHO, COR.ALGA_MEIO, COR.ALGA_PONTA];
 const pegada = (p) => {
   const largura = larguraOcupada(p.modelo);
   const esq = p.x - Math.floor(largura / 2);
@@ -28,7 +28,7 @@ test('plantas: 4 modelos comuns, 1 mais alto e 2 algas gigantes de uns metade do
   const coluna = AREIA_Y - SUPERFICIE_Y; // a água, da superfície à areia
   for (const h of grandes) {
     assert.ok(h >= coluna * 0.4 && h <= coluna * 0.6, `gigante com ${h} px, coluna de ${coluna}`);
-    assert.ok(h > pequenas[4] * 2, 'bem maior que a alga alta');
+    assert.ok(h >= pequenas[4] * 2, 'pelo menos o dobro da alga alta');
   }
   for (const m of Object.values(MODELOS)) {
     assert.equal(m.pix.length, m.largura * m.altura);
@@ -71,10 +71,10 @@ test('alga gigante (referência): roseta alta e estreita de folhas largas, com u
   }
 });
 
-test('alga gigante (referência): borda escura, brilhos e o degradê do verde para a ponta amarelada', () => {
+test('alga gigante (referência): borda escura, brilhos e o degradê, só em verdes', () => {
   for (const [nome, m] of Object.entries(MODELOS_GRANDES)) {
     const usadas = new Set(Array.from(m.pix).filter((c) => c !== 0));
-    for (const c of [COR.VERDE_ALGA, COR.ALGA_BORDA, COR.ALGA_BRILHO, COR.ALGA_OLIVA, COR.ALGA_OCRE]) {
+    for (const c of [COR.VERDE_ALGA, COR.ALGA_BORDA, COR.ALGA_BRILHO, COR.ALGA_MEIO, COR.ALGA_PONTA]) {
       assert.ok(usadas.has(c), `${nome}: falta a cor ${c}`);
     }
     // Altura média (linhas menores = mais alto): o ocre fica mais acima que o corpo verde.
@@ -83,8 +83,8 @@ test('alga gigante (referência): borda escura, brilhos e o degradê do verde pa
       for (let i = 0; i < m.pix.length; i++) if (m.pix[i] === cor) ys.push(Math.floor(i / m.largura));
       return ys.reduce((a, b) => a + b, 0) / ys.length;
     };
-    assert.ok(alturaMedia(COR.ALGA_OCRE) < alturaMedia(COR.ALGA_OLIVA), `${nome}: ocre deve ficar acima do oliva`);
-    assert.ok(alturaMedia(COR.ALGA_OLIVA) < alturaMedia(COR.VERDE_ALGA), `${nome}: oliva deve ficar acima do verde`);
+    assert.ok(alturaMedia(COR.ALGA_PONTA) < alturaMedia(COR.ALGA_MEIO), `${nome}: a ponta deve ficar acima do meio`);
+    assert.ok(alturaMedia(COR.ALGA_MEIO) < alturaMedia(COR.VERDE_ALGA), `${nome}: o meio deve ficar acima do corpo`);
   }
 });
 
@@ -175,6 +175,29 @@ test('algas gigantes não passam pela variação de verde das pequenas', () => {
   desenharPlantas(q, [{ modelo: 'grande1', x: 60 }], camera);
   assert.ok(Array.from(q).every((c) => c === 0 || VERDES_ALGA.includes(c)));
   assert.ok(!Array.from(q).some((c) => COR.VERDES_PLANTA.includes(c)));
+});
+
+test('as duas algas são a mesma planta: a menor é um pouco mais baixa e tem as folhas em outra ordem', () => {
+  const g1 = MODELOS_GRANDES.grande1;
+  const g2 = MODELOS_GRANDES.grande2;
+  assert.ok(g2.altura < g1.altura && g2.altura >= g1.altura * 0.7, `menor, mas só um pouco (${g2.altura} contra ${g1.altura})`);
+  // Mesmo tipo de planta: as mesmas cores, as mesmas proporções de roseta (alta e estreita).
+  const cores = (m) => new Set(Array.from(m.pix).filter((c) => c !== 0));
+  assert.deepEqual([...cores(g1)].sort(), [...cores(g2)].sort());
+  // Folhas em outra ordem (não é só o espelho): a ponta mais alta fica de lados opostos...
+  const lado = (m) => {
+    let soma = 0;
+    let n = 0;
+    for (let y = 0; y < Math.floor(m.altura * 0.2); y++) {
+      for (let x = 0; x < m.largura; x++) if (m.pix[y * m.largura + x] !== 0) { soma += x - (m.largura - 1) / 2; n++; }
+    }
+    return soma / n;
+  };
+  assert.ok(lado(g1) < -1 && lado(g2) > 1, `as pontas altas devem ficar de lados opostos (${lado(g1).toFixed(1)} e ${lado(g2).toFixed(1)})`);
+  // ...e o desenho da menor não é o da maior espelhado.
+  const espelhado = (m) => Array.from({ length: m.altura }, (_, y) => Array.from({ length: m.largura }, (_, x) => m.pix[y * m.largura + (m.largura - 1 - x)]).join());
+  const linhasIguais = espelhado(g2).filter((l, y) => y < g1.altura && l === espelhado(g1)[y]).length;
+  assert.ok(linhasIguais < 3, `a menor não pode ser a maior espelhada (${linhasIguais} linhas iguais)`);
 });
 
 // --- Bolhas: nascentes afastadas e tempos irregulares -----------------------------------------

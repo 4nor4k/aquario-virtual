@@ -52,10 +52,12 @@ bateria + USB), gerenciado também pelo celular via WiFi. Veja `README.md` e `do
   + 1 alto + 2 algas gigantes (~metade da água), todas balançando (`render/plantas.js`); (5) fundo com paralaxe em 1 camada, só para os lados e **sutil** (85%) (pedras e poucas plantas, a 85% da
   câmera, `render/fundo.js`); (6) filtro do aquário no canto de cima à esquerda com queda d'água animada
   (`render/filtro.js`); (7) **aquário menor: mundo 240×152** (era 360×240), areia na linha 16 com 3 camadas; (8) algas grandes
-  em **roseta de folhas largas** (referência de pixel art, verde #10AB8C com degradê oliva/ocre); (9) mais cor sólida: plantas pequenas em variações de verde,
+  em **roseta de folhas largas** (referência de pixel art, verde #10AB8C, degradê só em verdes; a menor é uma variação de 48 px); (9) mais cor sólida: plantas pequenas em variações de verde,
   pedras em cinza cheio, superfície e queda do filtro em azul claro, **peixe em tons de vermelho** e
   **areia cor de areia com grãos** de tons diferentes (`COLORIDOS` em `palette.js`).
-  Decisões de (2) a (9) na seção 8 do `docs/04`. Não existe captura de tela sem navegador no projeto (foi um script temporário).
+  (10) **pedra grande com musgo** na camada de fundo (`render/pedra-grande.js`, referência de pixel art);
+  (11) rochas da frente trocadas por **5 pedrinhas de 1 bloco de altura**.
+  Decisões de (2) a (11) na seção 8 do `docs/04`. Não existe captura de tela sem navegador no projeto (foi um script temporário).
 - Próximo: **v0.3** (salvamento, adoção e nomes pelo painel, espécie e cor). Escrever
   `docs/09-plano-v0.3.md` e fechar com o usuário antes de codar. As dúvidas de ovos e segundo
   parceiro (`03`, seção 8) entram no plano da v0.4.

@@ -71,7 +71,7 @@ test('tons: a água é preto sólido; texto e HUD seguem branco sólido; areia e
 });
 
 test('paleta: uma cor e um tom por índice, e os desenhos guardados (hex) só usam 0 a 15 ou as letras extras', () => {
-  assert.equal(PALETA.length, 36);
+  assert.equal(PALETA.length, 42);
   assert.equal(TONS.length, PALETA.length);
   assert.ok(COLORIDOS.every((i) => i >= 0 && i < PALETA.length));
   assert.equal(new Set(COLORIDOS).size, COLORIDOS.length, 'sem índice repetido');

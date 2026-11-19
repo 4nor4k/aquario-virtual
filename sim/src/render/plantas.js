@@ -193,18 +193,22 @@ function algaRoseta(altura, largura, folhas, { espelhar = false } = {}) {
 
     // O corpo: verde na base, oliva no meio, ocre perto da ponta (com a divisa meio irregular).
     const tt = t + (ruidoDoPixel(x, y, 1) - 0.5) * 0.08;
-    let cor = tt < 0.55 ? COR.VERDE_ALGA : tt < 0.76 ? COR.ALGA_OLIVA : COR.ALGA_OCRE;
+    let cor = tt < 0.55 ? COR.VERDE_ALGA : tt < 0.76 ? COR.ALGA_MEIO : COR.ALGA_PONTA;
 
     if (t < 0.15 && Math.abs(posS[k]) < meiaL[k] * 0.55) cor = COR.ALGA_BRILHO; // núcleo da base
-    else if (t > 0.3 && t < 0.88 && dClara < 1.6 && ruidoDoPixel(x, y, 2) < 0.3) cor = COR.ALGA_BRILHO; // brilho
+    else if (t > 0.3 && t < 0.88 && dClara < 1.6 && ruidoDoPixel(x, y, 2) < 0.16) cor = COR.ALGA_BRILHO; // brilho (discreto)
     if (dEscura < 0.7 || t > 0.985) cor = COR.ALGA_BORDA; // fio escuro (1 pixel) e a pontinha
     pix[k] = cor;
   }
   return { largura, altura, pix };
 }
 
-// Folhas da alga maior e da menor (as duas seguem a mesma ideia da referência): a folha alta em S
-// à esquerda, outra menor à direita que se curva para dentro, e folhas curtas na frente.
+// A alga maior e a menor são da MESMA planta, mas a menor é uma variação própria (e não só a
+// maior espelhada): é um pouco mais baixa e as folhas saem em outra ordem.
+//   maior (60 px): a folha alta em S fica à esquerda, e a maior das outras se curva para dentro
+//                  à direita; folhas curtas na frente.
+//   menor (48 px): a folha alta fica à direita e é mais reta; a segunda, à esquerda, abre bem para
+//                  o lado e volta; mais uma folha média à direita; uma curta na frente.
 const FOLHAS_ROSETA = [
   { pontos: [[-0.05, 0], [-0.70, 0.22], [-0.05, 0.55], [-0.50, 1.0]], largura: 4 },     // a alta, em S
   { pontos: [[0.08, 0], [0.18, 0.18], [0.80, 0.28], [0.58, 0.62]], largura: 3.6 },      // a da direita
@@ -213,15 +217,15 @@ const FOLHAS_ROSETA = [
   { pontos: [[0.04, 0], [0.34, 0.08], [0.46, 0.15], [0.38, 0.28]], largura: 2.4 },      // curta, direita
 ];
 const FOLHAS_ROSETA_MENOR = [
-  { pontos: [[0.05, 0], [0.70, 0.22], [0.05, 0.55], [0.46, 1.0]], largura: 3.8 },
-  { pontos: [[-0.08, 0], [-0.18, 0.18], [-0.78, 0.28], [-0.55, 0.60]], largura: 3.3 },
-  { pontos: [[0.0, 0], [0.16, 0.14], [-0.18, 0.26], [-0.08, 0.40]], largura: 2.8 },
-  { pontos: [[0.04, 0], [0.42, 0.08], [0.46, 0.18], [0.30, 0.26]], largura: 2.3 },
+  { pontos: [[0.05, 0], [0.55, 0.25], [0.0, 0.55], [0.38, 1.0]], largura: 3.8 },        // a alta, à direita
+  { pontos: [[-0.08, 0], [-0.85, 0.15], [-0.75, 0.40], [-0.30, 0.66]], largura: 3.4 },  // à esquerda, abre e volta
+  { pontos: [[0.06, 0], [0.70, 0.12], [0.88, 0.32], [0.70, 0.50]], largura: 3 },        // média, à direita
+  { pontos: [[0.0, 0], [0.10, 0.12], [-0.15, 0.22], [-0.05, 0.34]], largura: 2.8 },     // curta, na frente
 ];
 
 export const MODELOS_GRANDES = {
   grande1: algaRoseta(60, 34, FOLHAS_ROSETA),
-  grande2: algaRoseta(52, 30, FOLHAS_ROSETA_MENOR, { espelhar: true }),
+  grande2: algaRoseta(48, 30, FOLHAS_ROSETA_MENOR),
 };
 
 // corTalo / corFolha: índices da paleta para as letras 'c' e 'e' (o fundo usa tons mais apagados).

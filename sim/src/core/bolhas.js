@@ -7,7 +7,7 @@ import { criarRng } from './rng.js';
 import { AREIA_Y, SUPERFICIE_Y } from './mundo.js';
 
 // De onde saem (x no mundo), bem afastados. Têm de ser colunas que nunca têm rocha (ver
-// cenario.js): 0 a 2, 9 a 12, 19 a 22 e 29. O 84 fica dentro da câmera inicial.
+// cenario.js): 0 e 1, 9 a 13, 17 e 18, 22 e 23 e 27 a 29. O 84 fica dentro da câmera inicial.
 export const EMISSORES_X = [84, 236];
 
 // Tempo até a próxima bolha de um ponto: quase sempre um intervalo comum, às vezes uma rajada

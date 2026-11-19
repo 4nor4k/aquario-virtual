@@ -29,11 +29,11 @@ export const PALETA = [
   [0x17, 0xb8, 0x96], // 17 verde das plantas pequenas, variação B (um pouco mais claro)
   [0x22, 0xa8, 0x83], // 18 verde das plantas pequenas, variação C (puxando para o amarelo)
   [0x0b, 0x75, 0x61], // 19 verde escuro das plantas do fundo (mais longe, mais apagado)
-  // Detalhes das algas grandes (a referência tem borda escura, brilho e a ponta amarelada):
+  // Detalhes das algas grandes: borda escura, brilho e o degradê, tudo em verdes:
   [0x0a, 0x5c, 0x4c], // 20 verde escuro: borda das folhas e ponta
   [0x6f, 0xe0, 0xbe], // 21 verde claro: brilho
-  [0x9c, 0xb0, 0x4a], // 22 verde-oliva: meio da folha, já esmaecendo
-  [0xd9, 0xa4, 0x41], // 23 ocre: ponta da folha
+  [0x2a, 0xb2, 0x80], // 22 verde um pouco mais quente: meio da folha
+  [0x58, 0xbd, 0x6e], // 23 verde-folha mais claro: ponta da folha (ainda verde, sem amarelo)
   // Grãos de areia, em tons diferentes (só nos blocos de areia, letras g, h e i do cenario.js):
   [0xf6, 0xeb, 0xc6], // 24 grão claro
   [0xd8, 0xb5, 0x6a], // 25 grão dourado
@@ -48,6 +48,13 @@ export const PALETA = [
   [0xc9, 0xa3, 0x9c], // 33 doente: corpo, vermelho pálido
   [0xdd, 0xbb, 0xae], // 34 doente: nadadeira e cauda
   [0xea, 0xd3, 0xc4], // 35 doente: borda da cauda
+  // A pedra grande do fundo (cinza-amarronzado, escura por estar longe) e o musgo dela:
+  [0x5a, 0x58, 0x50], // 36 pedra grande: tom base
+  [0x70, 0x6d, 0x62], // 37 pedra grande: faceta clara (a luz vem de cima e da esquerda)
+  [0x45, 0x44, 0x3d], // 38 pedra grande: faceta escura
+  [0x2b, 0x2a, 0x25], // 39 pedra grande: rachadura
+  [0x3f, 0x8f, 0x52], // 40 musgo
+  [0x5d, 0xb3, 0x6b], // 41 musgo claro (o pixel de cima)
 ];
 
 // Quão claro cada índice aparece em preto e branco: 0 = preto, 16 = branco (mono.js).
@@ -91,10 +98,16 @@ export const TONS = [
   16, // 33
   16, // 34
   16, // 35
+  16, // 36 a 41: a pedra grande do fundo (colorida)
+  16, // 37
+  16, // 38
+  16, // 39
+  16, // 40
+  16, // 41
 ];
 
 // Índices que não passam pelo preto e branco: são pintados sólidos, na cor da PALETA.
-export const COLORIDOS = [2, 3, 4, 5, 6, 7, 8, 9, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35];
+export const COLORIDOS = [2, 3, 4, 5, 6, 7, 8, 9, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41];
 
 // Nomes para quem desenha (os números acima são os índices da PALETA).
 export const COR = {
@@ -109,8 +122,8 @@ export const COR = {
   // As algas grandes: o corpo é o VERDE_ALGA (#10AB8C) e estes são os detalhes.
   ALGA_BORDA: 20,
   ALGA_BRILHO: 21,
-  ALGA_OLIVA: 22,
-  ALGA_OCRE: 23,
+  ALGA_MEIO: 22,
+  ALGA_PONTA: 23,
   AREIA: 6,
   AREIA_ESCURA: 7,
   // Grãos de areia (claro, dourado, acinzentado).
@@ -119,4 +132,6 @@ export const COR = {
   BETA: { corpo: 27, nadadeira: 28, borda: 29 },
   BETA_IDOSO: { corpo: 30, nadadeira: 31, borda: 32 },
   BETA_DOENTE: { corpo: 33, nadadeira: 34, borda: 35 },
+  // A pedra grande do fundo e o musgo dela.
+  PEDRA_GRANDE: { base: 36, clara: 37, escura: 38, rachadura: 39, musgo: 40, musgoClaro: 41 },
 };

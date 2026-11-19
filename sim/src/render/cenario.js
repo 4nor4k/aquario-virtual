@@ -114,21 +114,16 @@ export function gerarMapa(semente = SEMENTE_CENARIO) {
     }
   }
 
-  // Três montinhos de rocha sobre a areia, de 1 a 3 blocos de altura.
-  for (let i = 0; i < 3; i++) {
-    // Centros nas colunas 5-6, 15-16 e 25-26: com meia largura de até 2, as rochas ficam nas
-    // colunas 3 a 8, 13 a 18 e 23 a 28 (nunca encostam nas bordas nem se sobrepõem).
-    // Sobram sempre livres as colunas 0 a 2, 9 a 12, 19 a 22 e 29: de lá sobem as bolhas
-    // (core/bolhas.js) e ali também podem nascer plantas (plantas.js).
-    const centro = 5 + i * 10 + rng.inteiro(0, 1);
-    const meiaLargura = rng.inteiro(1, 2);
-    for (let dx = -meiaLargura; dx <= meiaLargura; dx++) {
-      const altura = Math.max(1, 3 - Math.abs(dx));
-      for (let h = 1; h <= altura; h++) {
-        const linha = LINHA_AREIA - h;
-        mapa[linha * COLUNAS + centro + dx] = h === altura ? ID.rochaTopo : ID.rocha;
-      }
-    }
+  // Cinco pedrinhas sobre a areia, de 1 ou 2 blocos de largura e só 1 de altura (8 px): bem menores
+  // que os montes de 3 blocos que havia antes (a pedra grande agora é a do fundo, pedra-grande.js).
+  // Cada uma sai de uma faixa (centro = base ou base + 1) e ocupa o centro e, às vezes, a coluna
+  // seguinte. Ocupam as colunas 2 a 4, 6 a 8, 14 a 16, 19 a 21 e 24 a 26 (nunca encostam nas
+  // bordas). Sobram sempre livres as colunas 0 e 1, 9 a 13, 17 e 18, 22 e 23 e 27 a 29: de lá sobem
+  // as bolhas (core/bolhas.js) e ali também podem nascer plantas (plantas.js).
+  for (const base of [2, 6, 14, 19, 24]) {
+    const centro = base + rng.inteiro(0, 1);
+    const largura = rng.inteiro(1, 2);
+    for (let dx = 0; dx < largura; dx++) mapa[(LINHA_AREIA - 1) * COLUNAS + centro + dx] = ID.rochaTopo;
   }
   return mapa;
 }
