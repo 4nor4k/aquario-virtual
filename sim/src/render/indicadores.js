@@ -36,8 +36,8 @@ export const CELULAS = {
 
 // O que cada caixinha mostra (função pura, para testar): { texto, valor, maximo, ideal, ruim }.
 // valor = null: sem barra. Sem peixe vivo, fome e saúde viram "--".
-export function valoresDoHud(aquario, config, textos) {
-  const peixe = aquario.peixes[0];
+// peixe: o peixe em foco (o padrão é o primeiro). Passe null para "sem peixe".
+export function valoresDoHud(aquario, config, textos, peixe = aquario.peixes[0]) {
   const ph = notaDoPh(aquario, config);
   return {
     fome: peixe
@@ -74,7 +74,7 @@ function desenharCelula(quadro, { x, y }, rotulo, v) {
   desenharBarra(quadro, x + FOLGA, y + 11, LARGURA_CELULA - 2 * FOLGA, v.valor, v.ruim ? COR_RUIM : DESTAQUE, v.maximo, v.ideal);
 }
 
-export function desenharIndicadores(quadro, { aquario, config, textos }) {
-  const v = valoresDoHud(aquario, config, textos);
+export function desenharIndicadores(quadro, { aquario, config, textos, peixe }) {
+  const v = valoresDoHud(aquario, config, textos, peixe);
   for (const nome of Object.keys(CELULAS)) desenharCelula(quadro, CELULAS[nome], textos.hud[nome], v[nome]);
 }

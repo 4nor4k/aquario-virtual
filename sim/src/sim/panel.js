@@ -4,18 +4,27 @@ import { idadeMs, msAteProximaFase, faseDaIdade } from '../core/fish.js';
 import { formatarPh } from '../core/formatar.js';
 import { formatarHoraDoJogo, formatarIdade } from './formatar.js';
 import { lerNumero } from './campos.js';
+import { sexoRevelado } from '../render/telas.js';
+import { MINUTO_MS } from '../core/clock.js';
 
 const INTERVALO_MS = 250; // o painel se atualiza 4 vezes por segundo
 
 const TEXTO_DO_ESTADO = { doente: 'doente', morto: 'morto' };
 const TEXTO_DA_CAUSA = { velhice: 'de velhice', cuidado: 'por falta de cuidado' };
+const TEXTO_DO_SEXO = { macho: 'macho', femea: 'fêmea' };
+const MOTIVO_DO_PARCEIRO = {
+  morto: 'esse peixe está morto',
+  naoAdulto: 'só peixe adulto ganha parceiro',
+  temParceiro: 'ele já tem parceiro',
+  cheio: 'aquário cheio (5 peixes)',
+};
 
 // Pede para o main: o relógio, o menu (para as ações valerem como no aparelho, com mensagem na
 // tela), o aquário e o peixe atuais (mudam ao adotar) e o que fazer ao adotar, renomear e apagar.
 // O painel faz o papel da página do celular (doc 06): adotar e dar nome.
 export function criarPainel({
   clock, menu, config, textos, obterAquario, obterPeixe, obterSalvamento, camera,
-  aguardandoAdocao, podeAdotar, aoAdotar, aoRenomear, aoApagar,
+  aguardandoAdocao, podeAdotar, aoAdotar, aoRenomear, aoApagar, aoAdotarParceiro,
 }) {
   const $ = (id) => document.getElementById(id);
   const botoesVelocidade = [...document.querySelectorAll('#velocidades button')];
@@ -30,6 +39,9 @@ export function criarPainel({
   const campoNomeAdocao = $('campo-nome-adocao');
   const campoCorAdocao = $('campo-cor-adocao');
   const botaoAdotar = $('adotar');
+  const botaoParceiro = $('adotar-parceiro');
+  const botaoNamorar = $('acao-namorar');
+  const campoPeixe = $('campo-peixe');
   const botaoApagar = $('apagar');
   let ultimaAtualizacao = -Infinity;
   let escala = 2;
@@ -53,6 +65,7 @@ export function criarPainel({
   botaoPular.addEventListener('click', () => {
     // Só o peixe fica mais velho; o relógio e a água não andam (senão ele morreria de fome no caminho).
     const peixe = obterPeixe();
+    if (!peixe) return;
     const ms = msAteProximaFase(peixe, clock.agoraMs());
     if (ms !== null) obterAquario().envelhecer(peixe, ms);
     atualizar(true);
@@ -89,6 +102,30 @@ export function criarPainel({
     atualizar(true);
   });
 
+  campoPeixe.addEventListener('change', () => {
+    menu.focar(obterAquario(), Number(campoPeixe.value));
+    atualizar(true);
+  });
+
+  botaoParceiro.addEventListener('click', () => {
+    aoAdotarParceiro({ nome: campoNomeAdocao.value, cor: campoCorAdocao.value });
+    campoNomeAdocao.value = '';
+    atualizar(true);
+  });
+
+  // Teste: o casal do peixe escolhido já cumpriu o tempo e o intervalo; na próxima passada das
+  // regras ele reproduz (se houver vaga).
+  botaoNamorar.addEventListener('click', () => {
+    const aquario = obterAquario();
+    const peixe = obterPeixe();
+    const casal = peixe && aquario.casalDe(peixe);
+    if (!casal) return;
+    casal.boasMs = config.reproducao.boasCondicoesMin * MINUTO_MS;
+    casal.ultimaMs = null;
+    for (const id of [casal.aId, casal.bId]) aquario.peixePorId(id).saude = 100;
+    atualizar(true);
+  });
+
   // Só aumenta a imagem na tela do computador; o jogo continua em 120×120.
   botaoTamanho.addEventListener('click', () => {
     escala = escala === 2 ? 4 : 2;
@@ -104,7 +141,7 @@ export function criarPainel({
     });
   }
   botaoMatar.addEventListener('click', () => {
-    obterAquario().matar(obterPeixe());
+    if (obterPeixe()) obterAquario().matar(obterPeixe());
     atualizar(true);
   });
 
@@ -116,9 +153,9 @@ export function criarPainel({
       atualizar(true);
     });
   }
-  aoEditar(campoSaciedade, (n) => { obterPeixe().saciedade = n; }, config.saciedade.maximo);
+  aoEditar(campoSaciedade, (n) => { if (obterPeixe()) obterPeixe().saciedade = n; }, config.saciedade.maximo);
   aoEditar(campoSujeira, (n) => { obterAquario().sujeira = n; });
-  aoEditar(campoSaude, (n) => { obterPeixe().saude = n; });
+  aoEditar(campoSaude, (n) => { if (obterPeixe()) obterPeixe().saude = n; });
   campoPh.addEventListener('change', () => {
     const aquario = obterAquario();
     aquario.phPasso = Number(campoPh.value);
@@ -148,6 +185,19 @@ export function criarPainel({
     if (s.aviso) aviso.textContent = s.aviso;
   }
 
+  // Mantém a lista de peixes do seletor igual ao aquário (só mexe nela quando muda).
+  let assinaturaDaLista = '';
+  function mostrarLista(aquario, peixe) {
+    const lista = aquario.vivos().length > 0 ? aquario.vivos() : aquario.peixes;
+    const assinatura = lista.map((p) => `${p.id}:${p.nome}`).join('|');
+    if (assinatura !== assinaturaDaLista) {
+      assinaturaDaLista = assinatura;
+      campoPeixe.replaceChildren(...lista.map((p) => new Option(`${p.nome} (${p.cor})`, String(p.id))));
+    }
+    if (peixe) campoPeixe.value = String(peixe.id);
+    campoPeixe.disabled = lista.length < 2;
+  }
+
   // forcar = true atualiza já, sem esperar o intervalo.
   function atualizar(forcar = false) {
     const agora = performance.now();
@@ -156,14 +206,24 @@ export function criarPainel({
 
     const tempo = clock.agoraMs();
     const aquario = obterAquario();
-    const peixe = obterPeixe();
-    const idade = idadeMs(peixe, tempo);
+    const peixe = obterPeixe(); // o peixe em foco (null se não há nenhum)
 
     $('hora-jogo').textContent = formatarHoraDoJogo(tempo);
-    // A fase vem direto da idade, para o painel nunca ficar um passo atrás do relógio.
-    const estado = TEXTO_DO_ESTADO[peixe.estado];
-    $('peixe').textContent =
-      `${peixe.nome} · ${faseDaIdade(idade)} · ${formatarIdade(idade)}${estado ? ` · ${estado}` : ''}`;
+    mostrarLista(aquario, peixe);
+    if (peixe) {
+      const idade = idadeMs(peixe, tempo);
+      // A fase vem direto da idade, para o painel nunca ficar um passo atrás do relógio.
+      const estado = TEXTO_DO_ESTADO[peixe.estado];
+      const sexo = sexoRevelado(peixe, tempo);
+      $('peixe').textContent =
+        `${peixe.nome} · ${faseDaIdade(idade)} · ${formatarIdade(idade)} · ${sexo ? TEXTO_DO_SEXO[sexo] : 'sexo ainda oculto'}${estado ? ` · ${estado}` : ''}`;
+    } else {
+      $('peixe').textContent = 'Sem peixe (só ovos).';
+    }
+    const parceiro = peixe ? aquario.parceiroDe(peixe) : null;
+    $('familia').textContent =
+      `Vivos: ${aquario.vivos().length} de ${config.reproducao.limiteDePeixes} · ovos: ${aquario.ovos.length} · `
+      + `parceiro: ${parceiro ? parceiro.nome : 'nenhum'}`;
     $('aviso-vida').hidden = !aquario.gameOver;
     if (aquario.gameOver) {
       $('aviso-vida').textContent =
@@ -174,27 +234,32 @@ export function criarPainel({
 
     // Adoção: o nome do peixe atual e a seção de adotar.
     const aguardando = aguardandoAdocao();
-    mostrar(campoNome, peixe.nome);
-    campoNome.disabled = aguardando;
+    mostrar(campoNome, peixe ? peixe.nome : '');
+    campoNome.disabled = aguardando || !peixe;
     botaoAdotar.disabled = !podeAdotar();
+    const podeParceiro = !aguardando && peixe ? aquario.podeAdotarParceiro(peixe) : null;
+    botaoParceiro.disabled = !(podeParceiro && podeParceiro.ok);
+    botaoParceiro.title = podeParceiro && !podeParceiro.ok ? MOTIVO_DO_PARCEIRO[podeParceiro.motivo] : '';
+    botaoNamorar.disabled = aguardando || !peixe || !aquario.casalDe(peixe);
     $('adocao-estado').textContent = aguardando
       ? 'Aguardando a primeira adoção: escolha a cor no aparelho (ou aqui).'
-      : aquario.gameOver ? 'O peixe morreu: pode adotar outro.' : 'Há um peixe vivo.';
+      : aquario.gameOver ? 'O peixe morreu: pode adotar outro.'
+        : `Há ${aquario.vivos().length} peixe(s) vivo(s). ${podeParceiro && !podeParceiro.ok ? `Parceiro: ${MOTIVO_DO_PARCEIRO[podeParceiro.motivo]}.` : ''}`;
 
-    mostrar(campoSaciedade, Math.round(peixe.saciedade));
+    mostrar(campoSaciedade, peixe ? Math.round(peixe.saciedade) : '');
     mostrar(campoSujeira, Math.round(aquario.sujeira));
-    mostrar(campoSaude, Math.round(peixe.saude));
+    mostrar(campoSaude, peixe ? Math.round(peixe.saude) : '');
     mostrar(campoPh, String(aquario.phPasso));
     // Depois do Game Over as regras ficam congeladas: não adianta editar.
     for (const campo of [campoSaciedade, campoSujeira, campoSaude, campoPh]) {
       campo.disabled = aquario.gameOver || aguardando;
     }
-    botaoMatar.disabled = peixe.estado === 'morto' || aguardando;
+    botaoMatar.disabled = !peixe || peixe.estado === 'morto' || aguardando;
 
     for (const botao of botoesVelocidade) {
       botao.classList.toggle('ativo', Number(botao.dataset.vel) === clock.velocidade);
     }
-    botaoPular.disabled = aquario.gameOver || aguardando || msAteProximaFase(peixe, tempo) === null;
+    botaoPular.disabled = aquario.gameOver || aguardando || !peixe || msAteProximaFase(peixe, tempo) === null;
     botaoTamanho.textContent = `Tela: ${escala}× (mudar para ${escala === 2 ? 4 : 2}×)`;
     $('camera').textContent =
       `x ${Math.round(camera.x)} de ${camera.maxX} · y ${Math.round(camera.y)} de ${camera.maxY}`;

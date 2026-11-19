@@ -224,4 +224,5 @@ descobre o parceiro. Evita dois campos que precisariam andar juntos.
 
 Passos:
 - **1 e 4 (núcleo) feitos em 2026-11-19**: `core/reproducao.js`, casais, ovos, vagas, parceiro, mortos que somem, Game Over esperando ovos, salvamento dos campos novos (arquivo da v0.3 ainda abre) e ausência sem animação. Fiz o passo 4 junto com o 1 porque o Game Over e as vagas dependem dos ovos. 508 testes (26 novos em `tests/reproducao.test.js`).
-- 2 (foco na interface), 3 (adotar o parceiro), 5 (namoro na tela) e 6 (fechamento): por fazer.
+- **2 e 3 feitos em 2026-11-19** (foram juntos): foco no menu (`peixeEmFoco`, troca na tela de status com esquerda/direita), status com posição "2/3", sexo (só no adulto) e parceiro, HUD do peixe em foco, câmera automática seguindo o foco, 4º item "Adotar parceiro" no menu (tela de adoção em modo parceiro, B cancela, mensagem do motivo se não der), painel com seletor de peixe, "Adotar parceiro" e "Forçar namoro", e mensagens de namoro e nascimento (`menu.avisar`). 526 testes.
+- 5 (namoro na tela: corações e ovos) e 6 (fechamento): por fazer.

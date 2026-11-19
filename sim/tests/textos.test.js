@@ -49,7 +49,7 @@ test('existe texto para toda fase, estado, causa de morte e nota de pH', () => {
 });
 
 test('as mensagens curtas cabem em até 3 linhas no rodapé (26 letras por linha)', () => {
-  for (const [nome, texto] of Object.entries(textos.mensagens)) {
+  for (const [nome, texto] of frases(textos.mensagens)) {
     const linhas = quebrarTexto(preencher(texto, { ph: '7,5' }), 26);
     assert.ok(linhas.length <= 3, `${nome}: ${linhas.length} linhas`);
   }
@@ -59,5 +59,10 @@ test('os textos do menu e do status cabem nas caixas (largura em letras)', () =>
   for (const item of textos.menu.itens) assert.ok(item.length <= 16, `item "${item}"`);
   assert.ok(textos.menu.dica.length <= 22, 'dica do menu');
   assert.ok(textos.status.dica.length <= 26, 'dica do status');
+  assert.ok(textos.status.dicaVarios.length <= 26, 'dica do status com vários peixes');
+  assert.ok(textos.adocao.dicaParceiro.length <= 26, 'dica da adoção de parceiro');
+  for (const t of [textos.adocao.titulo, textos.adocao.tituloMacho, textos.adocao.tituloFemea]) assert.ok(t.length <= 26, t);
+  for (const sexo of ['macho', 'femea']) assert.ok(textos.status.sexos[sexo], sexo);
+  assert.ok(textos.status.sexos.oculto);
   assert.ok(textos.gameOver.dica.length <= 26, 'dica do Game Over');
 });

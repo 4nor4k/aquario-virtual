@@ -12,6 +12,7 @@ import { spritesDaCor } from './sprites.js';
 import { QUADROS_POR_SEGUNDO, QUADROS_DE_NADO } from '../core/fish.js';
 import { idadeMs } from '../core/fish.js';
 import { diaDaVida, formatarDuracao, formatarPh, preencher } from '../core/formatar.js';
+import { faseDaIdade } from '../core/fish.js';
 import { notaDoPh, valorDoPh } from '../core/rules.js';
 
 // Cores da paleta (palette.js)
@@ -75,16 +76,28 @@ function linhaDeBarra(quadro, y, rotulo, valor, cor, maximo = 100, ideal = null)
   desenharTexto(quadro, numero, LARGURA - MARGEM - larguraDoTexto(numero), y, TEXTO);
 }
 
-export function desenharStatus(quadro, { aquario, config, textos, agoraMs }) {
+// O sexo só aparece quando o peixe é adulto (antes, "?"): doc 03, seção 6.
+export function sexoRevelado(peixe, agoraMs) {
+  const fase = faseDaIdade(idadeMs(peixe, agoraMs));
+  return fase === 'adulto' || fase === 'idoso' ? peixe.sexo : null;
+}
+
+// menu (opcional): diz qual peixe mostrar (o em foco) e permite trocar; sem ele, o primeiro.
+export function desenharStatus(quadro, { aquario, config, textos, agoraMs, menu = null }) {
   const t = textos.status;
   preencherRetangulo(quadro, 0, 0, LARGURA, ALTURA, FUNDO_DA_TELA);
   contornoRetangulo(quadro, 0, 0, LARGURA, ALTURA, BORDA);
 
-  const peixe = aquario.peixes[0];
+  const peixe = menu ? menu.peixeEmFoco(aquario) : aquario.peixes[0];
+  const varios = menu ? menu.posicaoDoFoco(aquario) : { numero: 1, total: 1 };
   if (!peixe) {
     desenharTexto(quadro, t.semPeixe, centralizado(t.semPeixe), 56, TEXTO);
   } else {
     desenharTexto(quadro, peixe.nome, MARGEM, 8, TITULO);
+    if (varios.total > 1) {
+      const posicao = preencher(t.foco, { n: varios.numero, total: varios.total });
+      desenharTexto(quadro, posicao, LARGURA - MARGEM - larguraDoTexto(posicao), 8, DESTAQUE);
+    }
     const idade = preencher(t.idade, diaDaVida(idadeMs(peixe, agoraMs)));
     desenharTexto(quadro, `${t.fases[peixe.fase]} - ${idade}`, MARGEM, 18, TEXTO);
 
@@ -103,13 +116,19 @@ export function desenharStatus(quadro, { aquario, config, textos, agoraMs }) {
     desenharTexto(quadro, `${t.ph} ${formatarPh(valorDoPh(aquario, cfg))} - ${notaTexto}`, MARGEM, 72,
       nota <= cfg.ph.improprioNotaAte ? RUIM : TEXTO);
 
-    desenharTexto(quadro, `${t.estado}: ${t.estados[peixe.estado]}`, MARGEM, 86,
+    desenharTexto(quadro, `${t.estado}: ${t.estados[peixe.estado]}`, MARGEM, 82,
       peixe.estado === 'saudavel' ? TEXTO : RUIM);
+    const sexo = sexoRevelado(peixe, agoraMs);
+    desenharTexto(quadro, `${t.sexo}: ${sexo ? t.sexos[sexo] : t.sexos.oculto}`, MARGEM, 91, TEXTO);
     if (peixe.causaDaMorte) {
-      desenharTexto(quadro, `(${t.causas[peixe.causaDaMorte]})`, MARGEM, 96, RUIM);
+      desenharTexto(quadro, `(${t.causas[peixe.causaDaMorte]})`, MARGEM, 100, RUIM);
+    } else {
+      const parceiro = aquario.parceiroDe(peixe);
+      desenharTexto(quadro, `${t.parceiro}: ${parceiro ? parceiro.nome : t.semParceiro}`, MARGEM, 100, TEXTO);
     }
   }
-  desenharTexto(quadro, t.dica, centralizado(t.dica), ALTURA - 11, DICA);
+  const dica = varios.total > 1 ? t.dicaVarios : t.dica;
+  desenharTexto(quadro, dica, centralizado(dica), ALTURA - 8, DICA);
 }
 
 // --- Game Over ---------------------------------------------------------------------------------
@@ -173,7 +192,9 @@ export function desenharAdocao(quadro, { menu, textos, agoraMs = 0 }) {
   preencherRetangulo(quadro, 0, 0, LARGURA, ALTURA, FUNDO_DA_CAIXA);
   contornoRetangulo(quadro, 0, 0, LARGURA, ALTURA, BORDA);
 
-  desenharTexto(quadro, a.titulo, centralizado(a.titulo), 10, TITULO);
+  const parceiro = menu.modoAdocao === 'parceiro';
+  const titulo = parceiro ? (menu.sexoDoParceiro === 'macho' ? a.tituloMacho : a.tituloFemea) : a.titulo;
+  desenharTexto(quadro, titulo, centralizado(titulo), 10, TITULO);
 
   const sprite = spritesDaCor(menu.corEscolhida).normal.beta.adulto;
   const largura = sprite.largura * ESCALA_DO_PEIXE;
@@ -192,7 +213,8 @@ export function desenharAdocao(quadro, { menu, textos, agoraMs = 0 }) {
   desenharTexto(quadro, nomeDaCor, centralizado(nomeDaCor), y + altura + 8, DESTAQUE);
 
   desenharTexto(quadro, a.escolher, centralizado(a.escolher), ALTURA - 25, DICA);
-  desenharTexto(quadro, a.dica, centralizado(a.dica), ALTURA - 14, DESTAQUE);
+  const dica = parceiro ? a.dicaParceiro : a.dica;
+  desenharTexto(quadro, dica, centralizado(dica), ALTURA - 14, DESTAQUE);
 }
 
 // --- Qual tela mostrar -------------------------------------------------------------------------
@@ -212,10 +234,12 @@ export function desenharTelas(quadro, { menu, aquario, config, textos, agoraMs }
     return;
   }
   if (menu.tela === TELAS.STATUS) {
-    desenharStatus(quadro, { aquario, config, textos, agoraMs });
+    desenharStatus(quadro, { aquario, config, textos, agoraMs, menu });
     return;
   }
-  if (menu.tela === TELAS.JOGO && menu.hudVisivel) desenharIndicadores(quadro, { aquario, config, textos });
+  if (menu.tela === TELAS.JOGO && menu.hudVisivel) {
+    desenharIndicadores(quadro, { aquario, config, textos, peixe: menu.peixeEmFoco(aquario) });
+  }
   if (menu.tela === TELAS.MENU) desenharMenu(quadro, menu, textos);
   if (menu.mensagem) desenharMensagem(quadro, menu.mensagem);
 }

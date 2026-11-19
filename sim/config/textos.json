@@ -1,7 +1,7 @@
 {
   "menu": {
     "titulo": "Menu",
-    "itens": ["Dar comida", "Limpar aquário", "Regular pH"],
+    "itens": ["Dar comida", "Limpar aquário", "Regular pH", "Adotar parceiro"],
     "dica": "A: ok  B: voltar"
   },
 
@@ -11,7 +11,16 @@
     "semPeixe": "Não há peixe vivo.",
     "limpeza": "Aquário limpo",
     "phSubiu": "pH subiu para {ph}",
-    "phNoMaximo": "pH já está no máximo"
+    "phNoMaximo": "pH já está no máximo",
+    "parceiroAdotado": "Parceiro adotado!",
+    "parceiro": {
+      "morto": "Esse peixe está morto",
+      "naoAdulto": "Só adulto ganha parceiro",
+      "temParceiro": "Ele já tem parceiro",
+      "cheio": "Aquário cheio (5 peixes)"
+    },
+    "namoro": "Seus peixes estão namorando!",
+    "nasceu": "Nasceu um filhote!"
   },
 
   "status": {
@@ -26,7 +35,13 @@
     "causas": { "velhice": "velhice", "cuidado": "falta de cuidado" },
     "phNotas": { "ideal": "ideal", "aceitavel": "aceitável", "ruim": "ruim" },
     "semPeixe": "Sem peixe",
-    "dica": "C: voltar"
+    "sexo": "Sexo",
+    "sexos": { "macho": "macho", "femea": "fêmea", "oculto": "? (cresça)" },
+    "parceiro": "Parceiro",
+    "semParceiro": "nenhum",
+    "foco": "{n}/{total}",
+    "dica": "C: voltar",
+    "dicaVarios": "C: voltar  < >: peixe"
   },
 
   "hud": {
@@ -55,8 +70,11 @@
 
   "adocao": {
     "titulo": "Adote um peixe",
+    "tituloMacho": "Adote um macho",
+    "tituloFemea": "Adote uma fêmea",
     "escolher": "Joystick: escolher a cor",
     "dica": "A: adotar",
+    "dicaParceiro": "A: adotar  B: voltar",
     "cores": {
       "vermelho": "Vermelho",
       "azul": "Azul",

@@ -37,7 +37,7 @@ test('A abre o menu (câmera para) e B volta', () => {
 
 test('o menu tem um item para cada ação, na mesma ordem', () => {
   const { menu } = novo();
-  assert.deepEqual(ACOES, ['comida', 'limpar', 'ph']);
+  assert.deepEqual(ACOES, ['comida', 'limpar', 'ph', 'parceiro']);
   assert.equal(menu.itens.length, ACOES.length);
 });
 
@@ -48,9 +48,10 @@ test('cima e baixo escolhem o item, dando a volta nas pontas', () => {
   assert.equal(menu.item, 1);
   menu.apertar(aperto('baixo'), aq);
   menu.apertar(aperto('baixo'), aq);
+  menu.apertar(aperto('baixo'), aq);
   assert.equal(menu.item, 0); // deu a volta
   menu.apertar(aperto('cima'), aq);
-  assert.equal(menu.item, 2);
+  assert.equal(menu.item, 3);
 });
 
 test('abrir o menu de novo começa no primeiro item', () => {
@@ -101,7 +102,8 @@ test('regular pH sobe um passo e diz o novo valor com vírgula; no máximo avisa
   const { menu, aq } = novo();
   const regular = () => {
     menu.apertar(aperto('a'), aq);
-    menu.apertar(aperto('cima'), aq); // do primeiro item para o último (pH)
+    menu.apertar(aperto('baixo'), aq);
+    menu.apertar(aperto('baixo'), aq); // do primeiro item até o pH
     menu.apertar(aperto('a'), aq);
   };
   regular();

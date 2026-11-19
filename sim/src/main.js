@@ -68,7 +68,6 @@ const config = await carregarJson('config/jogo.json');
 const textos = await carregarJson('config/textos.json');
 
 let aquario;
-let beta;
 let numeroDoJogo = 0;
 // true enquanto espera a (primeira) adoção: o aquário de trás é só um enfeite e NADA é salvo.
 let semJogo = false;
@@ -116,8 +115,8 @@ function adotar({ cor, nome }) {
   clock.reiniciar();
   menu.reiniciar();
   aquario = criarAquario({ semente: novaSemente(), config });
-  beta = aquario.adicionarPeixe({ nome: config.nome.padrao, especie: 'beta', cor, x: 120, y: 80 }, clock.agoraMs());
-  if (nome != null) aquario.renomear(beta, nome, aceitaNoNome);
+  const peixe = aquario.adicionarPeixe({ nome: config.nome.padrao, especie: 'beta', cor, x: 120, y: 80 }, clock.agoraMs());
+  if (nome != null) aquario.renomear(peixe, nome, aceitaNoNome);
   turvacao.irPara(nivelDaSujeira(aquario.sujeira));
   semJogo = false;
   jaSalvouOGameOver = false;
@@ -131,7 +130,7 @@ function esperarAdocao() {
   clock.reiniciar();
   menu.reiniciar();
   aquario = criarAquario({ semente: novaSemente(), config });
-  beta = aquario.adicionarPeixe({ nome: config.nome.padrao, especie: 'beta', x: 120, y: 80 }, clock.agoraMs());
+  aquario.adicionarPeixe({ nome: config.nome.padrao, especie: 'beta', x: 120, y: 80 }, clock.agoraMs());
   turvacao.irPara(nivelDaSujeira(aquario.sujeira));
   semJogo = true;
   jaSalvouOGameOver = false;
@@ -163,7 +162,6 @@ async function carregarJogoSalvo() {
     clock.avancar(r.horaDoJogoMs);
     menu.reiniciar();
     aquario = carregado;
-    beta = aquario.peixes[0];
     turvacao.irPara(nivelDaSujeira(aquario.sujeira)); // abre já com a água como estava
     jaSalvouOGameOver = aquario.gameOver;
     salvar(); // grava já o estado depois da ausência (e da hora de agora)
@@ -199,15 +197,21 @@ const painel = criarPainel({
   menu,
   config,
   obterAquario: () => aquario,
-  obterPeixe: () => beta,
+  obterPeixe: () => menu.peixeEmFoco(aquario),
   textos,
   obterSalvamento: () => salvamento,
   aguardandoAdocao: () => semJogo,
   podeAdotar: () => semJogo || aquario.gameOver,
   aoAdotar: (pedido) => adotar(pedido),
   aoRenomear: (bruto) => {
-    aquario.renomear(beta, bruto, aceitaNoNome);
+    const peixe = menu.peixeEmFoco(aquario);
+    if (peixe) aquario.renomear(peixe, bruto, aceitaNoNome);
     salvar();
+  },
+  aoAdotarParceiro: ({ nome, cor }) => {
+    const r = menu.adotarParceiro(aquario, { cor });
+    if (r.ok && nome) aquario.renomear(r.parceiro, nome, aceitaNoNome);
+    return r;
   },
   aoApagar: apagarJogo,
 });
@@ -223,9 +227,13 @@ function atualizar(dt) {
     camera.mover(dir.x * VELOCIDADE_CAMERA * dt, dir.y * VELOCIDADE_CAMERA * dt);
   }
   // Jogador parado e peixe fora da tela: a câmera vai atrás dele (câmera-segue.js).
-  const { largura, altura } = TAMANHO_POR_FASE[beta.fase];
-  seguidor.atualizar(dt, { alvo: { x: beta.x, y: beta.y, largura, altura }, joystick: dir, livre });
+  const foco = menu.peixeEmFoco(aquario);
+  if (foco) {
+    const { largura, altura } = TAMANHO_POR_FASE[foco.fase];
+    seguidor.atualizar(dt, { alvo: { x: foco.x, y: foco.y, largura, altura }, joystick: dir, livre });
+  }
   aquario.atualizar(dt, clock.agoraMs());
+  mostrarAvisosDoCore();
   // Por onde o peixe passa (atrás ou na frente das algas e da pedra): troca quando não está sobre elas.
   atualizarPlanos(aquario.peixes, { plantas, fundo, camera });
   if (aquario.gameOver && !jaSalvouOGameOver) {
@@ -237,6 +245,14 @@ function atualizar(dt) {
   turvacao.atualizar(dt, nivelDaSujeira(aquario.sujeira));
   tempoVisual += dt;
   menu.atualizar(dt, aquario);
+}
+
+// O que o core anotou (namoro, nascimento...) vira mensagem na tela. O resto da fila é descartado.
+function mostrarAvisosDoCore() {
+  for (const evento of aquario.eventos.retirar()) {
+    if (evento.tipo === 'reproducao') menu.avisar(textos.mensagens.namoro);
+    else if (evento.tipo === 'nasceu') menu.avisar(textos.mensagens.nasceu);
+  }
 }
 
 function desenhar() {

@@ -35,7 +35,12 @@
 
       <section>
         <h2>Peixe</h2>
+        <div class="campos">
+          <label for="campo-peixe">Peixe</label>
+          <select id="campo-peixe"></select>
+        </div>
         <p id="peixe"></p>
+        <p id="familia" class="dica"></p>
         <p id="aviso-vida" class="aviso" hidden></p>
         <div class="campos">
           <label for="campo-nome">Nome</label>
@@ -64,8 +69,11 @@
         </div>
         <div class="botoes">
           <button id="adotar">Adotar</button>
+          <button id="adotar-parceiro">Adotar parceiro</button>
         </div>
-        <p class="dica">Só se adota quando não há peixe vivo (primeira vez ou depois do Game Over).</p>
+        <p class="dica">Adotar: só quando não há peixe vivo (primeira vez ou depois do Game Over).
+          Parceiro: para o peixe escolhido em "Peixe", se ele for adulto, sem parceiro e houver vaga
+          (até 5 peixes). O parceiro nasce adulto e do sexo oposto.</p>
       </section>
 
       <section>
@@ -75,6 +83,7 @@
           <button id="acao-limpar">Limpar aquário</button>
           <button id="acao-ph">Regular pH</button>
           <button id="acao-matar">Matar peixe</button>
+          <button id="acao-namorar">Forçar namoro</button>
         </div>
         <p class="dica">Fazem o mesmo que o menu do aparelho.</p>
       </section>
