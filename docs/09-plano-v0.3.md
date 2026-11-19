@@ -248,3 +248,10 @@ A confirmar (a recomendação vem primeiro; se nada for dito, entra a recomenda�
   responder ao abrir, o jogo **não grava** (para não apagar um jogo salvo que ele não conseguiu ler).
   Conferido no navegador: adotar "Nemo", recarregar e continuar; arquivo estragado vira
   `aquario.corrompido.json` e abre um aquário novo.
+- **Passo 3 (tempo fechado) feito em 2026-11-19:** `core/ausencia.js` (`calcularAusencia`,
+  `aplicarAusencia`), `formatarDuracao`, tela **Bem-vindo de volta** (`menu.mostrarBemVindo`,
+  `desenharBemVindo`) e os textos em `textos.json`. O `main.js` calcula a ausência ao carregar, o
+  relógio vai para a nova hora e grava de novo na hora. A ausência real é a que aparece na
+  mensagem, mesmo que `ausenciaMaximaHoras` limite o que conta. Conferido no navegador: 5 h 20 min
+  fora (saciedade 100 -> 89, sujeira 0 -> 6, relógio em 05:20) e 5 dias fora ("Você ficou fora
+  por 5 dias. Seu peixe não resistiu.", A leva ao Game Over).

@@ -36,5 +36,11 @@
       "cuidado": "Seu peixe não resistiu. Cuidar também é aprender. Que tal tentar de novo?"
     },
     "dica": "A: novo filhote"
+  },
+
+  "bemVindo": {
+    "vivo": "Seu peixe dormiu por {tempo}. Bem-vindo de volta!",
+    "morto": "Você ficou fora por {tempo}. Seu peixe não resistiu.",
+    "dica": "A: continuar"
   }
 }

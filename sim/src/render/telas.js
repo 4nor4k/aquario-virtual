@@ -7,7 +7,7 @@ import {
 import { preencherRetangulo, contornoRetangulo } from './formas.js';
 import { TELAS } from '../core/menu.js';
 import { idadeMs } from '../core/fish.js';
-import { diaDaVida, formatarPh, preencher } from '../core/formatar.js';
+import { diaDaVida, formatarDuracao, formatarPh, preencher } from '../core/formatar.js';
 import { notaDoPh, valorDoPh } from '../core/rules.js';
 
 // Cores da paleta (palette.js)
@@ -141,10 +141,33 @@ export function desenharGameOver(quadro, { aquario, textos }) {
   desenharTexto(quadro, g.dica, centralizado(g.dica), ALTURA - 14, DESTAQUE);
 }
 
+// --- Bem-vindo de volta -------------------------------------------------------------------------
+
+// Aparece ao abrir o jogo depois de um tempo fechado: "Seu peixe dormiu por 5 h 20 min...".
+export function desenharBemVindo(quadro, { menu, textos }) {
+  const b = textos.bemVindo;
+  const { ausenciaMs, morreu } = menu.bemVindo ?? { ausenciaMs: 0, morreu: false };
+  preencherRetangulo(quadro, 0, 0, LARGURA, ALTURA, FUNDO_DA_CAIXA);
+  contornoRetangulo(quadro, 0, 0, LARGURA, ALTURA, morreu ? RUIM : BORDA);
+
+  const mensagem = preencher(morreu ? b.morto : b.vivo, { tempo: formatarDuracao(ausenciaMs) });
+  const linhas = quebrarTexto(mensagem, 26);
+  // Centraliza o bloco de texto na vertical.
+  const topo = Math.floor((ALTURA - linhas.length * ALTURA_LINHA) / 2) - 4;
+  linhas.forEach((linha, i) => {
+    desenharTexto(quadro, linha, centralizado(linha), topo + i * ALTURA_LINHA, morreu ? RUIM : TEXTO);
+  });
+  desenharTexto(quadro, b.dica, centralizado(b.dica), ALTURA - 14, DESTAQUE);
+}
+
 // --- Qual tela mostrar -------------------------------------------------------------------------
 
 // Desenha por cima do aquário o que a tela atual pede.
 export function desenharTelas(quadro, { menu, aquario, config, textos, agoraMs }) {
+  if (menu.tela === TELAS.BEM_VINDO) {
+    desenharBemVindo(quadro, { menu, textos });
+    return;
+  }
   if (menu.tela === TELAS.GAME_OVER) {
     desenharGameOver(quadro, { aquario, textos });
     return;

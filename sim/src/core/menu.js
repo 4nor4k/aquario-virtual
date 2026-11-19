@@ -7,10 +7,11 @@
 //   menu         : joystick (cima/baixo) escolhe · A confirma · B volta
 //   status       : C ou B voltam
 //   game over    : A começa de novo com um filhote
+//   bem-vindo    : A fecha o aviso de "seu peixe dormiu por ..." (vai ao Game Over se ele morreu)
 // O jogo NÃO pausa com o menu aberto: o tempo continua passando.
 import { formatarPh, preencher } from './formatar.js';
 
-export const TELAS = { JOGO: 'jogo', MENU: 'menu', STATUS: 'status', GAME_OVER: 'gameover' };
+export const TELAS = { JOGO: 'jogo', MENU: 'menu', STATUS: 'status', GAME_OVER: 'gameover', BEM_VINDO: 'bemvindo' };
 
 // Uma ação por item do menu, na mesma ordem de textos.menu.itens.
 export const ACOES = ['comida', 'limpar', 'ph'];
@@ -28,6 +29,7 @@ export function criarMenu({ textos, aoNovoJogo, aoAgir = () => {} }) {
   let item = 0;
   let mensagem = null; // { texto, restante } (segundos)
   let esperaGameOver = 0;
+  let bemVindo = null; // { ausenciaMs, morreu }: o que a tela de boas-vindas mostra
 
   // Faz a ação de cuidado e mostra a mensagem. É o que o menu e o painel de testes chamam.
   // Devolve o texto da mensagem.
@@ -55,7 +57,16 @@ export function criarMenu({ textos, aoNovoJogo, aoAgir = () => {} }) {
     get tela() { return tela; },
     get item() { return item; },
     get mensagem() { return mensagem ? mensagem.texto : null; },
+    get bemVindo() { return bemVindo; },
     itens: textos.menu.itens,
+
+    // Abre a tela "Bem-vindo de volta" (o jogo foi aberto depois de um tempo fechado).
+    // morreu: o peixe não resistiu durante a ausência.
+    mostrarBemVindo({ ausenciaMs, morreu }) {
+      bemVindo = { ausenciaMs, morreu };
+      tela = TELAS.BEM_VINDO;
+      mensagem = null;
+    },
 
     // A câmera só anda com a tela do jogo aberta (no menu, o joystick escolhe o item).
     cameraLivre() { return tela === TELAS.JOGO; },
@@ -66,6 +77,12 @@ export function criarMenu({ textos, aoNovoJogo, aoAgir = () => {} }) {
     apertar(botoes, aquario) {
       if (tela === TELAS.GAME_OVER) {
         if (botoes.a) aoNovoJogo();
+      } else if (tela === TELAS.BEM_VINDO) {
+        if (botoes.a) {
+          bemVindo = null;
+          // Se o peixe morreu enquanto você estava fora, não há mais o que ver: vai ao Game Over.
+          tela = aquario.gameOver ? TELAS.GAME_OVER : TELAS.JOGO;
+        }
       } else if (tela === TELAS.JOGO) {
         if (botoes.a) { tela = TELAS.MENU; item = 0; } else if (botoes.c) tela = TELAS.STATUS;
       } else if (tela === TELAS.MENU) {
@@ -89,7 +106,7 @@ export function criarMenu({ textos, aoNovoJogo, aoAgir = () => {} }) {
         mensagem.restante -= dt;
         if (mensagem.restante <= 0) mensagem = null;
       }
-      if (aquario.gameOver && tela !== TELAS.GAME_OVER) {
+      if (aquario.gameOver && tela !== TELAS.GAME_OVER && tela !== TELAS.BEM_VINDO) {
         esperaGameOver += dt;
         if (esperaGameOver >= SEGUNDOS_ATE_O_GAME_OVER) {
           tela = TELAS.GAME_OVER;
@@ -100,6 +117,7 @@ export function criarMenu({ textos, aoNovoJogo, aoAgir = () => {} }) {
 
     // Volta ao estado de começo de jogo (novo filhote).
     reiniciar() {
+      bemVindo = null;
       tela = TELAS.JOGO;
       item = 0;
       mensagem = null;

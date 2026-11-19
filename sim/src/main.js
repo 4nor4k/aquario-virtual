@@ -16,6 +16,7 @@ import { TAMANHO_POR_FASE } from './core/fish.js';
 import { criarClock } from './core/clock.js';
 import { criarMenu } from './core/menu.js';
 import { exportarJogo, importarJogo, ErroDeSalvamento } from './core/salvar.js';
+import { calcularAusencia, aplicarAusencia } from './core/ausencia.js';
 import { criarArmazenamento } from './sim/armazenamento.js';
 
 const PASSO_MS = 50;           // passo fixo: 20 por segundo (igual no ESP32)
@@ -112,13 +113,21 @@ async function carregarJogoSalvo() {
   }
   try {
     if (lido.estado === 'ilegivel') throw new ErroDeSalvamento('o arquivo não é um JSON válido');
-    const { aquario: carregado, tempoJogoMs } = importarJogo(lido.dados, { config, semente: novaSemente() });
+    const { aquario: carregado, tempoJogoMs, salvoEmMs } = importarJogo(lido.dados, { config, semente: novaSemente() });
+    // O tempo com o jogo fechado conta: as regras rodam por ele todo (doc 03 e 09, seção 4).
+    const ausenciaMs = calcularAusencia(salvoEmMs, Date.now());
+    const r = aplicarAusencia(carregado, { ausenciaMs, horaDoJogoAntesMs: tempoJogoMs }, config);
     clock.reiniciar();
-    clock.avancar(tempoJogoMs);
+    clock.avancar(r.horaDoJogoMs);
     menu.reiniciar();
     aquario = carregado;
     beta = aquario.peixes[0];
     jaSalvouOGameOver = aquario.gameOver;
+    salvar(); // grava já o estado depois da ausência (e da hora de agora)
+    // Só avisa se ficou fora por um tempo; dar F5 não mostra nada.
+    if (ausenciaMs >= config.salvamento.ausenciaMinimaParaAvisarMin * 60 * 1000) {
+      menu.mostrarBemVindo({ ausenciaMs, morreu: r.morreu });
+    }
     return true;
   } catch (erro) {
     if (!(erro instanceof ErroDeSalvamento)) throw erro;
