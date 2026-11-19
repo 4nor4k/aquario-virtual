@@ -258,7 +258,7 @@ test('spot: um cone que sai do topo do aquário e abre para baixo, em vários de
   const usados = COR.SPOT.filter((c) => contar(q, c) > 0);
   assert.ok(usados.length >= 5, `${usados.length} degraus em uso`);
   assert.ok(largura(2) < largura(SUPERFICIE_Y + 30) && largura(SUPERFICIE_Y + 30) < largura(SUPERFICIE_Y + 60), 'abre para baixo');
-  assert.ok(colunasEm(0).length >= 1 && colunasEm(0).length <= 12, 'bem fino na linha 0 (o topo do aquário)');
+  assert.ok(colunasEm(0).length >= 1 && colunasEm(0).length <= 30, 'ainda estreito na linha 0 (o topo do aquário)');
   assert.ok(colunasEm(SUPERFICIE_Y - 10).length > 0, 'já existe no ar, acima da água');
   const colunas = colunasEm(SUPERFICIE_Y + 40);
   assert.ok(Math.abs((colunas[0] + colunas.at(-1)) / 2 - (MUNDO_LARGURA / 2 - 60)) <= 1, 'centrado no meio do aquário');
@@ -363,9 +363,9 @@ test('cena: sem clima é o visual de sempre; com o clima de dia é igual', () =>
 
 test('cena: de noite as cores da tela ficam mais escuras, mas as bolhas continuam brancas', () => {
   limpar();
-  const dia = cena({ horaMin: H(12), chuvaNivel: 0, raio: 0 });
+  const dia = cena({ horaMin: H(12), chuvaNivel: 0, raio: 0 }, camera(0, 32));
   const diaAreia = rgbDe(dia, 0, 110).slice(); // longe do feixe do spot (que clareia o que ilumina)
-  const noite = cena({ horaMin: H(2), chuvaNivel: 0, raio: 0 });
+  const noite = cena({ horaMin: H(2), chuvaNivel: 0, raio: 0 }, camera(0, 32));
   const noiteAreia = rgbDe(noite, 0, 110);
   assert.ok(noiteAreia[0] + noiteAreia[1] + noiteAreia[2] < 0.6 * (diaAreia[0] + diaAreia[1] + diaAreia[2]));
   const q = criarQuadro();

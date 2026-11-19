@@ -13,8 +13,8 @@ import { LARGURA, ALTURA } from './tela.js';
 import { COR, PAR_CLARO } from './palette.js';
 
 export const SPOT_X = MUNDO_LARGURA / 2;  // o centro do topo
-export const ABERTURA_NO_TOPO = 5;        // meia largura do brilho no topo do aquário
-export const ABERTURA_NO_FUNDO = 62;      // meia largura do brilho na areia
+export const ABERTURA_NO_TOPO = 15;       // meia largura do brilho no topo do aquário (era 5; +200% a pedido do usuário)
+export const ABERTURA_NO_FUNDO = 109;     // meia largura do brilho na areia (era 62; +75% a pedido do usuário)
 export const ESMAECER_NO_FUNDO = 0.45;    // quanto o brilho perde da força do topo até a areia
 export const NIVEIS = COR.SPOT.length;    // degraus do degradê
 export const LIMITE_DO_CENARIO = 0.3;     // a partir desta intensidade (0 a 1) o cenário fica "iluminado"

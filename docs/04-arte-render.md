@@ -95,7 +95,7 @@ não de resolução.
     azul** (`COR.SPOT`, índices 59 a 65); (2) areia, plantas, pedras e água suja dentro do feixe trocam para uma
     **cor gêmea mais clara** (`PAR_CLARO` em `palette.js`, 28 índices a mais; a `luz.js` pinta a gêmea até 75% mais
     clara que a cor da noite). Preso ao mundo, só existe de noite, mais fraco no relâmpago.
-    **[proposta]** Abertura (5 px no topo, 62 px na areia), esmaecimento, azuis do brilho e os 75% são meus.
+    **[proposta]** Abertura (meia largura de 15 px no topo e 109 px na areia: o usuário pediu +200% no topo e +75% na base em 19/11/2026), esmaecimento, azuis do brilho e os 75% são meus.
   - **[fechado]** **O peixe não muda com a hora**: as cores do peixe ficam de fora da troca de paleta, iguais de dia, de
     noite, na chuva e no relâmpago (`SEM_TOM` em `luz.js`).
   - **Chuva**: 130 gotas (risquinho de 3 px, `#8fb4d8`) no ar e anéis na linha da água, presas ao mundo.
