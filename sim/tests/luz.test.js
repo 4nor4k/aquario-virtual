@@ -257,8 +257,9 @@ test('spot: um cone que sai do topo do aquário e abre para baixo, em vários de
   const largura = (sy) => colunasEm(sy).length;
   const usados = COR.SPOT.filter((c) => contar(q, c) > 0);
   assert.ok(usados.length >= 5, `${usados.length} degraus em uso`);
-  assert.ok(largura(2) < largura(SUPERFICIE_Y + 30) && largura(SUPERFICIE_Y + 30) < largura(SUPERFICIE_Y + 60), 'abre para baixo');
-  assert.ok(colunasEm(0).length >= 1 && colunasEm(0).length <= 30, 'ainda estreito na linha 0 (o topo do aquário)');
+  // (com o topo largo a tela já enche; a abertura se confere pela intensidade, sem o corte da tela)
+  assert.ok(intensidadeDoSpot(SPOT_X + 105, 0) === 0 && intensidadeDoSpot(SPOT_X + 105, 140) > 0, 'abre para baixo');
+  assert.ok(colunasEm(0).length >= 1 && colunasEm(0).length <= 2 * 100, 'a largura do topo respeita a abertura (o topo do aquário)');
   assert.ok(colunasEm(SUPERFICIE_Y - 10).length > 0, 'já existe no ar, acima da água');
   const colunas = colunasEm(SUPERFICIE_Y + 40);
   assert.ok(Math.abs((colunas[0] + colunas.at(-1)) / 2 - (MUNDO_LARGURA / 2 - 60)) <= 1, 'centrado no meio do aquário');
