@@ -66,6 +66,7 @@ const DEFINICAO = {
   '(': '.X./X../X../X../.X.',
   ')': '.X./..X/..X/..X/.X.',
   '>': 'X../XX./XXX/XX./X..', // seta do menu
+  '<': '..X/.XX/XXX/.XX/..X', // seta para a esquerda (tela de adoção)
 };
 
 // Texto -> lista de linhas de 3 letras (cada linha é uma string de 'X' e '.').

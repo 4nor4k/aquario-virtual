@@ -11,8 +11,12 @@ const TEXTO_DO_ESTADO = { doente: 'doente', morto: 'morto' };
 const TEXTO_DA_CAUSA = { velhice: 'de velhice', cuidado: 'por falta de cuidado' };
 
 // Pede para o main: o relógio, o menu (para as ações valerem como no aparelho, com mensagem na
-// tela), o aquário e o peixe atuais (mudam ao reiniciar) e o que fazer ao reiniciar.
-export function criarPainel({ clock, menu, config, obterAquario, obterPeixe, obterSalvamento, aoReiniciar, camera }) {
+// tela), o aquário e o peixe atuais (mudam ao adotar) e o que fazer ao adotar, renomear e apagar.
+// O painel faz o papel da página do celular (doc 06): adotar e dar nome.
+export function criarPainel({
+  clock, menu, config, textos, obterAquario, obterPeixe, obterSalvamento, camera,
+  aguardandoAdocao, podeAdotar, aoAdotar, aoRenomear, aoApagar,
+}) {
   const $ = (id) => document.getElementById(id);
   const botoesVelocidade = [...document.querySelectorAll('#velocidades button')];
   const botaoPular = $('pular');
@@ -22,6 +26,11 @@ export function criarPainel({ clock, menu, config, obterAquario, obterPeixe, obt
   const campoSaude = $('campo-saude');
   const campoPh = $('campo-ph');
   const botaoMatar = $('acao-matar');
+  const campoNome = $('campo-nome');
+  const campoNomeAdocao = $('campo-nome-adocao');
+  const campoCorAdocao = $('campo-cor-adocao');
+  const botaoAdotar = $('adotar');
+  const botaoApagar = $('apagar');
   let ultimaAtualizacao = -Infinity;
   let escala = 2;
 
@@ -29,6 +38,10 @@ export function criarPainel({ clock, menu, config, obterAquario, obterPeixe, obt
   config.ph.valores.forEach((valor, i) => {
     campoPh.add(new Option(formatarPh(valor), String(i)));
   });
+
+  for (const cor of config.cores) {
+    campoCorAdocao.add(new Option(textos.adocao.cores[cor] ?? cor, cor));
+  }
 
   for (const botao of botoesVelocidade) {
     botao.addEventListener('click', () => {
@@ -43,8 +56,34 @@ export function criarPainel({ clock, menu, config, obterAquario, obterPeixe, obt
     atualizar(true);
   });
 
-  $('reiniciar').addEventListener('click', () => {
-    aoReiniciar();
+  // Apagar o jogo é sem volta: o primeiro clique só pede confirmação (vale por 4 segundos).
+  let confirmandoApagar = null;
+  botaoApagar.addEventListener('click', async () => {
+    if (confirmandoApagar === null) {
+      botaoApagar.textContent = 'Clique de novo para apagar';
+      confirmandoApagar = setTimeout(() => {
+        confirmandoApagar = null;
+        botaoApagar.textContent = 'Apagar jogo';
+      }, 4000);
+      return;
+    }
+    clearTimeout(confirmandoApagar);
+    confirmandoApagar = null;
+    botaoApagar.textContent = 'Apagar jogo';
+    await aoApagar();
+    atualizar(true);
+  });
+
+  // Dar nome ao peixe: escreva e aperte Enter (ou saia do campo).
+  campoNome.addEventListener('change', () => {
+    aoRenomear(campoNome.value);
+    atualizar(true);
+  });
+
+  botaoAdotar.addEventListener('click', () => {
+    if (!podeAdotar()) return;
+    aoAdotar({ nome: campoNomeAdocao.value, cor: campoCorAdocao.value });
+    campoNomeAdocao.value = '';
     atualizar(true);
   });
 
@@ -126,10 +165,19 @@ export function criarPainel({ clock, menu, config, obterAquario, obterPeixe, obt
     $('aviso-vida').hidden = !aquario.gameOver;
     if (aquario.gameOver) {
       $('aviso-vida').textContent =
-        `Game Over: o peixe morreu ${TEXTO_DA_CAUSA[aquario.causaDoGameOver] ?? ''}. Use Reiniciar.`;
+        `Game Over: o peixe morreu ${TEXTO_DA_CAUSA[aquario.causaDoGameOver] ?? ''}. Adote outro (A no aparelho, ou aqui em Adoção).`;
     }
 
     mostrarSalvamento(obterSalvamento());
+
+    // Adoção: o nome do peixe atual e a seção de adotar.
+    const aguardando = aguardandoAdocao();
+    mostrar(campoNome, peixe.nome);
+    campoNome.disabled = aguardando;
+    botaoAdotar.disabled = !podeAdotar();
+    $('adocao-estado').textContent = aguardando
+      ? 'Aguardando a primeira adoção: escolha a cor no aparelho (ou aqui).'
+      : aquario.gameOver ? 'O peixe morreu: pode adotar outro.' : 'Há um peixe vivo.';
 
     mostrar(campoSaciedade, Math.round(peixe.saciedade));
     mostrar(campoSujeira, Math.round(aquario.sujeira));
@@ -137,14 +185,14 @@ export function criarPainel({ clock, menu, config, obterAquario, obterPeixe, obt
     mostrar(campoPh, String(aquario.phPasso));
     // Depois do Game Over as regras ficam congeladas: não adianta editar.
     for (const campo of [campoSaciedade, campoSujeira, campoSaude, campoPh]) {
-      campo.disabled = aquario.gameOver;
+      campo.disabled = aquario.gameOver || aguardando;
     }
-    botaoMatar.disabled = peixe.estado === 'morto';
+    botaoMatar.disabled = peixe.estado === 'morto' || aguardando;
 
     for (const botao of botoesVelocidade) {
       botao.classList.toggle('ativo', Number(botao.dataset.vel) === clock.velocidade);
     }
-    botaoPular.disabled = aquario.gameOver || msAteProximaFase(peixe, tempo) === null;
+    botaoPular.disabled = aquario.gameOver || aguardando || msAteProximaFase(peixe, tempo) === null;
     botaoTamanho.textContent = `Tela: ${escala}× (mudar para ${escala === 2 ? 4 : 2}×)`;
     $('camera').textContent =
       `x ${Math.round(camera.x)} de ${camera.maxX} · y ${Math.round(camera.y)} de ${camera.maxY}`;

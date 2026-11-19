@@ -6,6 +6,8 @@ import {
 } from './fonte.js';
 import { preencherRetangulo, contornoRetangulo } from './formas.js';
 import { TELAS } from '../core/menu.js';
+import { spritesDaCor } from './sprites.js';
+import { QUADROS_POR_SEGUNDO, QUADROS_DE_NADO } from '../core/fish.js';
 import { idadeMs } from '../core/fish.js';
 import { diaDaVida, formatarDuracao, formatarPh, preencher } from '../core/formatar.js';
 import { notaDoPh, valorDoPh } from '../core/rules.js';
@@ -160,10 +162,60 @@ export function desenharBemVindo(quadro, { menu, textos }) {
   desenharTexto(quadro, b.dica, centralizado(b.dica), ALTURA - 14, DESTAQUE);
 }
 
+// --- Adote um peixe ----------------------------------------------------------------------------
+
+const ESCALA_DO_PEIXE = 3;
+
+// Desenha um quadro de sprite aumentado (cada pixel vira escala × escala), com o canto de cima à
+// esquerda em (x, y). A cor 0 é transparente.
+function desenharSpriteGrande(quadro, sprite, indice, x, y, escala) {
+  const pix = sprite.quadros[indice];
+  for (let sy = 0; sy < sprite.altura; sy++) {
+    for (let sx = 0; sx < sprite.largura; sx++) {
+      const cor = pix[sy * sprite.largura + sx];
+      if (cor === 0) continue;
+      preencherRetangulo(quadro, x + sx * escala, y + sy * escala, escala, escala, cor);
+    }
+  }
+}
+
+// A tela de adoção: o peixe na cor escolhida (batendo a cauda) e setas para trocar de cor.
+// agoraMs só serve para animar a cauda.
+export function desenharAdocao(quadro, { menu, textos, agoraMs = 0 }) {
+  const a = textos.adocao;
+  preencherRetangulo(quadro, 0, 0, LARGURA, ALTURA, FUNDO_DA_CAIXA);
+  contornoRetangulo(quadro, 0, 0, LARGURA, ALTURA, BORDA);
+
+  desenharTexto(quadro, a.titulo, centralizado(a.titulo), 10, TITULO);
+
+  const sprite = spritesDaCor(menu.corEscolhida).normal.beta.adulto;
+  const largura = sprite.largura * ESCALA_DO_PEIXE;
+  const altura = sprite.altura * ESCALA_DO_PEIXE;
+  const x = Math.floor((LARGURA - largura) / 2);
+  const y = 30;
+  const quadroDaCauda = Math.floor((agoraMs / 1000) * QUADROS_POR_SEGUNDO) % QUADROS_DE_NADO;
+  desenharSpriteGrande(quadro, sprite, quadroDaCauda, x, y, ESCALA_DO_PEIXE);
+
+  // As setas ficam à altura do meio do peixe.
+  const yDasSetas = y + Math.floor(altura / 2) - 2;
+  desenharTexto(quadro, '<', 8, yDasSetas, CURSOR);
+  desenharTexto(quadro, '>', LARGURA - 8 - larguraDoTexto('>'), yDasSetas, CURSOR);
+
+  const nomeDaCor = a.cores[menu.corEscolhida] ?? menu.corEscolhida;
+  desenharTexto(quadro, nomeDaCor, centralizado(nomeDaCor), y + altura + 8, DESTAQUE);
+
+  desenharTexto(quadro, a.escolher, centralizado(a.escolher), ALTURA - 25, DICA);
+  desenharTexto(quadro, a.dica, centralizado(a.dica), ALTURA - 14, DESTAQUE);
+}
+
 // --- Qual tela mostrar -------------------------------------------------------------------------
 
 // Desenha por cima do aquário o que a tela atual pede.
 export function desenharTelas(quadro, { menu, aquario, config, textos, agoraMs }) {
+  if (menu.tela === TELAS.ADOCAO) {
+    desenharAdocao(quadro, { menu, textos, agoraMs });
+    return;
+  }
   if (menu.tela === TELAS.BEM_VINDO) {
     desenharBemVindo(quadro, { menu, textos });
     return;

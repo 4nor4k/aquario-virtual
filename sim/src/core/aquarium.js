@@ -6,6 +6,7 @@ import {
   criarPeixe, atualizarPeixe, atualizarPeixeMorto, atualizarIdade, limitesDoPeixe, INICIO_DA_FASE_MS,
 } from './fish.js';
 import { atualizarRegras, matarPeixe, valorDoPh } from './rules.js';
+import { normalizarNome } from './nome.js';
 import { MUNDO_LARGURA, AREIA_Y } from './mundo.js';
 
 // config: os números do jogo (sim/config/jogo.json). Quem cria o aquário entrega pronto,
@@ -107,6 +108,13 @@ export function criarAquario({ semente = 1, config } = {}) {
       const suja = excesso ? config.sujeira.porComidaEmExcesso : config.sujeira.porComida;
       aquario.sujeira = Math.min(100, aquario.sujeira + suja);
       return { alimentou: true, excesso };
+    },
+
+    // Troca o nome de um peixe (aplica as regras do nome: até 12 letras, sem o que a fonte não
+    // tem, vazio vira o padrão). Devolve o nome que ficou.
+    renomear(peixe, bruto, aceita) {
+      peixe.nome = normalizarNome(bruto, config.nome, aceita);
+      return peixe.nome;
     },
 
     // Mata um peixe de fora das regras (usado pelo painel de testes do simulador).

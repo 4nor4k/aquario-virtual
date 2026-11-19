@@ -56,7 +56,10 @@ test('sem cuidado nenhum, a 3600×: doente, morto, 5 s depois Game Over, e A rec
   assert.ok(Math.abs(segundosReais - segundosAteOGameOver - 5) < 0.2, 'Game Over 5 s depois');
   assert.ok(jogo.agoraMs / HORA_MS < 120, 'menos de 5 dias de jogo');
 
-  jogo.menu.apertar({ a: true }, jogo.aq);
+  jogo.menu.apertar({ a: true }, jogo.aq); // Game Over -> tela de adoção
+  assert.equal(jogo.menu.tela, TELAS.ADOCAO);
+  assert.equal(jogo.recomecos, 0);
+  jogo.menu.apertar({ a: true }, jogo.aq); // adota
   assert.equal(jogo.recomecos, 1);
   assert.equal(jogo.menu.tela, TELAS.JOGO);
   assert.equal(jogo.aq.gameOver, false);

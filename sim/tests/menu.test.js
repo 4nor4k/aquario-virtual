@@ -191,15 +191,15 @@ test('o Game Over aparece mesmo com o menu ou o status abertos', () => {
   }
 });
 
-test('no Game Over só o A faz algo: recomeça o jogo', () => {
+test('no Game Over só o A faz algo: abre a tela de adoção (o jogo só recomeça ao adotar)', () => {
   const { menu, aq, recomecos } = novo();
   aq.matar(aq.peixes[0]);
   menu.atualizar(6, aq);
-  menu.apertar(aperto('b', 'c', 'cima', 'baixo'), aq);
-  assert.equal(recomecos(), 0);
+  menu.apertar(aperto('b', 'c', 'cima', 'baixo', 'esquerda', 'direita'), aq);
   assert.equal(menu.tela, TELAS.GAME_OVER);
   menu.apertar(aperto('a'), aq);
-  assert.equal(recomecos(), 1);
+  assert.equal(menu.tela, TELAS.ADOCAO);
+  assert.equal(recomecos(), 0, 'ainda não adotou');
 });
 
 test('reiniciar volta ao começo: tela do jogo, sem mensagem e sem espera do Game Over', () => {

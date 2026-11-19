@@ -6,12 +6,13 @@
 //   tela do jogo : A abre o menu · C abre o status · joystick move a câmera
 //   menu         : joystick (cima/baixo) escolhe · A confirma · B volta
 //   status       : C ou B voltam
-//   game over    : A começa de novo com um filhote
+//   game over    : A vai para a tela de adoção
+//   adoção       : joystick (esquerda/direita) escolhe a cor · A adota um filhote
 //   bem-vindo    : A fecha o aviso de "seu peixe dormiu por ..." (vai ao Game Over se ele morreu)
 // O jogo NÃO pausa com o menu aberto: o tempo continua passando.
 import { formatarPh, preencher } from './formatar.js';
 
-export const TELAS = { JOGO: 'jogo', MENU: 'menu', STATUS: 'status', GAME_OVER: 'gameover', BEM_VINDO: 'bemvindo' };
+export const TELAS = { JOGO: 'jogo', MENU: 'menu', STATUS: 'status', GAME_OVER: 'gameover', BEM_VINDO: 'bemvindo', ADOCAO: 'adocao' };
 
 // Uma ação por item do menu, na mesma ordem de textos.menu.itens.
 export const ACOES = ['comida', 'limpar', 'ph'];
@@ -21,14 +22,15 @@ export const SEGUNDOS_DA_MENSAGEM = 2.5;
 // ver o peixe boiando; só então aparece o Game Over.
 export const SEGUNDOS_ATE_O_GAME_OVER = 5;
 
-// textos: o conteúdo de config/textos.json. aoNovoJogo: o que fazer quando o jogador
-// aperta A na tela de Game Over (recomeçar). aoAgir: avisa a interface depois de cada ação de
+// textos: o conteúdo de config/textos.json. cores: os nomes das cores que se pode escolher ao
+// adotar. aoNovoJogo({ cor }): o que fazer quando o jogador adota (aperta A na tela de adoção). aoAgir: avisa a interface depois de cada ação de
 // cuidado (comida, limpar, pH), por exemplo para salvar o jogo.
-export function criarMenu({ textos, aoNovoJogo, aoAgir = () => {} }) {
+export function criarMenu({ textos, cores = ['vermelho'], aoNovoJogo, aoAgir = () => {} }) {
   let tela = TELAS.JOGO;
   let item = 0;
   let mensagem = null; // { texto, restante } (segundos)
   let esperaGameOver = 0;
+  let cor = 0; // posição da cor escolhida na tela de adoção (em `cores`)
   let bemVindo = null; // { ausenciaMs, morreu }: o que a tela de boas-vindas mostra
 
   // Faz a ação de cuidado e mostra a mensagem. É o que o menu e o painel de testes chamam.
@@ -53,11 +55,20 @@ export function criarMenu({ textos, aoNovoJogo, aoAgir = () => {} }) {
     return texto;
   }
 
+  // Abre a tela "Adote um peixe" (primeira vez, depois do Game Over ou de apagar o jogo).
+  function abrirAdocao() {
+    tela = TELAS.ADOCAO;
+    cor = 0;
+    mensagem = null;
+  }
+
   return {
     get tela() { return tela; },
     get item() { return item; },
     get mensagem() { return mensagem ? mensagem.texto : null; },
     get bemVindo() { return bemVindo; },
+    get corEscolhida() { return cores[cor]; },
+    cores,
     itens: textos.menu.itens,
 
     // Abre a tela "Bem-vindo de volta" (o jogo foi aberto depois de um tempo fechado).
@@ -68,6 +79,8 @@ export function criarMenu({ textos, aoNovoJogo, aoAgir = () => {} }) {
       mensagem = null;
     },
 
+    abrirAdocao,
+
     // A câmera só anda com a tela do jogo aberta (no menu, o joystick escolhe o item).
     cameraLivre() { return tela === TELAS.JOGO; },
 
@@ -76,7 +89,11 @@ export function criarMenu({ textos, aoNovoJogo, aoAgir = () => {} }) {
     // botoes: { a, b, c, cima, baixo } = o que foi apertado agora (uma vez por aperto).
     apertar(botoes, aquario) {
       if (tela === TELAS.GAME_OVER) {
-        if (botoes.a) aoNovoJogo();
+        if (botoes.a) abrirAdocao();
+      } else if (tela === TELAS.ADOCAO) {
+        if (botoes.esquerda) cor = (cor - 1 + cores.length) % cores.length;
+        if (botoes.direita) cor = (cor + 1) % cores.length;
+        if (botoes.a) aoNovoJogo({ cor: cores[cor] });
       } else if (tela === TELAS.BEM_VINDO) {
         if (botoes.a) {
           bemVindo = null;
@@ -106,7 +123,8 @@ export function criarMenu({ textos, aoNovoJogo, aoAgir = () => {} }) {
         mensagem.restante -= dt;
         if (mensagem.restante <= 0) mensagem = null;
       }
-      if (aquario.gameOver && tela !== TELAS.GAME_OVER && tela !== TELAS.BEM_VINDO) {
+      if (aquario.gameOver && tela !== TELAS.GAME_OVER && tela !== TELAS.BEM_VINDO
+        && tela !== TELAS.ADOCAO) {
         esperaGameOver += dt;
         if (esperaGameOver >= SEGUNDOS_ATE_O_GAME_OVER) {
           tela = TELAS.GAME_OVER;

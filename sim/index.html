@@ -15,7 +15,7 @@
 
     <aside class="painel" id="painel">
       <h1>Aquário · simulador</h1>
-      <p class="versao">v0.3 · passo 4</p>
+      <p class="versao">v0.3 · passo 5</p>
 
       <section>
         <h2>Tempo</h2>
@@ -29,7 +29,7 @@
         <p id="aviso-salvamento" class="aviso" hidden></p>
         <div class="botoes">
           <button id="pular">Pular fase</button>
-          <button id="reiniciar">Reiniciar</button>
+          <button id="apagar">Apagar jogo</button>
         </div>
       </section>
 
@@ -38,6 +38,8 @@
         <p id="peixe"></p>
         <p id="aviso-vida" class="aviso" hidden></p>
         <div class="campos">
+          <label for="campo-nome">Nome</label>
+          <input id="campo-nome" type="text" maxlength="12" autocomplete="off">
           <label for="campo-saciedade">Saciedade</label>
           <input id="campo-saciedade" type="number" min="0" max="100" step="1">
           <label for="campo-sujeira">Sujeira</label>
@@ -47,7 +49,23 @@
           <label for="campo-saude">Saúde</label>
           <input id="campo-saude" type="number" min="0" max="100" step="1">
         </div>
-        <p class="dica">Os valores andam sozinhos com o tempo; escreva um número para testar.</p>
+        <p class="dica">Os valores andam sozinhos com o tempo; escreva um número para testar.
+          Para trocar o nome, escreva e aperte Enter (até 12 letras).</p>
+      </section>
+
+      <section>
+        <h2>Adoção</h2>
+        <p id="adocao-estado" class="dica"></p>
+        <div class="campos">
+          <label for="campo-nome-adocao">Nome</label>
+          <input id="campo-nome-adocao" type="text" maxlength="12" placeholder="Beta" autocomplete="off">
+          <label for="campo-cor-adocao">Cor</label>
+          <select id="campo-cor-adocao"></select>
+        </div>
+        <div class="botoes">
+          <button id="adotar">Adotar</button>
+        </div>
+        <p class="dica">Só se adota quando não há peixe vivo (primeira vez ou depois do Game Over).</p>
       </section>
 
       <section>

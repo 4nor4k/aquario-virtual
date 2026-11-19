@@ -35,12 +35,26 @@
       "velhice": "Seu peixe viveu uma vida longa. Obrigado por cuidar dele.",
       "cuidado": "Seu peixe não resistiu. Cuidar também é aprender. Que tal tentar de novo?"
     },
-    "dica": "A: novo filhote"
+    "dica": "A: adotar um novo peixe"
   },
 
   "bemVindo": {
     "vivo": "Seu peixe dormiu por {tempo}. Bem-vindo de volta!",
     "morto": "Você ficou fora por {tempo}. Seu peixe não resistiu.",
     "dica": "A: continuar"
+  },
+
+  "adocao": {
+    "titulo": "Adote um peixe",
+    "escolher": "Joystick: escolher a cor",
+    "dica": "A: adotar",
+    "cores": {
+      "vermelho": "Vermelho",
+      "azul": "Azul",
+      "roxo": "Roxo",
+      "laranja": "Laranja",
+      "verde": "Verde",
+      "rosa": "Rosa"
+    }
   }
 }

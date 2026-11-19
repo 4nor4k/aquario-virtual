@@ -18,6 +18,7 @@ import { criarMenu } from './core/menu.js';
 import { exportarJogo, importarJogo, ErroDeSalvamento } from './core/salvar.js';
 import { calcularAusencia, aplicarAusencia } from './core/ausencia.js';
 import { criarArmazenamento } from './sim/armazenamento.js';
+import { caracteresSemGlifo } from './render/fonte.js';
 
 const PASSO_MS = 50;           // passo fixo: 20 por segundo (igual no ESP32)
 const VELOCIDADE_CAMERA = 60;  // pixels por segundo
@@ -63,6 +64,10 @@ const textos = await carregarJson('config/textos.json');
 let aquario;
 let beta;
 let numeroDoJogo = 0;
+// true enquanto espera a (primeira) adoção: o aquário de trás é só um enfeite e NADA é salvo.
+let semJogo = false;
+// O aparelho só desenha o que a fonte de pixels tem: o nome só aceita essas letras.
+const aceitaNoNome = (letra) => caracteresSemGlifo(letra).length === 0;
 
 // --- Salvamento (doc 09) ------------------------------------------------------------------
 // O jogo é gravado em sim/saves/aquario.json pelo servidor. O core só transforma o aquário em
@@ -77,7 +82,7 @@ const salvamento = {
 let jaSalvouOGameOver = false;
 
 async function salvar({ keepalive = false } = {}) {
-  if (salvamento.bloqueado) return;
+  if (salvamento.bloqueado || semJogo) return;
   const agora = Date.now();
   const dados = exportarJogo(aquario, { tempoJogoMs: clock.agoraMs(), salvoEmMs: agora });
   const ok = await armazenamento.gravar(dados, { keepalive });
@@ -88,18 +93,40 @@ async function salvar({ keepalive = false } = {}) {
 // A semente do sorteio do nado muda a cada abertura, para o peixe não repetir o mesmo caminho.
 const novaSemente = () => (Date.now() + numeroDoJogo) >>> 0;
 
-// O menu e as telas (A abre o menu, C abre o status...). Ao apertar A no Game Over, recomeça.
-const menu = criarMenu({ textos, aoNovoJogo: () => novoJogo(), aoAgir: () => salvar() });
+// O menu e as telas (A abre o menu, C abre o status...). No Game Over, A abre a adoção; adotar recomeça.
+const menu = criarMenu({ textos, cores: config.cores, aoNovoJogo: ({ cor }) => adotar({ cor }), aoAgir: () => salvar() });
 
-// Começa (ou recomeça) com um filhote novo e o relógio em zero.
-function novoJogo() {
+// Adota: começa um aquário novo, com um filhote da cor escolhida e o relógio em zero.
+// Sem nome, ele se chama "Beta" até você mudar (pelo painel; o aparelho não tem teclado).
+function adotar({ cor, nome }) {
   numeroDoJogo++;
   clock.reiniciar();
   menu.reiniciar();
   aquario = criarAquario({ semente: novaSemente(), config });
-  beta = aquario.adicionarPeixe({ nome: 'Beta', especie: 'beta', x: 120, y: 80 }, clock.agoraMs());
+  beta = aquario.adicionarPeixe({ nome: config.nome.padrao, especie: 'beta', cor, x: 120, y: 80 }, clock.agoraMs());
+  if (nome != null) aquario.renomear(beta, nome, aceitaNoNome);
+  semJogo = false;
   jaSalvouOGameOver = false;
   salvar();
+}
+
+// Sem jogo salvo (primeira vez, ou depois de apagar): mostra a tela de adoção. O aquário que
+// fica atrás dela é só um enfeite, e nada é salvo até adotar.
+function esperarAdocao() {
+  numeroDoJogo++;
+  clock.reiniciar();
+  menu.reiniciar();
+  aquario = criarAquario({ semente: novaSemente(), config });
+  beta = aquario.adicionarPeixe({ nome: config.nome.padrao, especie: 'beta', x: 120, y: 80 }, clock.agoraMs());
+  semJogo = true;
+  jaSalvouOGameOver = false;
+  menu.abrirAdocao();
+}
+
+// Apaga o jogo salvo e volta à adoção (botão do painel).
+async function apagarJogo() {
+  if (!salvamento.bloqueado) await armazenamento.apagar();
+  esperarAdocao();
 }
 
 // Tenta voltar ao jogo salvo. Devolve true se conseguiu.
@@ -141,7 +168,7 @@ async function carregarJogoSalvo() {
   }
 }
 
-if (!(await carregarJogoSalvo())) novoJogo();
+if (!(await carregarJogoSalvo())) esperarAdocao();
 
 // Grava de tempos em tempos e quando a aba vai embora.
 setInterval(() => salvar(), config.salvamento.intervaloSegundos * 1000);
@@ -157,8 +184,16 @@ const painel = criarPainel({
   config,
   obterAquario: () => aquario,
   obterPeixe: () => beta,
+  textos,
   obterSalvamento: () => salvamento,
-  aoReiniciar: novoJogo,
+  aguardandoAdocao: () => semJogo,
+  podeAdotar: () => semJogo || aquario.gameOver,
+  aoAdotar: (pedido) => adotar(pedido),
+  aoRenomear: (bruto) => {
+    aquario.renomear(beta, bruto, aceitaNoNome);
+    salvar();
+  },
+  aoApagar: apagarJogo,
 });
 
 // Um passo do jogo (dt em segundos reais).
