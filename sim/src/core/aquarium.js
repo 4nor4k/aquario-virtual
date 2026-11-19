@@ -3,7 +3,7 @@
 import { criarRng } from './rng.js';
 import { criarEventos } from './events.js';
 import {
-  criarPeixe, atualizarPeixe, atualizarPeixeMorto, atualizarPeixeParado, atualizarIdade, limitesDoPeixe,
+  criarPeixe, atualizarPeixe, atualizarPeixeMorto, atualizarPeixeParado, atualizarPeixeNamorando, atualizarIdade, limitesDoPeixe,
   INICIO_DA_FASE_MS,
 } from './fish.js';
 import { atualizarCocos } from './coco.js';
@@ -12,6 +12,7 @@ import { atualizarRegras, matarPeixe, valorDoPh } from './rules.js';
 import { normalizarNome } from './nome.js';
 import { soltarGraos, atualizarGraos, graoMaisPerto } from './comida.js';
 import { MUNDO_LARGURA, AREIA_Y } from './mundo.js';
+import { podeAdotarParceiro, atualizarNamoros, terminarNamoroDoPeixe } from './reproducao.js';
 
 // config: os números do jogo (sim/config/jogo.json). Quem cria o aquário entrega pronto,
 // porque o core não lê arquivos (no navegador e no ESP32 isso é feito de jeitos diferentes).
@@ -23,14 +24,21 @@ export function criarAquario({ semente = 1, config } = {}) {
   const rngComida = criarRng((semente ^ 0xf00d) >>> 0); // onde caem os grãos
   const rngCoco = criarRng((semente ^ 0xc0c0) >>> 0);   // quando o peixe faz cocô
   const rngPlano = criarRng((semente ^ 0x91a0) >>> 0);  // por onde o peixe passa (atrás ou na frente)
+  const rngReproducao = criarRng((semente ^ 0x4e90) >>> 0); // ninhadas: quantos ovos, cor e sexo dos filhotes
   const peixes = [];
   let proximoId = 1;
   let ultimoMs = null; // hora do jogo no passo anterior (para saber quanto tempo passou)
+
+  const agoraMsDoAquario = () => ultimoMs ?? 0;
 
   const aquario = {
     peixes,
     graos: [],                       // grãos de comida na água (core/comida.js); não vão para o arquivo salvo
     cocos: [],                       // cocôs caindo ou na areia (core/coco.js); só animação, não são salvos
+    casais: [],                      // os casais: { aId, bId, boasMs, ultimaMs, namoro } (core/reproducao.js)
+    ovos: [],                        // ovos esperando para eclodir (core/reproducao.js)
+    filhotesNascidos: 0,             // conta os filhotes já nascidos aqui, para o nome "Filhote N"
+    rngReproducao,                   // o sorteio das ninhadas (semente própria, não mexe nos outros)
     sujeira: config.inicial.sujeira, // 0 a 100 (0 = água limpa)
     sujeiraPendente: [],             // sujeira que ainda vai entrar na água, aos poucos: { inicioMs, duracaoMs, total }
     phPasso: config.inicial.phPasso, // posição na lista de pH (0 = o mais ácido)
@@ -42,6 +50,75 @@ export function criarAquario({ semente = 1, config } = {}) {
     // Os peixes que ainda estão vivos (saudáveis ou doentes).
     vivos() {
       return peixes.filter((p) => p.estado !== 'morto');
+    },
+
+    // A hora do jogo no último passo (0 antes do primeiro). Serve para marcar a hora de uma morte.
+    get agoraMs() {
+      return ultimoMs ?? 0;
+    },
+
+    // Quantos peixes ainda cabem: o limite (5) menos os vivos e os ovos que vão eclodir.
+    vagas() {
+      return Math.max(0, config.reproducao.limiteDePeixes - aquario.vivos().length - aquario.ovos.length);
+    },
+
+    peixePorId(id) {
+      return peixes.find((p) => p.id === id) ?? null;
+    },
+
+    // O casal de um peixe (ou null).
+    casalDe(peixe) {
+      return aquario.casais.find((c) => c.aId === peixe.id || c.bId === peixe.id) ?? null;
+    },
+
+    // O parceiro de um peixe (ou null).
+    parceiroDe(peixe) {
+      const casal = aquario.casalDe(peixe);
+      if (!casal) return null;
+      return aquario.peixePorId(casal.aId === peixe.id ? casal.bId : casal.aId);
+    },
+
+    // Desfaz o casal deste peixe, se houver (quando um dos dois morre ou some).
+    desfazerCasalDe(peixe) {
+      const casal = aquario.casalDe(peixe);
+      if (!casal) return;
+      aquario.casais.splice(aquario.casais.indexOf(casal), 1);
+      for (const id of [casal.aId, casal.bId]) {
+        const p = aquario.peixePorId(id);
+        if (p?.namorando) terminarNamoroDoPeixe(p);
+      }
+    },
+
+    // Tira um peixe do aquário (o morto que já passou tempo demais, ou o "Limpar").
+    removerPeixe(peixe) {
+      const i = peixes.indexOf(peixe);
+      if (i < 0) return;
+      aquario.desfazerCasalDe(peixe);
+      peixes.splice(i, 1);
+    },
+
+    // { ok, motivo }: este peixe pode ganhar um parceiro agora? motivo: 'morto', 'naoAdulto',
+    // 'temParceiro' ou 'cheio'.
+    podeAdotarParceiro(peixe) {
+      return podeAdotarParceiro(aquario, peixe, agoraMsDoAquario());
+    },
+
+    // Adota um parceiro para este peixe: já ADULTO e do sexo OPOSTO (doc 03, seção 6). Forma o casal.
+    // Devolve o parceiro. Lança erro se não pode (confira antes com podeAdotarParceiro).
+    adotarParceiro(peixe, { nome, cor } = {}, agoraMs = agoraMsDoAquario()) {
+      const r = podeAdotarParceiro(aquario, peixe, agoraMs);
+      if (!r.ok) throw new RangeError(`não dá para adotar um parceiro: ${r.motivo}`);
+      const parceiro = aquario.adicionarPeixe({
+        nome: nome ?? config.nome.padrao,
+        especie: peixe.especie,
+        cor: cor ?? peixe.cor,
+        sexo: peixe.sexo === 'macho' ? 'femea' : 'macho',
+        fase: 'adulto',
+        x: peixe.x,
+        y: peixe.y,
+      }, agoraMs);
+      aquario.casais.push({ aId: peixe.id, bId: parceiro.id, boasMs: 0, ultimaMs: null, namoro: null });
+      return parceiro;
     },
 
     // O número que o próximo peixe adotado vai receber (vai para o arquivo salvo).
@@ -92,6 +169,7 @@ export function criarAquario({ semente = 1, config } = {}) {
       ultimoMs = agoraMs;
       atualizarRegras(aquario, passouMs, agoraMs, config);
 
+      atualizarNamoros(aquario, dt, config); // o namoro e os ovos (animação, tempo real)
       for (const peixe of peixes) {
         if (peixe.estado === 'morto') {
           atualizarPeixeMorto(peixe, dt);
@@ -99,6 +177,10 @@ export function criarAquario({ semente = 1, config } = {}) {
           continue;
         }
         atualizarIdade(peixe, agoraMs);
+        if (peixe.namorando) {
+          atualizarPeixeNamorando(peixe, dt, peixe.namorando); // vai ao encontro do parceiro
+          continue;
+        }
         if (peixe.fazendoCoco > 0) {
           atualizarPeixeParado(peixe, dt); // parado um instante, fazendo cocô
           continue;
@@ -149,9 +231,11 @@ export function criarAquario({ semente = 1, config } = {}) {
       matarPeixe(aquario, peixe, causa);
     },
 
-    // Zera a sujeira.
+    // Zera a sujeira e retira os peixes mortos (menos no Game Over, quando o peixe boiando faz parte da tela).
     limparAquario() {
       aquario.sujeira = 0;
+      if (aquario.gameOver) return;
+      for (const morto of peixes.filter((p) => p.estado === 'morto')) aquario.removerPeixe(morto);
     },
 
     // Sobe o pH 1 passo. Devolve { mudou, ph }; no máximo (7,5) não muda nada.

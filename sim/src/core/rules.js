@@ -3,13 +3,15 @@
 // Todos os números vêm do config (sim/config/jogo.json); aqui só ficam as fórmulas.
 import { MINUTO_MS, HORA_MS } from './clock.js';
 import { idadeMs, fimDaVidaNatural } from './fish.js';
+import { atualizarCasais, eclodirOvos, removerMortosAntigos } from './reproducao.js';
 
 // Aplica o tempo de JOGO que passou (dtMs) a todo o aquário. agoraMs é a hora do jogo
 // no FIM desse trecho (de onde sai a idade dos peixes).
 // O tempo é cortado em pedaços de no máximo `passoMaximoMin` minutos. Assim o resultado
 // é praticamente o mesmo a 1×, 60× ou 3600×, e também depois de um "pular fase" de vários dias.
 // Depois do Game Over as regras ficam congeladas.
-export function atualizarRegras(aquario, dtMs, agoraMs, config) {
+// opcoes.animar: false durante a ausência (o namoro não tem animação; veja reproducao.js).
+export function atualizarRegras(aquario, dtMs, agoraMs, config, opcoes = {}) {
   const passoMaximo = config.passoMaximoMin * MINUTO_MS;
   let resta = dtMs;
   let hora = agoraMs - dtMs; // hora do jogo no começo do pedaço
@@ -17,13 +19,23 @@ export function atualizarRegras(aquario, dtMs, agoraMs, config) {
     const passo = Math.min(resta, passoMaximo);
     resta -= passo;
     hora += passo;
-    aplicarPasso(aquario, passo / HORA_MS, hora, config);
+    aplicarPasso(aquario, passo / HORA_MS, hora, config, opcoes);
   }
 }
 
-function aplicarPasso(aquario, horas, agoraMs, config) {
+function aplicarPasso(aquario, horas, agoraMs, config, opcoes) {
   const vivos = aquario.vivos();
-  if (vivos.length === 0) return;
+  // Sem peixe vivo não há o que cuidar, mas os ovos que sobraram ainda podem eclodir.
+  const causa = vivos.length > 0 ? cuidarDosPeixes(aquario, vivos, horas, agoraMs, config) : null;
+
+  atualizarCasais(aquario, horas * HORA_MS, agoraMs, config, opcoes);
+  eclodirOvos(aquario, agoraMs, config);
+  removerMortosAntigos(aquario, agoraMs, config);
+  if (causa) verificarGameOver(aquario, causa);
+}
+
+// Fome, sujeira, pH, saúde, doença e morte dos peixes vivos. Devolve a causa da última morte (ou null).
+function cuidarDosPeixes(aquario, vivos, horas, agoraMs, config) {
 
   // Saciedade: cada peixe vivo fica com fome no mesmo ritmo (e digere o excesso mais depressa).
   for (const peixe of vivos) {
@@ -53,7 +65,7 @@ function aplicarPasso(aquario, horas, agoraMs, config) {
   let causaDaUltimaMorte = null;
   for (const peixe of vivos) {
     if (fimDaVidaNatural(idadeMs(peixe, agoraMs))) {
-      morrer(aquario, peixe, 'velhice');
+      morrer(aquario, peixe, 'velhice', agoraMs);
       causaDaUltimaMorte = 'velhice';
       continue;
     }
@@ -63,7 +75,7 @@ function aplicarPasso(aquario, horas, agoraMs, config) {
     if (variacao > 0 && peixe.saciedade > config.saciedade.ideal) variacao = 0;
     peixe.saude = Math.min(100, Math.max(0, peixe.saude + variacao));
     if (peixe.saude <= 0) {
-      morrer(aquario, peixe, 'cuidado');
+      morrer(aquario, peixe, 'cuidado', agoraMs);
       causaDaUltimaMorte = 'cuidado';
       continue;
     }
@@ -78,19 +90,21 @@ function aplicarPasso(aquario, horas, agoraMs, config) {
     }
   }
 
-  if (causaDaUltimaMorte) verificarGameOver(aquario, causaDaUltimaMorte);
+  return causaDaUltimaMorte;
 }
 
-function morrer(aquario, peixe, causa) {
+function morrer(aquario, peixe, causa, agoraMs) {
   peixe.estado = 'morto';
   peixe.causaDaMorte = causa;
+  peixe.morteMs = agoraMs;
+  aquario.desfazerCasalDe(peixe); // quem sobrou fica livre para ganhar outro parceiro
   if (causa === 'cuidado') peixe.saude = 0;
   aquario.eventos.registrar({ tipo: 'morreu', peixeId: peixe.id, causa });
 }
 
-// Game Over: quando não resta nenhum peixe vivo.
+// Game Over: quando não resta nenhum peixe vivo E nenhum ovo (os ovos são descendentes, doc 03 seção 4).
 function verificarGameOver(aquario, causa) {
-  if (aquario.gameOver || aquario.vivos().length > 0) return;
+  if (aquario.gameOver || aquario.vivos().length > 0 || aquario.ovos.length > 0) return;
   aquario.gameOver = true;
   aquario.causaDoGameOver = causa;
   aquario.eventos.registrar({ tipo: 'gameOver', causa });
@@ -99,7 +113,7 @@ function verificarGameOver(aquario, causa) {
 // Mata um peixe de fora das regras (botão "Matar peixe" do painel de testes).
 export function matarPeixe(aquario, peixe, causa = 'cuidado') {
   if (peixe.estado === 'morto') return;
-  morrer(aquario, peixe, causa);
+  morrer(aquario, peixe, causa, aquario.agoraMs);
   verificarGameOver(aquario, causa);
 }
 

@@ -23,7 +23,7 @@ export function aplicarAusencia(aquario, { ausenciaMs, horaDoJogoAntesMs }, conf
   const horaDoJogoMs = horaDoJogoAntesMs + aplicadaMs;
   const vivosAntes = new Set(aquario.vivos());
 
-  atualizarRegras(aquario, aplicadaMs, horaDoJogoMs, config);
+  atualizarRegras(aquario, aplicadaMs, horaDoJogoMs, config, { animar: false }); // sem namoro na tela
 
   for (const peixe of aquario.peixes) {
     if (peixe.estado !== 'morto') {

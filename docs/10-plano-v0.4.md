@@ -222,4 +222,6 @@ Ajuste de implementação (não muda nenhuma regra): em vez de um campo `parceir
 o casal fica na lista `casais` do aquário (`{ aId, bId, ... }`) e `aquario.parceiroDe(peixe)`
 descobre o parceiro. Evita dois campos que precisariam andar juntos.
 
-Passos: nenhum feito ainda.
+Passos:
+- **1 e 4 (núcleo) feitos em 2026-11-19**: `core/reproducao.js`, casais, ovos, vagas, parceiro, mortos que somem, Game Over esperando ovos, salvamento dos campos novos (arquivo da v0.3 ainda abre) e ausência sem animação. Fiz o passo 4 junto com o 1 porque o Game Over e as vagas dependem dos ovos. 508 testes (26 novos em `tests/reproducao.test.js`).
+- 2 (foco na interface), 3 (adotar o parceiro), 5 (namoro na tela) e 6 (fechamento): por fazer.

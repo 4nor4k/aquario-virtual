@@ -46,6 +46,20 @@
     "maximoNaAgua": 12
   },
 
+  "reproducao": {
+    "limiteDePeixes": 5,
+    "saudeMinima": 90,
+    "boasCondicoesMin": 30,
+    "intervaloEntreNinhadasDias": 3,
+    "ovosMin": 1,
+    "ovosMax": 3,
+    "eclosaoMin": 60,
+    "namoroSegundos": 6,
+    "velocidadeQuedaOvo": 9,
+    "morteSomeEmHoras": 12,
+    "nomeDoFilhote": "Filhote"
+  },
+
   "profundidade": {
     "chanceNoFundo": 0.2,
     "chanceNoMeio": 0.3

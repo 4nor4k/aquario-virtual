@@ -62,7 +62,7 @@ export const PLANOS = ['fundo', 'meio', 'frente'];
 export function criarPeixe({
   id = 0, nome = 'Beta', especie = 'beta', cor = 'vermelho', sexo = 'macho', fase = 'filhote',
   saciedade = 100, saude = 100, estado = 'saudavel', causaDaMorte = null, direcao = 1,
-  nascimentoMs = 0, x, y,
+  nascimentoMs = 0, morteMs = null, x, y,
 }) {
   if (!TAMANHO_POR_FASE[fase]) throw new RangeError(`fase desconhecida: ${fase}`);
   return {
@@ -77,6 +77,8 @@ export function criarPeixe({
     estado,                // 'saudavel', 'doente' ou 'morto'
     causaDaMorte,          // 'velhice' ou 'cuidado' (falta de cuidado), só depois de morrer
     nascimentoMs,          // hora do jogo em que nasceu (a idade é "agora" menos isto)
+    morteMs,               // hora do jogo em que morreu (null enquanto vive); o morto some depois de um tempo
+    namorando: null,       // durante o namoro: { x, y, olharPara } = onde ele fica, e para que lado olha (só animação)
     x,
     y,
     direcao,               // 1 = olhando para a direita, -1 = para a esquerda
@@ -210,6 +212,32 @@ export function atualizarPeixe(peixe, dt, rng, comida = null) {
   peixe.x += (dx / distancia) * passo;
   peixe.y += (dy / distancia) * passo;
   virarParaODestino(peixe);
+}
+
+// Peixe namorando: nada (mais animado) até o lugar do encontro e, ao chegar, fica ali olhando para
+// o parceiro. alvo = { x, y, olharPara } (olharPara: 1 ou -1).
+export function atualizarPeixeNamorando(peixe, dt, alvo) {
+  const ritmo = peixe.estado === 'doente' ? FATOR_VELOCIDADE_DOENTE : 1;
+  peixe.tempoAnimacao += dt * ritmo;
+  const lim = limitesDoPeixe(peixe.fase);
+  const tx = limitar(alvo.x, lim.minX, lim.maxX);
+  const ty = limitar(alvo.y, lim.minY, lim.maxY);
+  const dx = tx - peixe.x;
+  const dy = ty - peixe.y;
+  const distancia = Math.sqrt(dx * dx + dy * dy);
+  const passo = VELOCIDADE_NADO * ritmo * FATOR_VELOCIDADE_COMIDA * dt;
+  peixe.destino = null;
+  if (distancia <= passo) {
+    peixe.x = tx;
+    peixe.y = ty;
+    peixe.movimento = 'esperando';
+    peixe.direcao = alvo.olharPara;
+  } else {
+    peixe.x += (dx / distancia) * passo;
+    peixe.y += (dy / distancia) * passo;
+    peixe.movimento = 'nadando';
+    if (Math.abs(dx) > 0.5) peixe.direcao = dx > 0 ? 1 : -1;
+  }
 }
 
 // Peixe parado (fazendo cocô): não sai do lugar, mas a cauda continua batendo.
