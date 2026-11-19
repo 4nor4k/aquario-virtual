@@ -44,7 +44,7 @@ bateria + USB), gerenciado também pelo celular via WiFi. Veja `README.md` e `do
     `criarAquario` exige `config`. `core/events.js` existe mas a interface ainda não o usa.
   - Pendente da v0.2: nada. Faltam só as conferências à mão que o plano marca como não feitas
     (3600× esperado por ~95 s reais).
-- **Depois da v0.2 (18/11/2026, ainda sem commit/tag):** (1) câmera automática: peixe 5 s fora da
+- **Depois da v0.2 (18/11/2026, commit `087c68b`, sem tag):** (1) câmera automática: peixe 5 s fora da
   tela -> câmera o segue por 10 s (`sim/src/render/camera-segue.js`); (2) visual **preto e branco
   com dithering** de Bayer (`sim/src/render/mono.js`, tabela `TONS` em `palette.js`); (3) fundo
   da água preto sólido, superfície ondulada (ar e água pretos sólidos) (`render/superficie.js`) e bolhas
