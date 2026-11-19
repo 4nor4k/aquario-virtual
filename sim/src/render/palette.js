@@ -68,6 +68,11 @@ export const PALETA = [
   [0x00, 0x00, 0x00], // 48 água suja (começa preta, igual à água limpa)
   [0x2f, 0x5a, 0x1f], // 49 bolor no vidro: verde escuro
   [0x58, 0x86, 0x2e], // 50 bolor no vidro: verde mais claro (borda)
+  // Os ovos do casal (creme com um brilho) e os corações do namoro (rosa e rosa claro).
+  [0xff, 0xdc, 0xe6], // 51 ovo (rosado bem claro, para aparecer na água preta e perto da areia)
+  [0xff, 0xff, 0xff], // 52 ovo: brilho
+  [0xff, 0x5d, 0x8f], // 53 coração
+  [0xff, 0xb4, 0xcb], // 54 coração: brilho
 ];
 
 // Quão claro cada índice aparece em preto e branco: 0 = preto, 16 = branco (mono.js).
@@ -126,10 +131,14 @@ export const TONS = [
   16, // 48 água suja (colorida)
   16, // 49 a 50: bolor (colorido)
   16, // 50
+  16, // 51 a 52: ovo (colorido)
+  16, // 52
+  16, // 53 a 54: coração (colorido)
+  16, // 54
 ];
 
 // Índices que não passam pelo preto e branco: são pintados sólidos, na cor da PALETA.
-export const COLORIDOS = [2, 3, 4, 5, 6, 7, 8, 9, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50];
+export const COLORIDOS = [2, 3, 4, 5, 6, 7, 8, 9, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54];
 
 // Nomes para quem desenha (os números acima são os índices da PALETA).
 export const COR = {
@@ -163,6 +172,11 @@ export const COR = {
   AGUA_SUJA: 48,
   BOLOR: 49,
   BOLOR_CLARO: 50,
+  // Os ovos (render/ovos.js) e os corações do namoro (render/coracoes.js).
+  OVO: 51,
+  OVO_BRILHO: 52,
+  CORACAO: 53,
+  CORACAO_CLARO: 54,
   // A comida (comida.js).
   GRAO: 44,
   GRAO_BRILHO: 45,

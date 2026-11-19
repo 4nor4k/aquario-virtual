@@ -13,6 +13,8 @@ import { desenharTurvacao } from './turvacao.js';
 import { desenharBolor } from './bolor.js';
 import { desenharGraos } from './comida.js';
 import { desenharCocos } from './cocos.js';
+import { desenharOvos } from './ovos.js';
+import { desenharCoracoes } from './coracoes.js';
 import { LARGURA, ALTURA } from './tela.js';
 
 const COR_AGUA = 1;
@@ -66,7 +68,7 @@ export function desenharPeixes(quadro, peixes, camera) {
 // turvacao (0 a 1: o quanto a água está turva) e graos (comida) também são opcionais.
 export function desenharQuadro(quadro, {
   mapa, camera, peixes, aquario, config, bolhas = [], plantas = [], fundo, tempo = 0, turvacao = 0, graos = [],
-  cocos = [], bolhasDoFundo = [],
+  cocos = [], bolhasDoFundo = [], ovos = [], casais = [], agoraMs = null,
 }) {
   quadro.fill(COR_AGUA);                      // a água: preto sólido
   desenharBolor(quadro, camera, turvacao, tempo); // o bolor nas paredes de vidro: atrás de tudo
@@ -82,7 +84,9 @@ export function desenharQuadro(quadro, {
   desenharSuperficie(quadro, camera, tempo);
   desenharFiltro(quadro, camera, tempo);     // caixa, bico e queda d'água, por cima da superfície
   desenharTurvacao(quadro, camera, turvacao, tempo); // a cor da água suja e as partículas: atrás dos peixes
+  desenharOvos(quadro, ovos, camera, { tempo, agoraMs }); // os ovos do casal, na areia
   desenharPeixes(quadro, doPlano('frente'), camera);
+  if (config) desenharCoracoes(quadro, casais, camera, config); // os corações do namoro, por cima dos peixes
   if (config) desenharCocos(quadro, cocos, camera, config); // o cocô sai da cauda: por cima do peixe
   desenharGraos(quadro, graos, camera);
   desenharBolhas(quadro, bolhas, camera);

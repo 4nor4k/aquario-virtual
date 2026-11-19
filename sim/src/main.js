@@ -258,7 +258,7 @@ function mostrarAvisosDoCore() {
 function desenhar() {
   desenharQuadro(quadro, {
     mapa, camera, peixes: aquario.peixes, aquario, config, bolhas: bolhas.lista, bolhasDoFundo: bolhasDoFundo.lista, plantas, fundo, tempo: tempoVisual,
-    turvacao: turvacao.nivel, graos: aquario.graos, cocos: aquario.cocos,
+    turvacao: turvacao.nivel, graos: aquario.graos, cocos: aquario.cocos, ovos: aquario.ovos, casais: aquario.casais, agoraMs: clock.agoraMs(),
   });
   desenharTelas(quadro, { menu, aquario, config, textos, agoraMs: clock.agoraMs() });
   mostrarQuadro(ctx, quadro);

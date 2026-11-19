@@ -16,7 +16,7 @@ import { MINUTO_MS, HORA_MS, DIA_MS } from './clock.js';
 import { faseDaIdade, idadeMs, limitesDoPeixe } from './fish.js';
 import { AREIA_Y } from './mundo.js';
 
-export const OVO_Y_AREIA = AREIA_Y - 2;    // o ovo para em cima da areia, como o cocô
+export const OVO_Y_AREIA = AREIA_Y - 3;    // o ovo (3 pixels de altura) para em cima da areia
 export const DISTANCIA_DO_NAMORO = 17;     // os dois ficam a 17 px do ponto de encontro, de frente um para o outro
 
 // { ok, motivo }: este peixe pode ganhar um parceiro agora?
