@@ -21,6 +21,7 @@ export const TOM_NOITE = [0.36, 0.46, 0.78];
 
 export const ESCURECER_COM_CHUVA = 0.18;   // com chuva forte, o cenário perde 18% da luz
 export const CLAREAR_COM_RAIO = 1.1;       // no pico do relâmpago o cenário fica 2,1× mais claro (limitado a 255)
+export const LAMPADA_DE_DIA = 0.35;       // de dia a lâmpada continua ligada, com 35% da força da noite (só o brilho na água)
 export const CLAREAR_COM_SPOT = 0.75;       // onde o spot ilumina, o cenário fica até 75% mais claro
 export const CLAREAR_NO_MEIO_DO_SPOT = 0.35; // na borda do feixe (gêmea intermediária): até 35% mais claro
 export const COR_DO_CEU_NO_RAIO = [0x78, 0x90, 0xd0];
@@ -114,10 +115,15 @@ export function aplicarLuz(luz) {
   }
   // O céu só tem cor durante o clarão do relâmpago.
   pintar(COR.CEU_RELAMPAGO, misturar([0, 0, 0], COR_DO_CEU_NO_RAIO, Math.min(1, luz.raio)).map(limitar255));
-  // O spot só existe de noite (acende ao escurecer; no clarão do relâmpago fica mais fraco): o brilho azul no
-  // ar e na água e as gêmeas CLARAS do cenário (as cores já com a luz do dia/noite, multiplicadas por mais de 1).
-  const spot = Math.max(0, luz.noite) * (luz.raio > 0.3 ? 0.4 : 1);
-  for (const i of COR.SPOT) pintar(i, ORIGINAIS[i].map((v) => limitar255(v * spot)));
+  // A lâmpada fica sempre ligada (no clarão do relâmpago fica mais fraca). O BRILHO azul no ar e na água vai de
+  // 35% de dia (LAMPADA_DE_DIA) a 100% de noite. Já o cenário só fica mais claro dentro do feixe à noite: as
+  // gêmeas CLARAS (as cores já com a luz da hora, multiplicadas por mais de 1) valem só pela parte da noite, e de
+  // dia são iguais às cores de sempre, então de dia o aquário inteiro está iluminado, sem contraste.
+  const noite = Math.max(0, luz.noite);
+  const relampago = luz.raio > 0.3 ? 0.4 : 1;
+  const lampada = (noite + LAMPADA_DE_DIA * (1 - noite)) * relampago;
+  const spot = noite * relampago;
+  for (const i of COR.SPOT) pintar(i, ORIGINAIS[i].map((v) => limitar255(v * lampada)));
   for (const [escura, clara] of PAR_CLARO) {
     pintar(clara, PALETA[escura].map((v) => limitar255(v * (1 + CLAREAR_COM_SPOT * spot))));
   }

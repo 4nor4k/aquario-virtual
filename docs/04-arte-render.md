@@ -94,7 +94,9 @@ não de resolução.
     ilumina.** Como o quadro é indexado, são dois efeitos: (1) no ar e na água pura, um degradê de **7 degraus de
     azul** (`COR.SPOT`, índices 59 a 65); (2) areia, plantas, pedras e água suja dentro do feixe trocam para uma
     **cor gêmea mais clara** (`PAR_CLARO` em `palette.js`, 28 índices a mais; a `luz.js` pinta a gêmea até 75% mais
-    clara que a cor da noite). **Borda suave** (pedido do usuário): as superfícies grandes (areia, pedras, pedra grande,
+    clara que a cor da noite). **De dia a lâmpada continua ligada**, mais fraca (pedido do usuário): o brilho azul na
+    água fica com **35%** da força da noite (`LAMPADA_DE_DIA` em `luz.js`) e o aquário inteiro continua iluminado, sem
+    contraste (as gêmeas claras só valem pela parte da noite). **Borda suave** (pedido do usuário): as superfícies grandes (areia, pedras, pedra grande,
     água suja e a alga maior) têm uma **segunda gêmea, intermediária** (`PAR_MEIO`, 35% mais clara), usada na borda do
     feixe: escuro, meio, claro, em vez de um salto só. As plantas finas ficam só com a gêmea clara. A paleta tem 244 cores
     e os "moldes" dos sprites foram para 248 a 255 (limite da paleta: 248). Preso ao mundo, só existe de noite, mais fraco no relâmpago.

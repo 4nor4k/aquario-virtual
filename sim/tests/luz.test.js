@@ -7,6 +7,7 @@ import {
   ESCURECER_COM_CHUVA,
 } from '../src/render/luz.js';
 import { desenharCeu, ESTRELAS, QUANTAS_ESTRELAS, gerarEstrelas } from '../src/render/ceu.js';
+import { LAMPADA_DE_DIA } from '../src/render/luz.js';
 import { desenharSpot, intensidadeDoSpot, SPOT_X, ABERTURA_NO_FUNDO } from '../src/render/spot.js';
 import { aplicarCores } from '../src/render/turvacao.js';
 import { desenharQuadro } from '../src/render/scene.js';
@@ -294,12 +295,15 @@ test('spot: no cenário troca só pela cor iluminada (gêmea); peixe, ovo e chuv
   assert.equal(longe[60 * LARGURA + 0], COR.PEDRA);
 });
 
-test('spot: só existe de noite (o brilho é preto de dia, e a gêmea clara só fica mais clara à noite)', () => {
+test('spot: a lâmpada fica ligada de dia, mais fraca (35%), e o cenário só ganha claridade extra à noite', () => {
   limpar();
   restaurarPaleta();
   aplicarLuz(luzDoClima({ horaMin: H(12) }, horas));
-  for (const c of COR.SPOT) assert.deepEqual(PALETA[c], [0, 0, 0]);
-  for (const [escura, clara] of PAR_CLARO) assert.deepEqual(PALETA[clara], PALETA[escura], 'de dia a gêmea é igual');
+  for (const c of COR.SPOT) {
+    assert.deepEqual(PALETA[c], ORIGINAL[c].map((v) => Math.round(v * LAMPADA_DE_DIA)), 'de dia: 35% do brilho da noite');
+  }
+  assert.ok(claro(PALETA[COR.SPOT[6]]) > 0);
+  for (const [escura, clara] of PAR_CLARO) assert.deepEqual(PALETA[clara], PALETA[escura], 'de dia o cenário na luz é igual ao resto: o aquário inteiro está iluminado');
   restaurarPaleta();
   aplicarLuz(luzDoClima({ horaMin: H(2) }, horas));
   COR.SPOT.forEach((c) => assert.deepEqual(PALETA[c], ORIGINAL[c], 'de noite: a cor cheia'));
@@ -350,14 +354,15 @@ test('spot: a borda da luz é suave: areia e pedras passam por um degrau interme
   limpar();
 });
 
-test('cena: de noite há brilho do spot e cenário iluminado; de dia não há nada disso', () => {
+test('cena: de noite o cenário no feixe fica mais claro; de dia só há o brilho fraco e o aquário inteiro está iluminado', () => {
   limpar();
   const noite = cena({ horaMin: H(2), chuvaNivel: 0, raio: 0 });
   assert.ok(COR.SPOT.some((c) => contar(noite, c) > 0));
   assert.ok([...PAR_CLARO.values()].some((c) => contar(noite, c) > 0), 'há cenário iluminado');
   const dia = cena({ horaMin: H(12), chuvaNivel: 0, raio: 0 });
-  assert.ok(!COR.SPOT.some((c) => contar(dia, c) > 0));
-  assert.ok(![...PAR_CLARO.values()].some((c) => contar(dia, c) > 0), 'de dia nada é "iluminado"');
+  assert.ok(COR.SPOT.some((c) => contar(dia, c) > 0), 'de dia o brilho fraco da lâmpada existe');
+  // Mas o cenário "iluminado" tem a mesma cor do resto (as gêmeas são iguais às originais de dia).
+  for (const [escura, clara] of PAR_CLARO) assert.deepEqual(PALETA[clara], PALETA[escura]);
   limpar();
 });
 
@@ -389,7 +394,7 @@ test('cena: sem clima é o visual de sempre; com o clima de dia é igual', () =>
   const dia = cena({ horaMin: H(12), chuvaNivel: 0, raio: 0 });
   // A areia (embaixo) é idêntica nas duas.
   for (let x = 0; x < LARGURA; x++) assert.equal(rgbDe(sem, x, 110).join(), rgbDe(dia, x, 110).join());
-  assert.ok(!COR.SPOT.some((c) => contar(dia, c) > 0), 'de dia não há spot');
+  assert.ok(COR.SPOT.some((c) => contar(dia, c) > 0), 'a lâmpada de dia fica ligada, fraca');
   limpar();
 });
 

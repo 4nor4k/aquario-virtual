@@ -6,8 +6,9 @@
 //   2. onde o feixe ilumina, as cores do cenário (areia, plantas, pedras, água suja...) trocam para a gêmea
 //      mais clara (PAR_CLARO, palette.js): o que está na luz fica mais claro que o que está fora dela. Na borda
 //      do feixe as superfícies grandes passam antes por uma gêmea INTERMEDIÁRIA (PAR_MEIO): luz suave, sem salto.
-// Os peixes não mudam (nem as estrelas, a chuva, os ovos...). Só existe de noite: as cores são calculadas pela
-// luz.js (de dia o brilho é preto e as gêmeas são iguais às originais), por isso nem se desenha de dia.
+// Os peixes não mudam (nem as estrelas, a chuva, os ovos...). A lâmpada fica sempre ligada: de noite é forte e
+// o que ela ilumina fica mais claro; de dia só sobra um brilho fraco na água (as gêmeas claras são iguais às
+// cores originais, então o aquário inteiro continua iluminado). As cores são calculadas pela luz.js.
 // O feixe fica preso ao MUNDO (no meio do aquário), então anda na tela junto com a câmera.
 import { AREIA_Y, MUNDO_LARGURA, MUNDO_ALTURA } from '../core/mundo.js';
 import { LARGURA, ALTURA } from './tela.js';

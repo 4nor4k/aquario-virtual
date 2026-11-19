@@ -93,7 +93,7 @@ export function desenharQuadro(quadro, {
   if (luz) desenharChuva(quadro, camera, luz.chuvaNivel, tempo); // gotas no ar e anéis na superfície
   desenharFiltro(quadro, camera, tempo);     // caixa, bico e queda d'água, por cima da superfície
   desenharTurvacao(quadro, camera, turvacao, tempo); // a cor da água suja e as partículas: atrás dos peixes
-  if (luz && luz.noite > 0.02) desenharSpot(quadro, camera); // o spot de luz da noite, na água ainda limpa
+  if (luz) desenharSpot(quadro, camera);     // a lâmpada do aquário (forte de noite, fraca de dia), na água ainda limpa
   desenharOvos(quadro, ovos, camera, { tempo, agoraMs }); // os ovos do casal, na areia
   desenharPeixes(quadro, doPlano('frente'), camera);
   if (config) desenharCoracoes(quadro, casais, camera, config); // os corações do namoro, por cima dos peixes
