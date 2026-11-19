@@ -96,7 +96,7 @@ não de resolução.
     **cor gêmea mais clara** (`PAR_CLARO` em `palette.js`, 28 índices a mais; a `luz.js` pinta a gêmea até 75% mais
     clara que a cor da noite). **Borda suave** (pedido do usuário): as superfícies grandes (areia, pedras, pedra grande,
     água suja e a alga maior) têm uma **segunda gêmea, intermediária** (`PAR_MEIO`, 35% mais clara), usada na borda do
-    feixe: escuro, meio, claro, em vez de um salto só. As plantas finas ficam só com a gêmea clara. A paleta tem 243 cores
+    feixe: escuro, meio, claro, em vez de um salto só. As plantas finas ficam só com a gêmea clara. A paleta tem 244 cores
     e os "moldes" dos sprites foram para 248 a 255 (limite da paleta: 248). Preso ao mundo, só existe de noite, mais fraco no relâmpago.
     **[proposta]** Abertura (meia largura de 50 px no topo e 109 px na areia: o usuário foi pedindo +200% e depois 100 px no topo, +75% na base, e por fim 50 px no topo, em 19/11/2026), esmaecimento, azuis do brilho e os 75% são meus.
   - **[fechado]** **O peixe não muda com a hora**: as cores do peixe ficam de fora da troca de paleta, iguais de dia, de
