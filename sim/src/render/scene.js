@@ -4,9 +4,17 @@ import { quadroDeNado } from '../core/fish.js';
 import { pixelsDoTile } from './cenario.js';
 import { spriteDoPeixe, desenharSprite } from './sprites.js';
 import { desenharHud } from './hud.js';
+import { desenharPlantas } from './plantas.js';
+import { desenharFundo } from './fundo.js';
+import { desenharFiltro } from './filtro.js';
+import { desenharSuperficie } from './superficie.js';
+import { desenharBolhas } from './bolhas.js';
 import { LARGURA, ALTURA } from './tela.js';
 
-// Desenha no quadro os blocos que aparecem dentro da janela da câmera.
+const COR_AGUA = 1;
+
+// Desenha no quadro os blocos que aparecem dentro da janela da câmera. Os pixels de água (cor 1)
+// não são pintados: deixam aparecer o que já está no quadro, o fundo com paralaxe.
 export function desenharCenario(quadro, mapa, camera) {
   const cx = Math.round(camera.x);
   const cy = Math.round(camera.y);
@@ -27,7 +35,8 @@ export function desenharCenario(quadro, mapa, camera) {
         for (let tx = 0; tx < TILE; tx++) {
           const x = ox + tx;
           if (x < 0 || x >= LARGURA) continue;
-          quadro[y * LARGURA + x] = pix[ty * TILE + tx];
+          const cor = pix[ty * TILE + tx];
+          if (cor !== COR_AGUA) quadro[y * LARGURA + x] = cor;
         }
       }
     }
@@ -44,13 +53,20 @@ export function desenharPeixes(quadro, peixes, camera) {
     const y = Math.round(peixe.y - sprite.altura / 2) - cy;
     // O peixe morto não bate a cauda: fica sempre no quadro 0.
     const quadroDaAnimacao = peixe.estado === 'morto' ? 0 : quadroDeNado(peixe);
-    desenharSprite(quadro, sprite, quadroDaAnimacao, x, y, peixe.direcao === -1, inverter);
+    desenharSprite(quadro, sprite, quadroDaAnimacao, x, y, peixe.direcao === -1, inverter, true);
   }
 }
 
 // aquario e config são opcionais: sem eles, desenha só o cenário e os peixes (sem avisos).
-export function desenharQuadro(quadro, { mapa, camera, peixes, aquario, config }) {
+// tempo (segundos reais, só para animar a onda e o balanço das plantas), bolhas, plantas e fundo (paralaxe) também são opcionais.
+export function desenharQuadro(quadro, { mapa, camera, peixes, aquario, config, bolhas = [], plantas = [], fundo, tempo = 0 }) {
+  quadro.fill(COR_AGUA);                      // a água: preto sólido
+  if (fundo) desenharFundo(quadro, fundo, camera, tempo); // camadas de paralaxe, atrás de tudo
   desenharCenario(quadro, mapa, camera);
+  desenharPlantas(quadro, plantas, camera, tempo);
+  desenharSuperficie(quadro, camera, tempo);
+  desenharFiltro(quadro, camera, tempo);     // caixa, bico e queda d'água, por cima da superfície
   desenharPeixes(quadro, peixes, camera);
+  desenharBolhas(quadro, bolhas, camera);
   if (aquario && config) desenharHud(quadro, { aquario, config, camera });
 }

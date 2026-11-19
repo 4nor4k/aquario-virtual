@@ -20,8 +20,8 @@ não de resolução.
 
 - Janela renderizada: **120×120**, escalada **2×** até 240×240 (escala inteira, pixels nítidos).
   Em vez de 128×128, que daria 1,875× e pixels irregulares.
-- Mundo: **360×240** pixels de render = 3 janelas de largura × 2 de altura.
-- Mundo montado com **tiles de 8×8**: 45×30 tiles (1.350 bytes de mapa).
+- Mundo: **240×152** pixels de render = 2 janelas de largura × 1,27 de altura (era 360×240; ver seção 8).
+- Mundo montado com **tiles de 8×8**: 30×19 tiles (570 bytes de mapa).
   A janela mostra 15×15 tiles.
 - Memória: o buffer da janela 120×120 em 16 bits ocupa ~28 KB. Cabe sem PSRAM.
 
@@ -37,7 +37,7 @@ não de resolução.
 
 ## 4. Camadas [proposta]
 
-1. **Fundo:** água em gradiente com raios de luz (com leve paralaxe, movendo mais devagar que a câmera).
+1. **Fundo:** duas camadas com paralaxe (ver seção 8), movendo mais devagar que a câmera. [Raios de luz: não feitos.]
 2. **Cenário:** areia, rochas, plantas (tiles).
 3. **Peixes.**
 4. **Partículas:** bolhas, corações, comida caindo.
@@ -78,6 +78,142 @@ não de resolução.
 - **[fechado]** Sprites provisórios gerados por mim; o usuário refina depois.
 - **[fechado]** Quadros de animação da seção 5.
 - **[fechado]** Dia e noite com hora real na v1.
+- **[fechado]** Câmera automática (pedido do usuário em 18/11/2026, para dar dinamismo com o jogo
+  parado): se o peixe fica **todo fora da tela por 5 s**, a câmera o **segue por 10 s** e para.
+  Código em `sim/src/render/camera-segue.js`, tempos em segundos reais.
+  - **[proposta]** Detalhes que escolhi e o usuário pode trocar: mexer o joystick cancela e zera a
+    contagem; menu aberto congela a contagem; a câmera chega suave (máx. 60 px/s, como o joystick);
+    "fora da tela" = nenhum pedaço do sprite visível. Valores no topo do arquivo.
+- **[fechado]** Estética **monocromática (preto e branco) com dithering**, como nos celulares
+  antigos, mesmo no display colorido (pedido do usuário em 18/11/2026). Isso **substitui a paleta
+  colorida da seção 3 na tela**; a paleta de 16 entradas continua existindo no código.
+  - Como funciona (`sim/src/render/mono.js` e `palette.js`): o jogo desenha com os mesmos índices;
+    só no último passo cada índice vira um **tom de 0 a 16** (tabela `TONS`) e um **dithering
+    ordenado de Bayer 4×4** transforma o tom em pontos pretos e brancos. No ESP32 é uma comparação
+    por pixel e o quadro final cabe em 1 bit por pixel (1,8 KB).
+  - **[proposta]** Escolhas minhas, fáceis de trocar na tabela `TONS`: areia quase branca,
+    rochas em meio-tom, corpo do peixe em xadrez.
+    Texto, bordas e avisos em branco sólido (letra de 1 pixel quebra em tom médio).
+    Peixe com **contorno preto de 1 pixel** para se separar do pontilhado. Emblemas do HUD
+    viram quadradinho branco com letra preta. Barra de status imprópria vira xadrez.
+  - **[proposta]** O pontilhado fica **preso à tela** (não ao mundo): com a câmera andando, a
+    textura fica parada e o cenário "desliza" por baixo dela.
+  - O dia/noite (seção 7) continua sendo troca de tabela: noite = tons mais baixos.
+  - Os sprites do beta são provisórios e foram pensados em cor; no preto e branco o olho some.
+    Refinar quando você redesenhar.
+- **[fechado]** Fundo da água **preto sólido**, sem degradê (pedido do usuário em 18/11/2026).
+  Só a areia e as rochas (objetos) mantêm o dithering.
+- **[fechado]** **Superfície da água** com onda animada e **bolhas** (mesmo pedido):
+  - A superfície fica em y = 12 do mundo (`SUPERFICIE_Y`), com onda de até 2 pixels
+    (`render/superficie.js`): linha ondulando (hoje **azul claro**) e uns brilhos curtos logo abaixo. O **ar** acima
+    dela também é **preto sólido**, sem dithering (pedido do usuário); só a onda separa ar e água.
+    O peixe nunca passa da crista da onda.
+  - **Bolhas pequenas** (`core/bolhas.js`, `render/bolhas.js`) sobem da areia até a superfície
+    saindo de **dois pontos bem afastados** (x = 180 e x = 340, colunas que nunca têm rocha). Maioria é um
+    pontinho; 1 em 4 é um anel 3×3. Balançam 1 a 2 pixels e somem ao tocar a superfície.
+  - **[proposta]** Onda e bolhas andam em **tempo real** (não aceleram com o 60×/3600×) e não
+    afetam o jogo. Tudo nos números do topo desses arquivos.
+  - **Tempo das bolhas, irregular:** o intervalo entre bolhas de um ponto é quase sempre comum
+    (0,3 a 1,4 s), às vezes uma **rajada** (bolhas coladas) e às vezes uma **pausa** longa
+    (2,5 a 6 s). A velocidade de subida também varia bastante (9 a 26 px/s).
+- **[fechado]** **Plantas** (pedido do usuário em 18/11/2026; antes só havia areia e rochas), em
+  `render/plantas.js`:
+  - **4 modelos comuns** (alga em fita, capim, folhas largas, coral) e **1 mais alto** (alga alta, 24 px).
+  - **2 algas gigantes** (pedido seguinte): talo em S com folhas alternadas, de **60 e 52 px**, cerca
+    de **metade da coluna de água** (ver "Aquário menor" acima). **[proposta]** Li
+    "metade da altura do aquário" assim; se for metade do mundo todo (120 px), é só mudar o número
+    em `algaGigante(...)`. Ficam a pelo menos 100 px uma da outra.
+  - Sorteadas com semente, ficam sobre a areia, **nunca sobre rochas nem nas bolhas**; hoje saem
+    cerca de 8 a 9 no total.
+  - **Balançam com a água** (pedido seguinte): cada linha da planta se desloca de lado alguns pixels,
+    a base fica parada e o alto mexe mais; a onda sobe pela planta e cada uma tem a sua fase.
+    Pequenas mexem 1 px, as gigantes até ~3 px na ponta, e as grandes balançam mais devagar.
+    Usa o tempo real, como a onda da superfície (`balancoDaLinha`).
+  - **[proposta]** Os desenhos são provisórios (talos de 1 pixel, em branco e xadrez): redesenhe
+    quando quiser, é só editar os textos no topo do arquivo.
+- **[fechado]** **Verde nas algas grandes** (pedido do usuário em 18/11/2026): as 2 algas gigantes são
+  **verde #10AB8C** e **ganharam folhas maiores e compridas** (primeiro como lâminas num talo, depois
+  refeitas pela referência abaixo). O verde foi o **primeiro toque de cor**, uma exceção à regra do
+  preto e branco: os índices em `COLORIDOS` (`palette.js`) saem do dithering e `mostrarQuadro` os
+  pinta sólidos, na própria cor (ver "Mais cor" abaixo). **[proposta]** Verde sólido, sem dithering; na
+  folha ficam só lâminas cheias, sem xadrez. No aparelho vira só mais uma cor no envio ao display
+  (RGB565 de #10AB8C = 0x1551). Para reservar espaço na areia só o talo (17 px) conta, as folhas
+  ficam no alto.
+- **[fechado]** **Mais cor** (pedido do usuário em 18/11/2026). Continua tudo preto e branco com dithering,
+  menos estes elementos, que agora são **cores sólidas, sem dithering** (lista `COLORIDOS` em
+  `palette.js`; o quadro passa de 16 para 20 índices, só o quadro: os desenhos guardados seguem
+  com 16):
+  - **Plantas pequenas, verdes** com **variação pequena do #10AB8C**: três pares de verdes
+    (#0D9A7E, #17B896, #22A883), um par por planta, em rodízio. Cada planta usa 2 tons (talo e folha).
+  - **Plantas do fundo**: verde mais escuro (#0B7561), por estarem mais longe.
+  - **Pedras em cinza cheio**: rochas da frente em #6E737C (sombra #4F535B) e pedras do fundo em
+    #3A3E45 (borda de cima #555A63). O cinza tem um leve tom frio.
+  - **Superfície da água e água que cai do filtro**: **azul claro #86D0F2** (a linha ondulada, os
+    respingos, as bolhinhas do impacto e o fio d'água). A caixa e o tubo do filtro seguem brancos.
+  - O ar acima da superfície é o mesmo preto da água (agora o índice 1; o 5 virou o azul).
+  - **[proposta]** Os tons exatos são palpite meu: ajuste na `PALETA` e veja na hora.
+  - Continuam em preto e branco: texto/HUD e bolhas (e o olho e a pupila do peixe, que são
+    branco e preto).
+- **[fechado]** **Algas grandes refeitas pela referência** (pedido do usuário em 18/11/2026, com uma imagem
+  de pixel art de uma alga): em vez de talo com folhinhas, agora é uma **roseta de folhas largas
+  em forma de chama** saindo de um centro estreito, como na imagem. Em `render/plantas.js`
+  (`algaRoseta`), gerada por código a partir de curvas de Bézier:
+  - 5 folhas na alga de 60 px e 4 na de 52 px (espelhada): uma alta em S, uma menor que se curva
+    para dentro e folhas curtas na frente; cada folha cresce rápido, tem a largura máxima no primeiro
+    terço e afina até a ponta; as de trás são pintadas antes e as da frente se sobrepõem.
+  - **Cores como na referência**, todas sólidas: corpo no **#10AB8C** na base, **oliva** no meio e
+    **ocre** perto da ponta (degradê com a divisa irregular), **fio de borda escuro** de 1 pixel
+    num dos lados de cada folha, **manchas de brilho** claras e um núcleo mais vivo na base.
+    **[proposta]** A ponta amarelada vem da imagem; se preferir tudo verde, é só trocar a divisa
+    do degradê em `algaRoseta` (as constantes 0,55 e 0,76).
+  - Cores novas na paleta (índices 20 a 23): borda #0A5C4C, brilho #6FE0BE, oliva #9CB04A, ocre #D9A441.
+  - Continuam balançando com a água. A base reserva 16 px de areia para as outras plantas.
+- **[fechado]** **Peixe vermelho** (pedido do usuário em 18/11/2026): o beta agora é "na cor padrão em
+  tons de vermelho", **cor sólida** (não mais dithering). Saudável: corpo #C0302D, nadadeira e cauda
+  #E85A4F e borda da cauda #FF9A80. **Idoso e morto**: vermelhos apagados (#8C4A48, #A86460,
+  #C28F85). **Doente**: vermelho pálido (#C9A39C, #DDBBAE, #EAD3C4). Olho branco e pupila preta
+  seguem iguais. **[proposta]** Os tons são palpite meu. O desenho (formato) é o mesmo de antes;
+  só as cores mudaram (`CORES_DO_BETA` em `render/sprites.js`).
+- **[fechado]** **Areia mais baixa e colorida** (pedido do usuário em 18/11/2026): o substrato perdeu
+  **uma camada** (de 4 para 3 blocos de altura; o mundo ficou **240×152**, 30×19 blocos, e a água
+  continua com a mesma profundidade). Agora é **cor de areia sólida** (#E6D3A3, com a camada de baixo
+  mais escura, #C4AB74) com **grãos em tons diferentes**: claros (#F6EBC6), dourados (#D8B56A),
+  escuros e uns acinzentados (#B3A58A, pedrinhas). Cada camada tem **3 variações de bloco**,
+  sorteadas ao longo da areia para o padrão não repetir de 8 em 8 pixels (`areiaComGraos` em
+  `render/cenario.js`; as letras `g`, `h` e `i` nos blocos são os grãos).
+- **[fechado]** **Queda d'água do filtro corrigida**: as falhas do fio estavam andando para cima.
+  Agora descem (há teste que confere o sentido).
+- **[fechado]** **Aquário menor** (pedido do usuário em 18/11/2026: "a sensação é de que está muito
+  grande"): o mundo passou de 360×240 para **240×160** (30×20 blocos) e, depois, para **240×152** (30×19, ver "Areia" abaixo). A areia sobe para a linha 16
+  (y = 128), a superfície vai para y = 20 (20 pixels de ar em cima), há **3 montes de rocha** em vez
+  de 4, as nascentes de bolhas ficam em x = 84 e x = 236, as algas gigantes baixaram para 60 e 52 px
+  (de novo cerca de metade da água, que agora tem ~108 px) e o peixe começa em (120, 80).
+  **[proposta]** Escolhi esse tamanho; se ainda parecer grande ou ficou pequeno, é só trocar
+  `COLUNAS`, `LINHAS` e `LINHA_AREIA` em `core/mundo.js`. Plantas: só o pé precisa estar em areia
+  livre, e as pontas podem encostar numa rocha (senão não sobrava lugar).
+- **[fechado]** **Paralaxe** (pedido do usuário em 18/11/2026, a partir da referência "Marine Life", de
+  Bela Toth, que tem 3 planos: escuro e nítido na frente, tom médio no meio, formas grandes e
+  suaves ao fundo). Em `render/fundo.js`: **uma camada de fundo** atrás do jogo, que anda a **85%**
+  da câmera (**sutil**, pedido do usuário; era 55%) **só para os lados** (para cima e para baixo não há paralaxe: pedido do usuário), com **6 pedras grandes e apagadas** e **3 plantas ramificadas** que
+  balançam. O jogo (rochas, areia, plantas, peixes, bolhas) anda a 100%. Uma 2ª camada, mais longe
+  (linha de morros a 25%), existiu por algumas horas e foi **removida** a pedido do usuário.
+  - Com a câmera no meio do mundo (x) a camada fica onde estaria no mundo; ao andar para os lados
+    ela se desloca só 85% do que a câmera andou (15% a menos). Na vertical ela acompanha o mundo 1 para 1, então
+    as pedras ficam sempre apoiadas na areia (o miolo delas desce até o pé da tela, escondido pela
+    areia). A versão anterior tinha paralaxe vertical e precisava de remendos para nada flutuar.
+  - Ordem de desenho: água preta, fundo, cenário (areia e rochas), plantas, superfície, filtro,
+    peixes, bolhas, HUD. Por isso os pixels de água dos blocos (cor 1) não são pintados.
+  - **[proposta]** "Mais longe" = **mais escuro**: as pedras do fundo são de um cinza mais escuro
+    que o das rochas da frente, e as plantas do fundo têm um verde mais escuro que as da frente.
+  - **[proposta]** Fica de fora uma camada **na frente** dos peixes (as silhuetas escuras da
+    referência), porque taparia o peixe numa tela pequena.
+- **[fechado]** **Filtro do aquário** (pedido do usuário em 18/11/2026, no lugar da camada mais funda),
+  em `render/filtro.js`: uma caixa de filtro pendurada no **canto de cima à esquerda** do aquário,
+  com um bico por onde a **água cai em um fio animado** até a superfície, respingos ali e bolhinhas
+  do impacto logo abaixo, e um tubo de sucção que desce para dentro da água.
+  **[proposta]** Li "fixo" como **fixo no aquário** (parte do mundo): só aparece quando a câmera
+  vai até o canto de cima à esquerda. Se você queria fixo na **tela** (sempre visível, como uma
+  moldura), diga que eu mudo; mas aí a queda não acompanharia a superfície quando a câmera descesse.
 - Resolução 120×120 com escala 2×, camadas, paleta indexada e tiles 8×8 continuam como **[proposta]**
   até validarmos no aparelho.
 

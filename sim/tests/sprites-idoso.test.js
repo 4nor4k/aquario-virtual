@@ -1,3 +1,4 @@
+import { COR } from '../src/render/palette.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { SPRITES } from '../src/render/sprites.js';
@@ -13,12 +14,13 @@ test('idoso: mesmo desenho do adulto, mas com cores apagadas', () => {
     q.forEach((cor, p) => {
       assert.equal(qi[p] === 0, cor === 0, 'o formato (transparência) não pode mudar');
     });
-    assert.ok(!qi.includes(14) && !qi.includes(10) && !qi.includes(11), 'sobrou cor viva');
+    assert.ok(!Object.values(COR.BETA).some((c) => qi.includes(c)), 'sobrou o vermelho vivo');
+    assert.ok(Object.values(COR.BETA_IDOSO).every((c) => qi.includes(c)), 'o vermelho apagado do idoso aparece');
     assert.ok(qi.includes(12) && qi.includes(13), 'o olho precisa continuar');
   });
 });
 
 test('o adulto não é alterado pelo recolorido do idoso', () => {
-  assert.ok(SPRITES.beta.adulto.quadros[0].includes(14));
-  assert.ok(SPRITES.beta.adulto.quadros[0].includes(10));
+  assert.ok(SPRITES.beta.adulto.quadros[0].includes(COR.BETA.corpo));
+  assert.ok(SPRITES.beta.adulto.quadros[0].includes(COR.BETA.nadadeira));
 });

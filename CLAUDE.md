@@ -44,6 +44,18 @@ bateria + USB), gerenciado também pelo celular via WiFi. Veja `README.md` e `do
     `criarAquario` exige `config`. `core/events.js` existe mas a interface ainda não o usa.
   - Pendente da v0.2: nada. Faltam só as conferências à mão que o plano marca como não feitas
     (3600× esperado por ~95 s reais).
+- **Depois da v0.2 (18/11/2026, ainda sem commit/tag):** (1) câmera automática: peixe 5 s fora da
+  tela -> câmera o segue por 10 s (`sim/src/render/camera-segue.js`); (2) visual **preto e branco
+  com dithering** de Bayer (`sim/src/render/mono.js`, tabela `TONS` em `palette.js`); (3) fundo
+  da água preto sólido, superfície ondulada (ar e água pretos sólidos) (`render/superficie.js`) e bolhas
+  saindo de dois pontos afastados, com tempos irregulares (`core/bolhas.js`); (4) plantas: 4 modelos
+  + 1 alto + 2 algas gigantes (~metade da água), todas balançando (`render/plantas.js`); (5) fundo com paralaxe em 1 camada, só para os lados e **sutil** (85%) (pedras e poucas plantas, a 85% da
+  câmera, `render/fundo.js`); (6) filtro do aquário no canto de cima à esquerda com queda d'água animada
+  (`render/filtro.js`); (7) **aquário menor: mundo 240×152** (era 360×240), areia na linha 16 com 3 camadas; (8) algas grandes
+  em **roseta de folhas largas** (referência de pixel art, verde #10AB8C com degradê oliva/ocre); (9) mais cor sólida: plantas pequenas em variações de verde,
+  pedras em cinza cheio, superfície e queda do filtro em azul claro, **peixe em tons de vermelho** e
+  **areia cor de areia com grãos** de tons diferentes (`COLORIDOS` em `palette.js`).
+  Decisões de (2) a (9) na seção 8 do `docs/04`. Não existe captura de tela sem navegador no projeto (foi um script temporário).
 - Próximo: **v0.3** (salvamento, adoção e nomes pelo painel, espécie e cor). Escrever
   `docs/09-plano-v0.3.md` e fechar com o usuário antes de codar. As dúvidas de ovos e segundo
   parceiro (`03`, seção 8) entram no plano da v0.4.

@@ -50,7 +50,7 @@ test('o peixe nunca sai da água, em nenhuma fase, com várias sementes', () => 
     const lim = limitesDoPeixe(fase);
     for (const semente of [1, 2, 3, 42, 999]) {
       const rng = criarRng(semente);
-      const peixe = criarPeixe({ fase, x: 180, y: 120 });
+      const peixe = criarPeixe({ fase, x: 180, y: 80 });
       simular(peixe, rng, 20000, (p) => { // 1000 segundos de nado
         assert.ok(Number.isFinite(p.x) && Number.isFinite(p.y), 'posição virou NaN');
         assert.ok(p.x >= lim.minX && p.x <= lim.maxX, `${fase}/${semente}: x=${p.x}`);
@@ -62,7 +62,7 @@ test('o peixe nunca sai da água, em nenhuma fase, com várias sementes', () => 
 
 test('o peixe nunca anda mais rápido que a velocidade de nado', () => {
   const rng = criarRng(5);
-  const peixe = criarPeixe({ x: 180, y: 120 });
+  const peixe = criarPeixe({ x: 180, y: 80 });
   let ax = peixe.x;
   let ay = peixe.y;
   simular(peixe, rng, 5000, (p) => {
@@ -75,7 +75,7 @@ test('o peixe nunca anda mais rápido que a velocidade de nado', () => {
 
 test('nada, para, e vira para os dois lados', () => {
   const rng = criarRng(7);
-  const peixe = criarPeixe({ x: 180, y: 120 });
+  const peixe = criarPeixe({ x: 180, y: 80 });
   const movimentos = new Set();
   const direcoes = new Set();
   simular(peixe, rng, 4000, (p) => { movimentos.add(p.movimento); direcoes.add(p.direcao); });
@@ -85,7 +85,7 @@ test('nada, para, e vira para os dois lados', () => {
 
 test('a direção acompanha o lado para onde ele nada', () => {
   const rng = criarRng(11);
-  const peixe = criarPeixe({ x: 180, y: 120 });
+  const peixe = criarPeixe({ x: 180, y: 80 });
   simular(peixe, rng, 6000, (p) => {
     if (p.movimento === 'nadando' && Math.abs(p.destino.x - p.x) > 0.5) {
       assert.equal(p.direcao, p.destino.x > p.x ? 1 : -1);
@@ -95,7 +95,7 @@ test('a direção acompanha o lado para onde ele nada', () => {
 
 test('cada destino fica a pelo menos 20 pixels de lado e a no máximo 30 de altura', () => {
   const rng = criarRng(13);
-  const peixe = criarPeixe({ x: 180, y: 120 });
+  const peixe = criarPeixe({ x: 180, y: 80 });
   let origem = null;
   simular(peixe, rng, 6000, (p) => {
     if (p.movimento === 'nadando' && !origem) origem = { x: p.x, y: p.y, destino: p.destino };
@@ -110,7 +110,7 @@ test('cada destino fica a pelo menos 20 pixels de lado e a no máximo 30 de altu
 test('mesma semente: mesmo trajeto; semente diferente: trajeto diferente', () => {
   const rota = (semente) => {
     const rng = criarRng(semente);
-    const p = criarPeixe({ x: 180, y: 120 });
+    const p = criarPeixe({ x: 180, y: 80 });
     simular(p, rng, 1000);
     return [p.x, p.y, p.direcao];
   };

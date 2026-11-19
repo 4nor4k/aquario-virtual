@@ -1,8 +1,10 @@
 // Sprites provisórios do beta, desenhados em texto. Você pode editar à vontade!
 //
-// Cada letra é uma cor da paleta (palette.js), em hexadecimal:
-//   .  transparente      e  roxo (corpo)      a  rosa (nadadeiras e cauda)
-//   b  ciano (borda da cauda)   c  branco (olho)    d  escuro (pupila)
+// Cada letra é uma cor da paleta (palette.js), em hexadecimal, usada como "molde":
+//   .  transparente      e  corpo      a  nadadeiras e cauda
+//   b  borda da cauda    c  branco (olho)    d  escuro (pupila)
+// Na hora de montar, o corpo (e), as nadadeiras (a) e a borda (b) viram tons de vermelho
+// (CORES_DO_BETA); o olho e a pupila ficam como estão.
 //
 // O desenho é virado para a DIREITA. Quando o peixe nada para a esquerda, o sprite é espelhado.
 // Cada tamanho (filhote, jovem, adulto) tem:
@@ -10,6 +12,7 @@
 //   - cauda:  só a parte da esquerda (a cauda), em repouso.
 // Os 4 quadros da animação de nadar saem da cauda: repouso, para cima, repouso, para baixo.
 import { LARGURA, ALTURA } from './tela.js';
+import { COR } from './palette.js';
 
 const CORPO_ADULTO = [
   '....................',
@@ -142,21 +145,38 @@ function recolorir(sprite, trocas) {
   };
 }
 
-// Idoso: mesmo desenho do adulto, com corpo cinza (14 -> 8), cauda areia (10 -> 7) e borda
-// verde-água (11 -> 5).
-const CORES_DO_IDOSO = { 14: 8, 10: 7, 11: 5 };
+// O beta saudável: do molde (14 corpo, 10 nadadeira, 11 borda) para os vermelhos (27, 28, 29).
+const CORES_DO_BETA = {
+  14: COR.BETA.corpo, 10: COR.BETA.nadadeira, 11: COR.BETA.borda,
+};
 
-// Doente: cores pálidas e amareladas (corpo roxo 14 -> areia 7, cauda rosa 10 -> areia clara 6,
-// borda ciano 11 -> água clara 4). Também troca as cores do idoso (cinza 8 -> 7, areia 7 -> 6,
-// verde-água 5 -> 4), para o idoso doente continuar parecendo doente.
-const CORES_DO_DOENTE = { 14: 7, 8: 7, 10: 6, 7: 6, 11: 4, 5: 4 };
+// Idoso (e morto): o mesmo desenho do adulto, com o vermelho apagado.
+const CORES_DO_IDOSO = {
+  [COR.BETA.corpo]: COR.BETA_IDOSO.corpo,
+  [COR.BETA.nadadeira]: COR.BETA_IDOSO.nadadeira,
+  [COR.BETA.borda]: COR.BETA_IDOSO.borda,
+};
+
+// Doente: vermelho pálido, desbotado. Também troca as cores do idoso, para o idoso doente
+// continuar parecendo doente.
+const CORES_DO_DOENTE = {
+  [COR.BETA.corpo]: COR.BETA_DOENTE.corpo,
+  [COR.BETA.nadadeira]: COR.BETA_DOENTE.nadadeira,
+  [COR.BETA.borda]: COR.BETA_DOENTE.borda,
+  [COR.BETA_IDOSO.corpo]: COR.BETA_DOENTE.corpo,
+  [COR.BETA_IDOSO.nadadeira]: COR.BETA_DOENTE.nadadeira,
+  [COR.BETA_IDOSO.borda]: COR.BETA_DOENTE.borda,
+};
+
+// O desenho do beta já nas cores vermelhas.
+const betaVermelho = (corpo, cauda) => recolorir(montarSprite(corpo, cauda), CORES_DO_BETA);
 
 // Sprites por espécie e fase.
-const ADULTO = montarSprite(CORPO_ADULTO, CAUDA_ADULTO);
+const ADULTO = betaVermelho(CORPO_ADULTO, CAUDA_ADULTO);
 export const SPRITES = {
   beta: {
-    filhote: montarSprite(CORPO_FILHOTE, CAUDA_FILHOTE),
-    jovem: montarSprite(CORPO_JOVEM, CAUDA_JOVEM),
+    filhote: betaVermelho(CORPO_FILHOTE, CAUDA_FILHOTE),
+    jovem: betaVermelho(CORPO_JOVEM, CAUDA_JOVEM),
     adulto: ADULTO,
     idoso: recolorir(ADULTO, CORES_DO_IDOSO),
   },
@@ -186,9 +206,13 @@ export function spriteDoPeixe(peixe) {
 // Desenha um quadro de sprite no quadro da tela, com o canto de cima à esquerda em (x, y),
 // já em coordenadas da tela. A cor 0 é transparente. O que sai da tela é cortado.
 // espelhar = vira esquerda/direita; inverter = vira de cabeça para baixo.
-export function desenharSprite(quadroTela, sprite, indice, x, y, espelhar = false, inverter = false) {
+// contorno = true desenha antes um halo preto de 1 pixel em volta do sprite (em preto e branco,
+// é ele que separa o peixe do pontilhado da água).
+export const COR_DO_CONTORNO = 13;
+export function desenharSprite(quadroTela, sprite, indice, x, y, espelhar = false, inverter = false, contorno = false) {
   const { largura, altura } = sprite;
   const pix = sprite.quadros[indice];
+  if (contorno) desenharHalo(quadroTela, sprite, pix, x, y, espelhar, inverter);
   for (let sy = 0; sy < altura; sy++) {
     const ty = y + sy;
     if (ty < 0 || ty >= ALTURA) continue;
@@ -198,6 +222,26 @@ export function desenharSprite(quadroTela, sprite, indice, x, y, espelhar = fals
       if (tx < 0 || tx >= LARGURA) continue;
       const cor = pix[linhaOrigem * largura + (espelhar ? largura - 1 - sx : sx)];
       if (cor !== 0) quadroTela[ty * LARGURA + tx] = cor;
+    }
+  }
+}
+
+// Pinta de preto os pixels vizinhos (nas 8 direções) de cada pixel do sprite.
+// Quem desenha o sprite depois cobre o miolo; sobra só a borda de 1 pixel.
+function desenharHalo(quadroTela, sprite, pix, x, y, espelhar, inverter) {
+  const { largura, altura } = sprite;
+  for (let sy = 0; sy < altura; sy++) {
+    const linhaOrigem = inverter ? altura - 1 - sy : sy;
+    for (let sx = 0; sx < largura; sx++) {
+      if (pix[linhaOrigem * largura + (espelhar ? largura - 1 - sx : sx)] === 0) continue;
+      for (let dy = -1; dy <= 1; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+          const tx = x + sx + dx;
+          const ty = y + sy + dy;
+          if (tx < 0 || tx >= LARGURA || ty < 0 || ty >= ALTURA) continue;
+          quadroTela[ty * LARGURA + tx] = COR_DO_CONTORNO;
+        }
+      }
     }
   }
 }

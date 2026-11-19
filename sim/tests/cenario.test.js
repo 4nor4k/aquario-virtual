@@ -1,14 +1,15 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { gerarMapa, ID, NUM_TILES, pixelsDoTile } from '../src/render/cenario.js';
+import { gerarMapa, ID, NUM_TILES, pixelsDoTile, VARIANTES_AREIA } from '../src/render/cenario.js';
+import { PALETA } from '../src/render/palette.js';
 import { COLUNAS, LINHAS, LINHA_AREIA, TILE } from '../src/core/mundo.js';
 
 const em = (mapa, col, lin) => mapa[lin * COLUNAS + col];
 
-test('o mapa tem 45×30 blocos (1350 bytes)', () => {
+test('o mapa tem 30×19 blocos (570 bytes)', () => {
   const mapa = gerarMapa();
-  assert.equal(mapa.length, 1350);
-  assert.equal(COLUNAS * LINHAS, 1350);
+  assert.equal(mapa.length, 570);
+  assert.equal(COLUNAS * LINHAS, 570);
 });
 
 test('mesma semente dá o mesmo cenário; outra semente dá outro', () => {
@@ -22,11 +23,11 @@ test('todo número do mapa é um bloco que existe', () => {
   }
 });
 
-test('todo bloco tem 64 pixels com cores de 0 a 15', () => {
+test('todo bloco tem 64 pixels com cores que existem na paleta', () => {
   for (let id = 0; id < NUM_TILES; id++) {
     const pix = pixelsDoTile(id);
     assert.equal(pix.length, TILE * TILE);
-    for (const cor of pix) assert.ok(cor >= 0 && cor <= 15, `bloco ${id} tem cor ${cor}`);
+    for (const cor of pix) assert.ok(Number.isInteger(cor) && cor >= 0 && cor < PALETA.length, `bloco ${id} tem cor ${cor}`);
   }
 });
 
@@ -36,22 +37,50 @@ test('nenhum pixel dos blocos é "transparente" (cor 0)', () => {
   }
 });
 
-test('areia só do fundo para baixo, e água só acima da areia', () => {
+test('areia só do fundo para baixo (3 camadas), e água só acima da areia', () => {
   const mapa = gerarMapa();
-  const areia = new Set([ID.areiaTopo, ID.areia, ID.areiaFundo]);
+  const todasAsAreias = new Set([...VARIANTES_AREIA.topo, ...VARIANTES_AREIA.meio, ...VARIANTES_AREIA.fundo]);
+  assert.equal(LINHAS - LINHA_AREIA, 3, 'a areia tem 3 camadas');
   for (let col = 0; col < COLUNAS; col++) {
-    assert.equal(em(mapa, col, LINHA_AREIA), ID.areiaTopo);
-    assert.equal(em(mapa, col, LINHA_AREIA + 1), ID.areia);
-    assert.equal(em(mapa, col, LINHA_AREIA + 2), ID.areiaFundo);
-    assert.equal(em(mapa, col, LINHAS - 1), ID.areiaFundo);
-    for (let lin = 0; lin < LINHA_AREIA; lin++) assert.ok(!areia.has(em(mapa, col, lin)));
+    assert.ok(VARIANTES_AREIA.topo.includes(em(mapa, col, LINHA_AREIA)), 'topo');
+    assert.ok(VARIANTES_AREIA.meio.includes(em(mapa, col, LINHA_AREIA + 1)), 'meio');
+    assert.ok(VARIANTES_AREIA.fundo.includes(em(mapa, col, LINHA_AREIA + 2)), 'fundo');
+    assert.ok(VARIANTES_AREIA.fundo.includes(em(mapa, col, LINHAS - 1)), 'última linha');
+    for (let lin = 0; lin < LINHA_AREIA; lin++) assert.ok(!todasAsAreias.has(em(mapa, col, lin)));
   }
+});
+
+test('areia: cor de areia lisa com grãos de tons diferentes, em 3 variações por camada', () => {
+  const COR_AREIA = [6, 7];
+  for (const [camada, ids] of Object.entries(VARIANTES_AREIA)) {
+    assert.equal(new Set(ids).size, 3, `${camada}: 3 variações`);
+    const desenhos = ids.map((id) => Array.from(pixelsDoTile(id)).join());
+    assert.equal(new Set(desenhos).size, 3, `${camada}: as variações são diferentes`);
+  }
+  const tonsDeGrao = new Set();
+  for (const id of [...VARIANTES_AREIA.topo, ...VARIANTES_AREIA.meio, ...VARIANTES_AREIA.fundo]) {
+    const pix = Array.from(pixelsDoTile(id));
+    const base = pix.filter((c) => COR_AREIA.includes(c)).length;
+    assert.ok(base >= 40, `bloco ${id}: tem de ser majoritariamente areia lisa (${base} de 64)`);
+    pix.filter((c) => c >= 24 && c <= 26).forEach((c) => tonsDeGrao.add(c));
+    assert.ok(pix.filter((c) => c !== pix[40] && c !== 1).length >= 6, `bloco ${id}: poucos grãos`);
+  }
+  assert.equal(tonsDeGrao.size, 3, 'grãos claros, dourados e acinzentados aparecem');
+});
+
+test('areia: sorteio das variações é fixo para a mesma semente e não mexe nas rochas', () => {
+  assert.deepEqual(gerarMapa(5), gerarMapa(5));
+  const rochas = (m) => Array.from(m).map((id) => (id === ID.rocha || id === ID.rochaTopo ? id : 0));
+  assert.deepEqual(rochas(gerarMapa(5)), rochas(gerarMapa(5)));
+  const usadas = new Set();
+  const mapa = gerarMapa();
+  for (let col = 0; col < COLUNAS; col++) usadas.add(em(mapa, col, LINHA_AREIA));
+  assert.ok(usadas.size >= 2, 'as variações se misturam ao longo da areia');
 });
 
 test('o alto do mundo é só água', () => {
   const mapa = gerarMapa();
-  const agua = new Set([ID.agua4, ID.agua4a, ID.agua4b]);
-  for (let col = 0; col < COLUNAS; col++) assert.ok(agua.has(em(mapa, col, 0)));
+  for (let col = 0; col < COLUNAS; col++) assert.equal(em(mapa, col, 0), ID.agua);
 });
 
 test('rochas existem, ficam sobre a areia e têm no máximo 3 blocos de altura', () => {

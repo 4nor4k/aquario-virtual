@@ -11,15 +11,15 @@ import { diaDaVida, formatarPh, preencher } from '../core/formatar.js';
 import { notaDoPh, valorDoPh } from '../core/rules.js';
 
 // Cores da paleta (palette.js)
-const FUNDO_DA_TELA = 1;   // água, fundo
+const FUNDO_DA_TELA = 13;  // preto liso (a água em pontinhos atrapalharia a leitura)
 const FUNDO_DA_CAIXA = 13; // contorno escuro
 const BORDA = 11;          // ciano
-const BORDA_SUAVE = 4;     // água clara
+const BORDA_SUAVE = 12;    // branco (em preto e branco, um tom médio não forma linha)
 const TEXTO = 12;          // branco
 const TITULO = 15;         // laranja
-const DESTAQUE = 11;       // ciano
+const DESTAQUE = 11;       // ciano (em preto e branco também vira branco)
 const CURSOR = 10;         // rosa
-const DICA = 5;            // luz na água
+const DICA = 12;           // branco (tom médio quebraria as letras)
 const RUIM = 10;           // rosa (indicador impróprio)
 
 const MARGEM = 6;
@@ -68,7 +68,17 @@ export function desenharMenu(quadro, menu, textos) {
 function desenharBarra(quadro, x, y, largura, valor, cor) {
   contornoRetangulo(quadro, x, y, largura, 5, BORDA_SUAVE);
   const cheio = Math.round(((largura - 2) * Math.max(0, Math.min(100, valor))) / 100);
-  preencherRetangulo(quadro, x + 1, y + 1, cheio, 3, cor);
+  if (cor !== RUIM) {
+    preencherRetangulo(quadro, x + 1, y + 1, cheio, 3, cor);
+    return;
+  }
+  // Em preto e branco o rosa e o ciano são os dois brancos; a barra imprópria vira xadrez
+  // (meio apagada) para continuar parecendo um aviso.
+  for (let by = 0; by < 3; by++) {
+    for (let bx = 0; bx < cheio; bx++) {
+      if ((bx + by) % 2 === 0) quadro[(y + 1 + by) * LARGURA + x + 1 + bx] = cor;
+    }
+  }
 }
 
 function linhaDeBarra(quadro, y, rotulo, valor, cor) {

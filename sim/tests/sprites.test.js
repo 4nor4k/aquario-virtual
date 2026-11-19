@@ -1,3 +1,4 @@
+import { PALETA, COR } from '../src/render/palette.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { SPRITES, desenharSprite } from '../src/render/sprites.js';
@@ -12,13 +13,13 @@ test('o tamanho de cada sprite é o mesmo que o jogo espera para a fase', () => 
   }
 });
 
-test('cada sprite tem 4 quadros, com os pixels certos e cores de 0 a 15', () => {
+test('cada sprite tem 4 quadros, com os pixels certos e cores que existem na paleta', () => {
   for (const fase of FASES) {
     const s = SPRITES.beta[fase];
     assert.equal(s.quadros.length, QUADROS_DE_NADO);
     for (const q of s.quadros) {
       assert.equal(q.length, s.largura * s.altura);
-      for (const cor of q) assert.ok(Number.isInteger(cor) && cor >= 0 && cor <= 15);
+      for (const cor of q) assert.ok(Number.isInteger(cor) && cor >= 0 && cor < PALETA.length);
     }
   }
 });
@@ -47,12 +48,12 @@ test('a cabeça (corpo, olho) é igual em todos os quadros; só a cauda muda', (
   }
 });
 
-test('tem olho (branco e pupila) e corpo roxo', () => {
+test('tem olho (branco e pupila) e corpo vermelho', () => {
   for (const fase of ['filhote', 'jovem', 'adulto']) {
     const q = SPRITES.beta[fase].quadros[0];
     assert.ok(q.includes(12), `${fase}: sem olho branco`);
     assert.ok(q.includes(13), `${fase}: sem pupila`);
-    assert.ok(q.includes(14), `${fase}: sem corpo roxo`);
+    assert.ok(q.includes(COR.BETA.corpo), `${fase}: sem corpo vermelho`);
   }
 });
 

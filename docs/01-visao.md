@@ -15,7 +15,7 @@ gerenciado também pelo smartphone via WiFi.
 - Funciona offline e conectado ao smartphone.
 
 ### Mundo e câmera
-- Aquário (mundo) de **360×240**; a tela mostra apenas uma janela dele.
+- Aquário (mundo) de **240×152** (era 360×240 até 18/11/2026, quando o usuário achou grande demais, e 240×160 até a areia perder uma camada); a tela mostra apenas uma janela dele.
 - O joystick move a "câmera" pelo aquário.
 - Estilo retrô: renderiza em baixa resolução e escala para a tela (ver proposta abaixo).
 
@@ -66,7 +66,7 @@ quando as peças chegarem. Ver `05-arquitetura.md`.
 
 | Versão | Entrega |
 |---|---|
-| v0.1 | Janela 120×120 (escala 2×), aquário 360×240, câmera por teclado, 1 peixe nadando (sprites provisórios), painel de tempo acelerado |
+| v0.1 | Janela 120×120 (escala 2×), aquário 360×240 (hoje 240×152), câmera por teclado, 1 peixe nadando (sprites provisórios), painel de tempo acelerado |
 | v0.2 | Fome, sujeira, pH, saúde, ciclo de vida, Game Over, menu com A/B/C |
 | v0.3 | Salvamento, adoção e nomes pelo painel (futuro celular), espécie e cor |
 | v0.4 | Reprodução e vários peixes |

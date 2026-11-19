@@ -1,13 +1,18 @@
 // Liga as partes do simulador e roda o laço do jogo.
 import { criarQuadro, mostrarQuadro, LARGURA, ALTURA } from './render/tela.js';
 import { criarCamera } from './render/camera.js';
+import { criarSeguidorDeCamera } from './render/camera-segue.js';
 import { gerarMapa } from './render/cenario.js';
+import { gerarPlantas } from './render/plantas.js';
+import { gerarFundo } from './render/fundo.js';
 import { desenharQuadro } from './render/scene.js';
 import { desenharTelas } from './render/telas.js';
 import { criarTeclado } from './input/keyboard.js';
 import { criarPainel } from './sim/panel.js';
 import { MUNDO_LARGURA, MUNDO_ALTURA } from './core/mundo.js';
 import { criarAquario } from './core/aquarium.js';
+import { criarBolhas } from './core/bolhas.js';
+import { TAMANHO_POR_FASE } from './core/fish.js';
 import { criarClock } from './core/clock.js';
 import { criarMenu } from './core/menu.js';
 
@@ -19,6 +24,8 @@ const ctx = canvas.getContext('2d');
 
 const quadro = criarQuadro();
 const mapa = gerarMapa();
+const plantas = gerarPlantas(mapa);
+const fundo = gerarFundo();
 const teclado = criarTeclado(window);
 // Começa no meio do mundo, na altura do fundo (para ver areia e rochas).
 const camera = criarCamera({
@@ -29,6 +36,13 @@ const camera = criarCamera({
   x: (MUNDO_LARGURA - LARGURA) / 2,
   y: MUNDO_ALTURA - ALTURA,
 });
+
+// Enfeites que não afetam o jogo: bolhas e a onda da superfície, em tempo real (não aceleram).
+const bolhas = criarBolhas();
+let tempoVisual = 0;
+
+// Câmera automática: segue o peixe quando o jogador está AFK e ele sai da tela.
+const seguidor = criarSeguidorDeCamera({ camera, janelaLargura: LARGURA, janelaAltura: ALTURA });
 
 // O relógio do jogo: no simulador a fonte é o tempo do navegador e pode ser acelerado.
 const clock = criarClock(() => performance.now());
@@ -56,7 +70,7 @@ function novoJogo() {
   clock.reiniciar();
   menu.reiniciar();
   aquario = criarAquario({ semente: numeroDoJogo, config });
-  beta = aquario.adicionarPeixe({ nome: 'Beta', especie: 'beta', x: 180, y: 150 }, clock.agoraMs());
+  beta = aquario.adicionarPeixe({ nome: 'Beta', especie: 'beta', x: 120, y: 80 }, clock.agoraMs());
 }
 novoJogo();
 
@@ -76,15 +90,23 @@ function atualizar(dt) {
   const dir = teclado.direcao();
   menu.apertar(botoes, aquario);
   // Com o menu aberto, o joystick escolhe o item e a câmera fica parada.
-  if (menu.cameraLivre()) {
+  const livre = menu.cameraLivre();
+  if (livre) {
     camera.mover(dir.x * VELOCIDADE_CAMERA * dt, dir.y * VELOCIDADE_CAMERA * dt);
   }
+  // Jogador parado e peixe fora da tela: a câmera vai atrás dele (câmera-segue.js).
+  const { largura, altura } = TAMANHO_POR_FASE[beta.fase];
+  seguidor.atualizar(dt, { alvo: { x: beta.x, y: beta.y, largura, altura }, joystick: dir, livre });
   aquario.atualizar(dt, clock.agoraMs());
+  bolhas.atualizar(dt);
+  tempoVisual += dt;
   menu.atualizar(dt, aquario);
 }
 
 function desenhar() {
-  desenharQuadro(quadro, { mapa, camera, peixes: aquario.peixes, aquario, config });
+  desenharQuadro(quadro, {
+    mapa, camera, peixes: aquario.peixes, aquario, config, bolhas: bolhas.lista, plantas, fundo, tempo: tempoVisual,
+  });
   desenharTelas(quadro, { menu, aquario, config, textos, agoraMs: clock.agoraMs() });
   mostrarQuadro(ctx, quadro);
 }
@@ -109,7 +131,7 @@ function ciclo(agora) {
 // Ajuda para desenvolver: abrindo http://localhost:8080/?debug, dá para mexer no jogo pelo
 // console do navegador (ex.: __debug.camera.irPara(0, 0)). Sem "?debug" nada disso existe.
 if (new URLSearchParams(location.search).has('debug')) {
-  window.__debug = { camera, clock, config, textos, menu, aquario: () => aquario };
+  window.__debug = { camera, seguidor, clock, config, textos, menu, aquario: () => aquario };
 }
 
 desenhar();

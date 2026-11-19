@@ -1,3 +1,4 @@
+import { COR } from '../src/render/palette.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { SPRITES, SPRITES_DOENTES, SPRITES_MORTOS, spriteDoPeixe, desenharSprite } from '../src/render/sprites.js';
@@ -17,7 +18,9 @@ test('doente: mesmo formato, cores pálidas, olho preservado, em todas as fases'
       const qd = doente.quadros[i];
       assert.notDeepEqual(Array.from(qd), Array.from(q), `${fase}: as cores deveriam mudar`);
       q.forEach((cor, p) => assert.equal(qd[p] === 0, cor === 0, `${fase}: o formato não pode mudar`));
-      assert.ok(!qd.includes(14) && !qd.includes(10) && !qd.includes(11), `${fase}: sobrou cor viva`);
+      const vivas = [...Object.values(COR.BETA), ...Object.values(COR.BETA_IDOSO)];
+      assert.ok(!vivas.some((c) => qd.includes(c)), `${fase}: sobrou cor de peixe saudável ou idoso`);
+      assert.ok(Object.values(COR.BETA_DOENTE).every((c) => qd.includes(c)), `${fase}: faltou o vermelho pálido`);
       assert.ok(qd.includes(13), `${fase}: pupila`);
     });
   }
@@ -34,7 +37,7 @@ test('morto: cores apagadas (como o idoso) e o formato é o mesmo', () => {
   for (const fase of FASES) {
     const morto = SPRITES_MORTOS.beta[fase];
     assert.equal(morto.largura, SPRITES.beta[fase].largura);
-    assert.ok(!morto.quadros[0].includes(14) && !morto.quadros[0].includes(10));
+    assert.ok(!morto.quadros[0].includes(COR.BETA.corpo) && !morto.quadros[0].includes(COR.BETA.nadadeira));
   }
 });
 

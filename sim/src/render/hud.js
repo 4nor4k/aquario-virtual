@@ -6,9 +6,9 @@ import { spriteDoPeixe } from './sprites.js';
 import { desenharTexto } from './fonte.js';
 import { preencherRetangulo } from './formas.js';
 
-const COR_ALERTA = 10;   // rosa
-const COR_DOENTE = 15;   // laranja
-const COR_LETRA = 12;    // branco
+const COR_ALERTA = 10;   // rosa (em preto e branco: quadradinho branco)
+const COR_DOENTE = 15;   // laranja (idem)
+const COR_LETRA = 13;    // preto: letra escura no quadradinho branco
 const LADO = 7;          // o emblema mede 7×7
 const ESPACO = 2;
 

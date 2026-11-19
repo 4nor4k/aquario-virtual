@@ -1,6 +1,6 @@
 // O peixe: dados, idade, fases e comportamento de nado.
 // São só dados simples + funções, para traduzir fácil para C++ na Fase B.
-import { MUNDO_LARGURA, AREIA_Y } from './mundo.js';
+import { MUNDO_LARGURA, AREIA_Y, SUPERFICIE_Y, AMPLITUDE_ONDA } from './mundo.js';
 import { DIA_MS } from './clock.js';
 
 export const FASES = ['filhote', 'jovem', 'adulto', 'idoso'];
@@ -33,7 +33,7 @@ export const QUADROS_DE_NADO = 4;
 export const FATOR_VELOCIDADE_DOENTE = 0.5; // peixe doente: metade da velocidade
 export const VELOCIDADE_BOIA = 8;           // peixe morto sobe a 8 pixels por segundo
 
-const MARGEM_SUPERFICIE = 4;  // o peixe não encosta na superfície
+const MARGEM_SUPERFICIE = 4;  // o peixe não encosta na superfície (nem na crista da onda)
 const MARGEM_AREIA = 2;       // nem na areia
 const DISTANCIA_MINIMA_X = 20; // cada destino fica a pelo menos 20 pixels de lado
 const VARIACAO_Y = 30;        // e muda de altura em até 30 pixels
@@ -46,7 +46,7 @@ export function limitesDoPeixe(fase) {
   return {
     minX: meiaL,
     maxX: MUNDO_LARGURA - meiaL,
-    minY: meiaA + MARGEM_SUPERFICIE,
+    minY: SUPERFICIE_Y + AMPLITUDE_ONDA + MARGEM_SUPERFICIE + meiaA,
     maxY: AREIA_Y - meiaA - MARGEM_AREIA,
   };
 }
