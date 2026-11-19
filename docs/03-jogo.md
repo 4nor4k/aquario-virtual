@@ -150,6 +150,20 @@ deixado descendentes, é Game Over.
 ## 8. Em aberto
 
 1. Os números das seções 2 e 3 são valores iniciais; serão ajustados testando no aparelho.
-2. Se há 5 peixes e nasce uma ninhada de 3, os ovos que passam do limite não eclodem
-   (proposta) ou a reprodução já nem acontece (mais simples; é o que está na seção 6).
-3. O peixe que já formou casal pode ter um segundo parceiro? (a decidir mais tarde)
+
+**Decididas em 2026-11-19 (plano da v0.4, `10-plano-v0.4.md`):**
+- **Casal** é o que se forma **ao adotar o parceiro**: cada peixe tem no máximo **um** parceiro.
+  Filho não forma casal sozinho (adota-se um parceiro para ele). Se um dos dois morre, o que sobrou
+  fica livre para ganhar outro parceiro.
+- **Só adulto reproduz** (idoso não). A saúde mínima de 90 de ambos precisa durar 30 minutos
+  seguidos; se qualquer um cair abaixo de 90, a contagem volta a zero. O primeiro namoro não
+  espera os 3 dias.
+- **Limite de 5** = peixes **vivos + ovos** ainda não eclodidos. A ninhada sorteada (1 a 3) é
+  **cortada pelo que cabe**; com 5, a reprodução espera abrir vaga.
+- O **filhote** tem a cor de **um dos pais** (sorteio) e sexo sorteado; nome "Filhote 1",
+  "Filhote 2"... até ser renomeado.
+- **Peixe morto**: "Limpar" o retira; se ninguém limpar, **some sozinho 12 h depois** de morrer.
+  Morto não conta no limite de 5.
+- **Ovos seguram o Game Over**: só é Game Over sem peixe vivo **e sem ovo**.
+- O **sexo** só aparece em texto (tela de status e painel), quando o peixe vira adulto.
+- O simulador não tem som; o aviso da reprodução é um evento (buzzer no ESP32).

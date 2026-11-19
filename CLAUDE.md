@@ -87,7 +87,7 @@ bateria + USB), gerenciado também pelo celular via WiFi. Veja `README.md` e `do
   brilho, contorno, nadadeira, clara, borda, destaque); cauda ondula por coluna. Desenho em texto em
   `render/sprites.js` (provisório, o usuário refina). Decisões em `04`, seção 8. 474 testes.
 - Próximo: **v0.4** (reprodução e vários peixes: casal, ovos, limite de 5, parceiro adulto).
-  Escrever `docs/10-plano-v0.4.md` e fechar com o usuário antes de codar. As dúvidas de ovos além do
+  **Plano escrito em `docs/10-plano-v0.4.md` (19/11/2026, rascunho, sem commit): aguardando o usuário confirmar a seção 9 antes de codar.** As dúvidas de ovos além do
   limite e segundo parceiro (`03`, seção 8) entram nesse plano. O código e as regras já aceitam
   N peixes, mas o `main.js`, a tela de status, o HUD e o painel ainda olham só `aquario.peixes[0]`.
 - O usuário costuma ter o servidor aberto na porta 8080: não encerrar processos dele;
