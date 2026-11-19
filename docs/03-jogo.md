@@ -51,6 +51,12 @@ Os indicadores são de 0 a 100, onde 100 é o ideal.
 | 6,4 | 30 |
 | 6,2 | 0 |
 
+### Tempo com o aparelho desligado [fechado em 2026-11-19]
+O tempo em que o jogo ficou fechado ou desligado **conta**: ao voltar, o jogo compara a hora
+em que foi salvo com a hora de agora e aplica esse tempo todo às regras (fome, sujeira, pH,
+saúde, idade, morte). A tela mostra uma mensagem de boas-vindas, por exemplo "Seu peixe dormiu
+por 5 h 20 min. Bem-vindo de volta!". Detalhes e números em `09-plano-v0.3.md`.
+
 ## 3. Saúde [fechado: pesos e limite de doença]
 
 - Os três indicadores têm **peso igual**.

@@ -51,8 +51,11 @@ export function limitesDoPeixe(fase) {
   };
 }
 
+export const SEXOS = ['macho', 'femea'];
+
 export function criarPeixe({
-  id = 0, nome = 'Beta', especie = 'beta', fase = 'filhote', saciedade = 100, saude = 100,
+  id = 0, nome = 'Beta', especie = 'beta', cor = 'vermelho', sexo = 'macho', fase = 'filhote',
+  saciedade = 100, saude = 100, estado = 'saudavel', causaDaMorte = null, direcao = 1,
   nascimentoMs = 0, x, y,
 }) {
   if (!TAMANHO_POR_FASE[fase]) throw new RangeError(`fase desconhecida: ${fase}`);
@@ -60,15 +63,17 @@ export function criarPeixe({
     id,
     nome,
     especie,
+    cor,                   // nome da cor (config.cores), ex.: 'vermelho'
+    sexo,                  // 'macho' ou 'femea'; sorteado na adoção, só é revelado na v0.4
     fase,
     saciedade,             // 0 a 100 (100 = de barriga cheia)
     saude,                 // 0 a 100 (em 0 o peixe morre)
-    estado: 'saudavel',    // 'saudavel', 'doente' ou 'morto'
-    causaDaMorte: null,    // 'velhice' ou 'cuidado' (falta de cuidado), só depois de morrer
+    estado,                // 'saudavel', 'doente' ou 'morto'
+    causaDaMorte,          // 'velhice' ou 'cuidado' (falta de cuidado), só depois de morrer
     nascimentoMs,          // hora do jogo em que nasceu (a idade é "agora" menos isto)
     x,
     y,
-    direcao: 1,            // 1 = olhando para a direita, -1 = para a esquerda
+    direcao,               // 1 = olhando para a direita, -1 = para a esquerda
     destino: null,         // para onde está nadando: { x, y }
     movimento: 'esperando', // 'nadando' ou 'esperando' (o que está fazendo; não é a saúde)
     espera: 0.5,           // segundos que ainda vai ficar parado

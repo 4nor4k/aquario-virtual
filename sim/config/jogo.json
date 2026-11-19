@@ -1,6 +1,15 @@
 {
   "passoMaximoMin": 15,
 
+  "cores": ["vermelho", "azul", "roxo", "laranja", "verde", "rosa"],
+  "nome": { "padrao": "Beta", "maximo": 12 },
+
+  "salvamento": {
+    "intervaloSegundos": 10,
+    "ausenciaMinimaParaAvisarMin": 10,
+    "ausenciaMaximaHoras": null
+  },
+
   "inicial": {
     "saciedade": 100,
     "sujeira": 0,

@@ -13,6 +13,8 @@ import { MUNDO_LARGURA, AREIA_Y } from './mundo.js';
 export function criarAquario({ semente = 1, config } = {}) {
   if (!config) throw new TypeError('criarAquario: falta o config (sim/config/jogo.json)');
   const rng = criarRng(semente);
+  // O sexo tem sorteio próprio, para não mexer na sequência do nado (e dos testes com semente).
+  const rngSexo = criarRng((semente ^ 0x5e8d) >>> 0);
   const peixes = [];
   let proximoId = 1;
   let ultimoMs = null; // hora do jogo no passo anterior (para saber quanto tempo passou)
@@ -31,6 +33,25 @@ export function criarAquario({ semente = 1, config } = {}) {
       return peixes.filter((p) => p.estado !== 'morto');
     },
 
+    // O número que o próximo peixe adotado vai receber (vai para o arquivo salvo).
+    get proximoId() {
+      return proximoId;
+    },
+
+    // Garante que o próximo id seja pelo menos este (ao carregar o jogo salvo).
+    garantirProximoId(minimo) {
+      proximoId = Math.max(proximoId, minimo);
+    },
+
+    // Devolve um peixe guardado ao aquário (usado ao carregar o jogo salvo). Mantém o id dele
+    // e garante que os próximos ids não se repitam.
+    restaurarPeixe(dados) {
+      const peixe = criarPeixe(dados);
+      peixes.push(peixe);
+      proximoId = Math.max(proximoId, peixe.id + 1);
+      return peixe;
+    },
+
     // Põe um peixe no aquário. Sem fase, nasce filhote agora. Com fase, entra já com a idade
     // em que essa fase começa. Sem posição, aparece no meio da água.
     // agoraMs: a hora do jogo neste momento (do relógio).
@@ -40,6 +61,7 @@ export function criarAquario({ semente = 1, config } = {}) {
       const peixe = criarPeixe({
         ...dados,
         id: proximoId++,
+        sexo: dados.sexo ?? (rngSexo.inteiro(0, 1) === 1 ? 'femea' : 'macho'),
         fase,
         saciedade: dados.saciedade ?? config.inicial.saciedade,
         saude: dados.saude ?? config.inicial.saude,

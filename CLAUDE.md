@@ -58,9 +58,12 @@ bateria + USB), gerenciado também pelo celular via WiFi. Veja `README.md` e `do
   (10) **pedra grande com musgo** na camada de fundo (`render/pedra-grande.js`, referência de pixel art);
   (11) rochas da frente trocadas por **5 pedrinhas de 1 bloco de altura**.
   Decisões de (2) a (11) na seção 8 do `docs/04`. Não existe captura de tela sem navegador no projeto (foi um script temporário).
-- Próximo: **v0.3** (salvamento, adoção e nomes pelo painel, espécie e cor). Escrever
-  `docs/09-plano-v0.3.md` e fechar com o usuário antes de codar. As dúvidas de ovos e segundo
-  parceiro (`03`, seção 8) entram no plano da v0.4.
+- Próximo: **v0.3** (salvamento, adoção e nomes pelo painel, espécie e cor). **Plano escrito em
+  19/11/2026: `docs/09-plano-v0.3.md`, esperando o usuário confirmar a seção 8 antes de codar.**
+  Já decidido por ele: salvar em **arquivo** (`sim/saves/`, via `servidor.js`); só beta, em
+  **cores diferentes**; o tempo com o jogo fechado **conta inteiro** e aparece a mensagem
+  "Seu peixe dormiu por X horas, bem-vindo de volta" (regra também no `03`). As dúvidas de ovos e
+  segundo parceiro (`03`, seção 8) entram no plano da v0.4.
 - O usuário costuma ter o servidor aberto na porta 8080: não encerrar processos dele;
   testar em outra porta (`PORT=`) e parar só o meu processo.
 
