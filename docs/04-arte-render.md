@@ -87,10 +87,15 @@ não de resolução.
   - **Estrelas** (28, aparecem uma a uma ao escurecer, piscam, somem na chuva) e o **clarão do relâmpago** (o ar
     fica azul-claro `#7890d0`, o cenário clareia) são desenhados **depois** da superfície, que repinta o ar de preto.
   - **[fechado]** **Sem raios de sol** (o usuário pediu para tirar, 19/11/2026): `render/raios.js` foi apagado.
-  - **[fechado]** **Spot da noite** (pedido do usuário em 19/11/2026): de noite, um feixe sai do **centro do topo do aquário** (linha 0 do mundo, em cima do ar, não da superfície da água) e abre em
-    **cone** para baixo, como o spot de uma lâmpada (`render/spot.js`; halo `#0f2c4e` e miolo `#1b4d7c`, cor sólida, sem
-    pontilhado). Preso ao mundo (no meio do aquário), só pinta ar e água puros, acende ao escurecer e fica mais fraco no
-    relâmpago. **[proposta]** Abertura (3 px no topo, 50 px na areia) e as duas cores são minhas.
+  - **[fechado]** **Spot da noite** (pedidos do usuário em 19/11/2026): é como uma **lâmpada acesa em cima do
+    aquário**. O feixe sai do **centro do topo do aquário** (linha 0 do mundo, em cima do ar, não da superfície da
+    água) e abre em cone, mas como um **brilho suave (glow)**: forte no centro e no alto, esmaecendo para as bordas
+    e para o fundo, sem contorno duro (`render/spot.js`). **Onde ele ilumina, o cenário fica mais claro que onde não
+    ilumina.** Como o quadro é indexado, são dois efeitos: (1) no ar e na água pura, um degradê de **7 degraus de
+    azul** (`COR.SPOT`, índices 59 a 65); (2) areia, plantas, pedras e água suja dentro do feixe trocam para uma
+    **cor gêmea mais clara** (`PAR_CLARO` em `palette.js`, 28 índices a mais; a `luz.js` pinta a gêmea até 75% mais
+    clara que a cor da noite). Preso ao mundo, só existe de noite, mais fraco no relâmpago.
+    **[proposta]** Abertura (5 px no topo, 62 px na areia), esmaecimento, azuis do brilho e os 75% são meus.
   - **[fechado]** **O peixe não muda com a hora**: as cores do peixe ficam de fora da troca de paleta, iguais de dia, de
     noite, na chuva e no relâmpago (`SEM_TOM` em `luz.js`).
   - **Chuva**: 130 gotas (risquinho de 3 px, `#8fb4d8`) no ar e anéis na linha da água, presas ao mundo.

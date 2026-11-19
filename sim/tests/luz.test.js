@@ -7,14 +7,14 @@ import {
   ESCURECER_COM_CHUVA,
 } from '../src/render/luz.js';
 import { desenharCeu, ESTRELAS, QUANTAS_ESTRELAS, gerarEstrelas } from '../src/render/ceu.js';
-import { desenharSpot } from '../src/render/spot.js';
+import { desenharSpot, intensidadeDoSpot, SPOT_X, ABERTURA_NO_FUNDO } from '../src/render/spot.js';
 import { aplicarCores } from '../src/render/turvacao.js';
 import { desenharQuadro } from '../src/render/scene.js';
 import { gerarMapa } from '../src/render/cenario.js';
 import { gerarFundo } from '../src/render/fundo.js';
 import { criarCamera } from '../src/render/camera.js';
 import { criarQuadro, LARGURA, ALTURA, COR_SOLIDA } from '../src/render/tela.js';
-import { PALETA, COR, COLORIDOS } from '../src/render/palette.js';
+import { PALETA, COR, COLORIDOS, PAR_CLARO } from '../src/render/palette.js';
 import { SUPERFICIE_Y, MUNDO_LARGURA, MUNDO_ALTURA } from '../src/core/mundo.js';
 import { config } from './ajuda.js';
 
@@ -227,66 +227,105 @@ test('relâmpago: o ar (acima da linha da água) fica na cor do céu, e a água 
   assert.equal(contar(normal, COR.CEU_RELAMPAGO), 0);
 });
 
-// --- O spot da noite -------------------------------------------------------------------------
+// --- O spot da noite (uma lâmpada em cima do aquário: brilho suave, e o que está na luz fica mais claro) ----
 
-test('spot: um cone que sai do centro do topo e abre para baixo, em duas cores sólidas (halo e miolo)', () => {
+const claro = (c) => c[0] + c[1] + c[2];
+
+test('spot: o brilho é mais forte no centro do topo e esmaece para as bordas e para o fundo, sem aresta', () => {
+  assert.equal(intensidadeDoSpot(SPOT_X, 0), 1, 'o máximo é no centro do topo');
+  for (const wy of [0, 30, 80, 120]) {
+    let anterior = 2;
+    for (let dx = 0; dx <= ABERTURA_NO_FUNDO + 2; dx++) {
+      const v = intensidadeDoSpot(SPOT_X + dx, wy);
+      assert.ok(v <= anterior + 1e-12, 'só diminui para os lados');
+      assert.equal(v, intensidadeDoSpot(SPOT_X - dx, wy), 'simétrico');
+      anterior = v;
+    }
+    assert.equal(intensidadeDoSpot(SPOT_X + ABERTURA_NO_FUNDO + 1, wy), 0, 'fora do cone não há luz');
+  }
+  assert.ok(intensidadeDoSpot(SPOT_X, 0) > intensidadeDoSpot(SPOT_X, 60) && intensidadeDoSpot(SPOT_X, 60) > intensidadeDoSpot(SPOT_X, 140), 'esmaece para baixo');
+  // Suave: nenhum degrau grande entre pixels vizinhos.
+  for (let dx = 0; dx < ABERTURA_NO_FUNDO; dx++) {
+    assert.ok(Math.abs(intensidadeDoSpot(SPOT_X + dx, 100) - intensidadeDoSpot(SPOT_X + dx + 1, 100)) < 0.33);
+  }
+});
+
+test('spot: um cone que sai do topo do aquário e abre para baixo, em vários degraus de azul', () => {
   const q = criarQuadro().fill(COR.AGUA);
   desenharSpot(q, camera(60, 0));
   const colunasEm = (sy) => [...Array(LARGURA).keys()].filter((x) => q[sy * LARGURA + x] !== COR.AGUA);
-  const largura = (sy) => {
-    let n = 0;
-    for (let x = 0; x < LARGURA; x++) if (q[sy * LARGURA + x] !== COR.AGUA) n++;
-    return n;
-  };
-  assert.ok(contar(q, COR.SPOT) > 300 && contar(q, COR.SPOT_MIOLO) > 100, 'tem halo e miolo');
-  assert.ok(largura(5) < largura(SUPERFICIE_Y + 30) && largura(SUPERFICIE_Y + 30) < largura(SUPERFICIE_Y + 60), 'abre para baixo');
-  // Centrado no meio do mundo: com a câmera em x=60 o meio do aquário é a coluna 60 da tela.
-  const linha = SUPERFICIE_Y + 40;
-  const colunas = colunasEm(linha);
-  assert.ok(Math.abs((colunas[0] + colunas.at(-1)) / 2 - (MUNDO_LARGURA / 2 - 60)) <= 1);
-  // Sai do topo do aquário (linha 0 do mundo), em cima do ar, e não da superfície da água.
-  assert.ok(colunasEm(0).length >= 1 && colunasEm(0).length <= 8, 'bem fino na linha 0');
+  const largura = (sy) => colunasEm(sy).length;
+  const usados = COR.SPOT.filter((c) => contar(q, c) > 0);
+  assert.ok(usados.length >= 5, `${usados.length} degraus em uso`);
+  assert.ok(largura(2) < largura(SUPERFICIE_Y + 30) && largura(SUPERFICIE_Y + 30) < largura(SUPERFICIE_Y + 60), 'abre para baixo');
+  assert.ok(colunasEm(0).length >= 1 && colunasEm(0).length <= 12, 'bem fino na linha 0 (o topo do aquário)');
   assert.ok(colunasEm(SUPERFICIE_Y - 10).length > 0, 'já existe no ar, acima da água');
+  const colunas = colunasEm(SUPERFICIE_Y + 40);
+  assert.ok(Math.abs((colunas[0] + colunas.at(-1)) / 2 - (MUNDO_LARGURA / 2 - 60)) <= 1, 'centrado no meio do aquário');
+  // O centro é o degrau mais forte e a borda, mais fraco.
+  const linha = SUPERFICIE_Y + 20;
+  assert.ok(q[linha * LARGURA + (SPOT_X - 60)] > q[linha * LARGURA + colunasEm(linha)[0]], 'centro mais forte que a borda');
   // Anda com o mundo quando a câmera anda.
   const outra = criarQuadro().fill(COR.AGUA);
   desenharSpot(outra, camera(100, 0));
   assert.notDeepEqual(Array.from(q), Array.from(outra));
 });
 
-test('spot: só pinta água pura (plantas, pedras, peixes e água suja ficam como estão)', () => {
+test('spot: no cenário troca só pela cor iluminada (gêmea); peixe, ovo e chuva não mudam; fora do feixe nada muda', () => {
   const q = criarQuadro().fill(COR.AGUA);
-  for (let i = 0; i < q.length; i++) if (i % 3 === 0) q[i] = COR.PEDRA;
+  const x0 = SPOT_X - 60; // a coluna do centro do feixe, com a câmera em x=60
+  const proprios = [COR.AREIA, COR.PEDRA, COR.VERDE_ALGA, COR.AGUA_SUJA];
+  proprios.forEach((c, n) => { for (let dx = 0; dx < 4; dx++) q[60 * LARGURA + x0 - 8 + n * 4 + dx] = c; });
+  q[60 * LARGURA + x0 + 10] = COR.PEIXE.vermelho.vivo.corpo;
+  q[60 * LARGURA + x0 + 11] = COR.OVO;
+  q[60 * LARGURA + x0 + 12] = COR.CHUVA;
   const antes = Array.from(q);
   desenharSpot(q, camera(60, 0));
-  for (let i = 0; i < q.length; i++) if (antes[i] !== COR.AGUA) assert.equal(q[i], antes[i]);
-  const suja = criarQuadro().fill(COR.AGUA_SUJA);
-  desenharSpot(suja, camera(60, 0));
-  assert.equal(contar(suja, COR.SPOT) + contar(suja, COR.SPOT_MIOLO), 0);
+  for (const c of proprios) {
+    const gemea = PAR_CLARO.get(c);
+    assert.ok(gemea > 0 && gemea !== c);
+    assert.ok(q.includes(gemea), `a cor ${c} virou a gêmea ${gemea}`);
+  }
+  for (const dx of [10, 11, 12]) assert.equal(q[60 * LARGURA + x0 + dx], antes[60 * LARGURA + x0 + dx]);
+  const longe = criarQuadro().fill(COR.PEDRA);
+  desenharSpot(longe, camera(0, 0)); // com a câmera em x=0 o feixe passa a 120 px: fora da tela, a cor 0 fica
+  assert.equal(contar(longe, COR.PEDRA) + contar(longe, PAR_CLARO.get(COR.PEDRA)), LARGURA * ALTURA);
+  assert.equal(longe[60 * LARGURA + 0], COR.PEDRA);
 });
 
-test('spot: só existe de noite (a cor é preta de dia) e fica mais fraco no clarão do relâmpago', () => {
+test('spot: só existe de noite (o brilho é preto de dia, e a gêmea clara só fica mais clara à noite)', () => {
   limpar();
   restaurarPaleta();
   aplicarLuz(luzDoClima({ horaMin: H(12) }, horas));
-  assert.deepEqual(PALETA[COR.SPOT], [0, 0, 0]);
-  assert.deepEqual(PALETA[COR.SPOT_MIOLO], [0, 0, 0]);
+  for (const c of COR.SPOT) assert.deepEqual(PALETA[c], [0, 0, 0]);
+  for (const [escura, clara] of PAR_CLARO) assert.deepEqual(PALETA[clara], PALETA[escura], 'de dia a gêmea é igual');
   restaurarPaleta();
   aplicarLuz(luzDoClima({ horaMin: H(2) }, horas));
-  assert.deepEqual(PALETA[COR.SPOT], ORIGINAL[COR.SPOT], 'de noite: a cor cheia');
-  assert.deepEqual(PALETA[COR.SPOT_MIOLO], ORIGINAL[COR.SPOT_MIOLO]);
-  assert.ok(PALETA[COR.SPOT_MIOLO][2] > PALETA[COR.SPOT][2], 'o miolo é mais claro que o halo');
+  COR.SPOT.forEach((c) => assert.deepEqual(PALETA[c], ORIGINAL[c], 'de noite: a cor cheia'));
+  for (let k = 1; k < COR.SPOT.length; k++) assert.ok(claro(PALETA[COR.SPOT[k]]) > claro(PALETA[COR.SPOT[k - 1]]), 'degraus cada vez mais claros');
+  for (const [escura, clara] of PAR_CLARO) {
+    assert.ok(claro(PALETA[clara]) >= claro(PALETA[escura]), `gêmea ${clara} não é mais escura`);
+  }
+  assert.ok(claro(PALETA[PAR_CLARO.get(COR.AREIA)]) > 1.5 * claro(PALETA[COR.AREIA]), 'a areia na luz é bem mais clara');
+  const noiteDaAreia = PALETA[COR.AREIA].slice();
+  restaurarPaleta();
+  aplicarCores(0); // como na cena: a turvação reescreve a areia antes da luz
+  aplicarLuz(luzDoClima({ horaMin: H(2) }, horas));
+  assert.deepEqual(PALETA[COR.AREIA], noiteDaAreia, 'aplicar de novo não acumula');
   restaurarPaleta();
   aplicarLuz(luzDoClima({ horaMin: H(2), raio: 1 }, horas));
-  assert.ok(PALETA[COR.SPOT][2] < ORIGINAL[COR.SPOT][2], 'no relâmpago fica mais fraco');
+  assert.ok(claro(PALETA[COR.SPOT[6]]) < claro(ORIGINAL[COR.SPOT[6]]), 'no relâmpago o brilho fica mais fraco');
   limpar();
 });
 
-test('cena: de noite há spot; de dia não há', () => {
+test('cena: de noite há brilho do spot e cenário iluminado; de dia não há nada disso', () => {
   limpar();
   const noite = cena({ horaMin: H(2), chuvaNivel: 0, raio: 0 });
-  assert.ok(contar(noite, COR.SPOT) > 0 && contar(noite, COR.SPOT_MIOLO) > 0);
+  assert.ok(COR.SPOT.some((c) => contar(noite, c) > 0));
+  assert.ok([...PAR_CLARO.values()].some((c) => contar(noite, c) > 0), 'há cenário iluminado');
   const dia = cena({ horaMin: H(12), chuvaNivel: 0, raio: 0 });
-  assert.equal(contar(dia, COR.SPOT) + contar(dia, COR.SPOT_MIOLO), 0);
+  assert.ok(!COR.SPOT.some((c) => contar(dia, c) > 0));
+  assert.ok(![...PAR_CLARO.values()].some((c) => contar(dia, c) > 0), 'de dia nada é "iluminado"');
   limpar();
 });
 
@@ -318,16 +357,16 @@ test('cena: sem clima é o visual de sempre; com o clima de dia é igual', () =>
   const dia = cena({ horaMin: H(12), chuvaNivel: 0, raio: 0 });
   // A areia (embaixo) é idêntica nas duas.
   for (let x = 0; x < LARGURA; x++) assert.equal(rgbDe(sem, x, 110).join(), rgbDe(dia, x, 110).join());
-  assert.equal(contar(dia, COR.SPOT) + contar(dia, COR.SPOT_MIOLO), 0, 'de dia não há spot');
+  assert.ok(!COR.SPOT.some((c) => contar(dia, c) > 0), 'de dia não há spot');
   limpar();
 });
 
 test('cena: de noite as cores da tela ficam mais escuras, mas as bolhas continuam brancas', () => {
   limpar();
   const dia = cena({ horaMin: H(12), chuvaNivel: 0, raio: 0 });
-  const diaAreia = rgbDe(dia, 30, 110).slice();
+  const diaAreia = rgbDe(dia, 0, 110).slice(); // longe do feixe do spot (que clareia o que ilumina)
   const noite = cena({ horaMin: H(2), chuvaNivel: 0, raio: 0 });
-  const noiteAreia = rgbDe(noite, 30, 110);
+  const noiteAreia = rgbDe(noite, 0, 110);
   assert.ok(noiteAreia[0] + noiteAreia[1] + noiteAreia[2] < 0.6 * (diaAreia[0] + diaAreia[1] + diaAreia[2]));
   const q = criarQuadro();
   desenharQuadro(q, {
@@ -347,7 +386,7 @@ test('cena: dá para ir do dia para a noite e voltar e tudo volta exatamente ao 
   cena({ horaMin: H(18), chuvaNivel: 0, raio: 0 });
   const d2 = cena({ horaMin: H(12), chuvaNivel: 0, raio: 0 });
   assert.deepEqual(Array.from(d2), Array.from(d1));
-  assert.deepEqual(copiaDaPaleta().slice(0, 61), antes.slice(0, 61));
+  assert.deepEqual(copiaDaPaleta().slice(0, 66), antes.slice(0, 66));
   limpar();
 });
 

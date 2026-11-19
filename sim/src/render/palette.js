@@ -79,9 +79,15 @@ export const PALETA = [
   [0x9a, 0xa8, 0xd0], // 56 estrela fraca
   [0x8f, 0xb4, 0xd8], // 57 chuva: gotas e anéis
   [0xa8, 0xe8, 0xff], // 58 gelo: ícone de frio
-  // O spot de luz da noite (render/spot.js; a luz.js escolhe a intensidade): halo e miolo.
-  [0x0f, 0x2c, 0x4e], // 59 spot: halo do cone (cor com a noite no máximo)
-  [0x1b, 0x4d, 0x7c], // 60 spot: miolo do cone
+  // O brilho (glow) do spot de luz da noite (render/spot.js; a luz.js escolhe a intensidade): 7 degraus de
+  // azul, do mais fraco (borda) ao mais forte (centro). Valem para a noite no máximo.
+  [11, 24, 35],   // 59 brilho 1 (borda)
+  [20, 42, 62],   // 60 brilho 2
+  [28, 59, 88],   // 61 brilho 3
+  [36, 75, 112],  // 62 brilho 4
+  [44, 90, 135],  // 63 brilho 5
+  [51, 105, 158], // 64 brilho 6
+  [58, 120, 180], // 65 brilho 7 (centro)
 ];
 
 // Quão claro cada índice aparece em preto e branco: 0 = preto, 16 = branco (mono.js).
@@ -148,12 +154,17 @@ export const TONS = [
   16, // 56
   16, // 57
   16, // 58
-  16, // 59 a 60: spot de luz da noite (colorido)
+  16, // 59 a 65: brilho do spot de luz da noite (colorido)
   16, // 60
+  16, // 61
+  16, // 62
+  16, // 63
+  16, // 64
+  16, // 65
 ];
 
 // Índices que não passam pelo preto e branco: são pintados sólidos, na cor da PALETA.
-export const COLORIDOS = [2, 3, 4, 5, 6, 7, 8, 9, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60];
+export const COLORIDOS = [2, 3, 4, 5, 6, 7, 8, 9, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65];
 
 // Nomes para quem desenha (os números acima são os índices da PALETA).
 export const COR = {
@@ -197,8 +208,7 @@ export const COR = {
   ESTRELA_FRACA: 56,
   CHUVA: 57,
   GELO: 58,
-  SPOT: 59,        // o spot da noite (spot.js): halo e miolo
-  SPOT_MIOLO: 60,
+  SPOT: [59, 60, 61, 62, 63, 64, 65], // o brilho do spot da noite (spot.js), do mais fraco ao mais forte
   // A comida (comida.js).
   GRAO: 44,
   GRAO_BRILHO: 45,
@@ -283,4 +293,15 @@ for (const [nome, base] of Object.entries(TONS_DAS_CORES)) {
     idoso: registrarTons(transformar(vivo, apagar)),
     doente: registrarTons(transformar(vivo, empalidecer)),
   };
+}
+
+// --- As cores "iluminadas" (o spot da noite, render/spot.js) -----------------------------------
+// Onde o spot ilumina, o cenário fica mais claro que no resto. Como o quadro é indexado, cada cor do
+// cenário que o feixe alcança ganha uma GÊMEA (outro índice) que a luz.js pinta mais clara a cada quadro.
+// PAR_CLARO.get(índice) = índice da gêmea. As cores do peixe não entram (o peixe não muda com a luz).
+export const PAR_CLARO = new Map();
+{
+  const doCenario = [2, 3, 4, 5, 6, 7, 8, 9, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
+    36, 37, 38, 39, 40, 41, 42, 43, 48];
+  for (const i of doCenario) PAR_CLARO.set(i, registrar([...PALETA[i]]));
 }

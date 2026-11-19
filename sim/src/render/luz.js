@@ -11,7 +11,7 @@
 //
 // Como se usa, em todo quadro: restaurarPaleta() -> (a turvação reescreve as cores da água e da areia)
 // -> aplicarLuz(luz). Assim nada escurece em dobro.
-import { PALETA, COLORIDOS, COR } from './palette.js';
+import { PALETA, COLORIDOS, COR, PAR_CLARO } from './palette.js';
 import { INDICES_DA_TURVACAO } from './turvacao.js';
 
 // Os tons de referência.
@@ -21,6 +21,7 @@ export const TOM_NOITE = [0.36, 0.46, 0.78];
 
 export const ESCURECER_COM_CHUVA = 0.18;   // com chuva forte, o cenário perde 18% da luz
 export const CLAREAR_COM_RAIO = 1.1;       // no pico do relâmpago o cenário fica 2,1× mais claro (limitado a 255)
+export const CLAREAR_COM_SPOT = 0.75;       // onde o spot ilumina, o cenário fica até 75% mais claro
 export const COR_DO_CEU_NO_RAIO = [0x78, 0x90, 0xd0];
 
 const HORAS_PADRAO = { amanhecer: 5.5, dia: 6.5, entardecer: 17.5, noite: 18.5 };
@@ -82,7 +83,7 @@ const ORIGINAIS = PALETA.map((cor) => [...cor]);
 // As cores do PEIXE também ficam de fora (pedido do usuário em 19/11/2026): o peixe é o mesmo de dia e de noite.
 const CORES_DO_PEIXE = Object.values(COR.PEIXE).flatMap((estados) => Object.values(estados).flatMap((papeis) => Object.values(papeis)));
 const SEM_TOM = new Set([
-  COR.CEU_RELAMPAGO, COR.SPOT, COR.SPOT_MIOLO, COR.ESTRELA_FRACA, COR.GELO, ...CORES_DO_PEIXE,
+  COR.CEU_RELAMPAGO, ...COR.SPOT, ...PAR_CLARO.values(), COR.ESTRELA_FRACA, COR.GELO, ...CORES_DO_PEIXE,
 ]);
 const DA_TURVACAO = new Set(INDICES_DA_TURVACAO);
 
@@ -112,7 +113,11 @@ export function aplicarLuz(luz) {
   }
   // O céu só tem cor durante o clarão do relâmpago.
   pintar(COR.CEU_RELAMPAGO, misturar([0, 0, 0], COR_DO_CEU_NO_RAIO, Math.min(1, luz.raio)).map(limitar255));
-  // O spot só existe de noite (acende ao escurecer; no clarão do relâmpago fica mais fraco).
+  // O spot só existe de noite (acende ao escurecer; no clarão do relâmpago fica mais fraco): o brilho azul no
+  // ar e na água e as gêmeas CLARAS do cenário (as cores já com a luz do dia/noite, multiplicadas por mais de 1).
   const spot = Math.max(0, luz.noite) * (luz.raio > 0.3 ? 0.4 : 1);
-  for (const i of [COR.SPOT, COR.SPOT_MIOLO]) pintar(i, ORIGINAIS[i].map((v) => limitar255(v * spot)));
+  for (const i of COR.SPOT) pintar(i, ORIGINAIS[i].map((v) => limitar255(v * spot)));
+  for (const [escura, clara] of PAR_CLARO) {
+    pintar(clara, PALETA[escura].map((v) => limitar255(v * (1 + CLAREAR_COM_SPOT * spot))));
+  }
 }
