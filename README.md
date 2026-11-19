@@ -3,7 +3,7 @@
 Tamagotchi de aquário rodando em um ESP32, com display colorido, joystick e botões.
 Pode ser gerenciado pelo smartphone via WiFi e também funciona offline.
 
-> Status: **v0.4 do simulador pronta** (Fase A). O firmware do ESP32 (Fase B) começa quando
+> Status: **v0.5 do simulador pronta** (Fase A). O firmware do ESP32 (Fase B) começa quando
 > as peças chegarem.
 
 ## Como rodar o simulador
@@ -25,6 +25,22 @@ Depois abra **http://localhost:8080** no navegador. Para parar, use `Ctrl+C` no 
   terminal). Feche o outro ou use outra porta.
 
 ## O que o simulador faz
+
+### v0.5: clima, hora do dia, dia e noite
+
+O cenário ganha **hora do dia** e **clima** (só visuais: o clima **não afeta o peixe**):
+
+- **Dia e noite** pela hora do relógio do computador: de dia é o visual de sempre, com 3 **raios de luz**
+  suaves; no amanhecer e no entardecer tudo fica alaranjado; à noite o cenário escurece e azula, aparecem
+  **estrelas** no ar, e as bolhas e os olhos dos peixes continuam brilhando. A água continua preta.
+- **Chuva** (sozinha, de tempos em tempos): gotas no ar, anéis na superfície, o cenário escurece um pouco e
+  caem **relâmpagos** (o céu e o cenário clareiam por um instante).
+- **Frio:** temperatura abaixo de **18 °C** mostra o **ícone de frio** (floco de neve) no canto de cima à
+  direita. A temperatura simulada vai de 16 °C (madrugada) a 28 °C (tarde) e aparece no indicador **TEMP**
+  do HUD (botão B).
+- **Painel, seção Clima:** forçar a **hora** (relógio, ciclo rápido de 24 h em 1 min, ou fixa), a **chuva**
+  (automática, ligada, desligada) e a **temperatura**. O clima não é salvo.
+- Clima e hora **reais** (internet, NTP) ficam para a v1.1, com o WiFi.
 
 ### v0.4: vários peixes, casal e ovos
 
@@ -125,7 +141,7 @@ sujeira mais devagar (por exemplo, pH em 48 / 36 / 18 h e `diasParaEncher` em 6)
 
 Para desenvolvedores: abrindo `http://localhost:8080/?debug`, o objeto `__debug` fica
 disponível no console do navegador (`camera`, `clock`, `config`, `textos`, `menu`, `aquario()`,
-`salvamento`, `salvar()`).
+`salvamento`, `salvar()`, `clima`).
 
 ## Documentação
 
@@ -141,6 +157,7 @@ disponível no console do navegador (`camera`, `clock`, `config`, `textos`, `men
 | [08-plano-v0.2.md](docs/08-plano-v0.2.md) | Plano e resultado da v0.2 | concluído |
 | [09-plano-v0.3.md](docs/09-plano-v0.3.md) | Plano e resultado da v0.3 (salvar, adotar, cores) | concluído |
 | [10-plano-v0.4.md](docs/10-plano-v0.4.md) | Plano e resultado da v0.4 (vários peixes, casal, ovos) | concluído |
+| [11-plano-v0.5.md](docs/11-plano-v0.5.md) | Plano e resultado da v0.5 (clima, hora do dia, dia e noite) | concluído |
 
 ## Como trabalhamos
 

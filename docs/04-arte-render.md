@@ -76,6 +76,20 @@ não de resolução.
 
 ## 8. Decisões fechadas
 
+- **[fechado]** **Dia, noite e clima na v0.5** (plano `11`; o usuário disse "manda bala" e aceitou as recomendações; a
+  aparência é a parte mais fácil de ajustar). Em `render/luz.js`, `ceu.js`, `raios.js`, `chuva.js` e `hud.js`:
+  - **Hora do dia** = relógio do computador (hora real), independente da aceleração do jogo. Noite até 5h30,
+    amanhecer 5h30 a 6h30, dia até 17h30, entardecer 17h30 a 18h30, noite depois (números em `jogo.json`, `clima.horas`).
+  - A luz multiplica as cores **coloridas** do cenário: dia 1·1·1 (o visual de sempre), amanhecer e entardecer
+    1·0,8·0,66, noite 0,36·0,46·0,78; a chuva tira 18%. Texto, menus, HUD, olhos e **bolhas** não mudam. A água
+    continua preta; água suja e areia escura também escurecem. Ordem por quadro: restaurar a paleta, a turvação
+    reescreve água e areia, aplicar a luz.
+  - **Estrelas** (28, aparecem uma a uma ao escurecer, piscam, somem na chuva) e o **clarão do relâmpago** (o ar
+    fica azul-claro `#7890d0`, o cenário clareia) são desenhados **depois** da superfície, que repinta o ar de preto.
+  - **Raios de luz** (3 faixas inclinadas de `#0a223a`, só de dia, só na água pura, balançam; `render/raios.js`).
+  - **Chuva**: 130 gotas (risquinho de 3 px, `#8fb4d8`) no ar e anéis na linha da água, presas ao mundo.
+  - **Frio**: floco de neve 7×7 em `#a8e8ff` (cor que a luz não escurece), canto de cima à direita, com fundo preto.
+  - **[proposta]** Todas as cores, tamanhos e quantidades são meus e estão no topo de cada arquivo.
 - **[fechado]** Sprites provisórios gerados por mim; o usuário refina depois.
 - **[fechado]** Quadros de animação da seção 5.
 - **[fechado]** Dia e noite com hora real na v1.

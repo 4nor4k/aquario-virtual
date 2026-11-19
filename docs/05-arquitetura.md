@@ -72,7 +72,7 @@ Projeto Aquario Virtual/
 | `aquarium` | Sujeira, pH, lista de peixes (máx. 5), ovos |
 | `rules` | Aplica as regras do doc 03 a cada passo |
 | `breeding` | Condições e eventos de reprodução |
-| `weather` | Clima e hora do dia (simulados no sim; reais no ESP32) |
+| `weather` | Clima e hora do dia (simulados no sim; reais no ESP32). No código: `core/clima.js` (v0.5) |
 | `save` | Serializa o estado e o recupera |
 | `events` | Avisos para a interface (som, mensagem, Game Over) |
 

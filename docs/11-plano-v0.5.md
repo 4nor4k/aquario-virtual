@@ -2,7 +2,7 @@
 
 Legenda: **[fechado]** decidido pelo usuário · **[proposta]** sugestão a confirmar.
 
-**Status: plano escrito e já em execução em 2026-11-19.** O usuário disse "manda bala na v0.5"
+**Status: v0.5 concluída em 2026-11-19 (tag `v0.5`).** Plano escrito e executado em 2026-11-19. O usuário disse "manda bala na v0.5"
 sem ter lido o plano antes, então tudo o que está como **[proposta]** é recomendação minha, adotada
 para andar. Os pontos de **aparência** (cores da noite, chuva, raios de luz) são os mais fáceis de
 mudar: olhe o resultado e peça os ajustes. Progresso dos passos: seção 11.
@@ -159,4 +159,29 @@ Todas **[proposta]** (recomendação primeiro; se nada for dito, vale a recomend
 - **2 feito em 2026-11-19**: `render/luz.js` (tom por hora, chuva e relâmpago; restaurar e aplicar na paleta), `render/ceu.js` (estrelas e clarão, desenhados depois da superfície porque ela repinta o ar), `render/raios.js` (3 raios de luz só de dia), 5 cores novas na paleta (55 a 59), ligação na cena e no `main.js` (hora = relógio do computador). 576 testes.
 - **3 feito em 2026-11-19**: `render/chuva.js` (130 gotas de risquinho de 3 px que caem no ar, anéis que se abrem na linha da água, quantidade cresce com o nível da chuva, presa ao mundo; o relâmpago já veio no passo 2). 587 testes.
 - **4 e 5 feitos em 2026-11-19** (juntos): ícone de frio (floco 7×7 em cor sólida que a luz não escurece, com fundo preto, no canto de cima à direita), indicador TEMP com a temperatura simulada (sem clima, o valor fixo de antes), e a seção **Clima** do painel (hora: relógio/ciclo rápido/fixa; chuva: automática/ligada/desligada; temperatura: automática ou valor; linha do que está valendo). 600 testes.
-- 6 (fechamento, com conferência no navegador): por fazer.
+- **6 feito em 2026-11-19**: conferência no navegador, README, `CLAUDE.md`, versão 0.5.0 e tag `v0.5`.
+
+## 12. Resultado da conferência da v0.5 (2026-11-19)
+
+`node --test`: **600 testes passando** (`clima`, `luz`, `chuva`, `frio` e `clima-painel` são novos).
+
+Conferido **no navegador** (servidor de teste em outra porta, jogo salvo numa pasta temporária):
+- O **jogo salvo da v0.4 abriu** normalmente com o clima novo (apareceu o "Bem-vindo de volta").
+- A hora do dia inicial veio do relógio do computador (18h30 na hora do teste) e o painel mostrou "Hora 18:30 ·
+  chuva: não · 27 °C · frio: não".
+- Painel: hora fixa 02:00 + chuva ligada → "Hora 02:00 (fixa) · chuva: sim (forçada) · 17 °C · frio: sim"; a chuva
+  chegou ao nível 1; na tela havia gotas, cenário escuro e o **ícone de frio**; temperatura forçada em 30 °C
+  apagou o frio e em 10 °C trouxe de volta; o **ciclo rápido** fez a hora andar (campo "Hora fixa" desabilitado).
+- A **tela de status** continuou legível à noite. Sem nenhum erro no console.
+
+**Imagens geradas por script** (sem navegador) conferiram dia, amanhecer, entardecer, noite, relâmpago e chuva.
+
+**Não conferido à mão**: o relâmpago ao vivo no navegador (só os testes e as imagens), o ciclo rápido
+completo de 24 h (a aba de automação roda poucos quadros por segundo) e a chuva automática (de 5 a 20 min).
+
+## 13. Para o usuário olhar e ajustar
+
+A aparência é o que mais depende de gosto: tons da noite e do amanhecer (`TOM_NOITE`, `TOM_AURORA` em
+`render/luz.js`), quantidade e tamanho das estrelas (`ceu.js`), raios de luz (`raios.js`, ou tirá-los), chuva
+(`chuva.js`) e o clarão do relâmpago (`COR_DO_CEU_NO_RAIO`). Os tempos da chuva e do relâmpago e as horas do
+dia estão no bloco `clima` do `jogo.json`.
