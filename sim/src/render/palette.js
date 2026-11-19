@@ -73,6 +73,13 @@ export const PALETA = [
   [0xff, 0xff, 0xff], // 52 ovo: brilho
   [0xff, 0x5d, 0x8f], // 53 coração
   [0xff, 0xb4, 0xcb], // 54 coração: brilho
+  // O clima (doc 11): o céu no clarão do relâmpago (a luz.js muda a cor), as estrelas, a chuva, o gelo
+  // do ícone de frio e os raios de luz do dia (a luz.js escolhe a intensidade).
+  [0x00, 0x00, 0x00], // 55 céu do relâmpago (começa preto)
+  [0x9a, 0xa8, 0xd0], // 56 estrela fraca
+  [0x8f, 0xb4, 0xd8], // 57 chuva: gotas e anéis
+  [0xa8, 0xe8, 0xff], // 58 gelo: ícone de frio
+  [0x0a, 0x22, 0x3a], // 59 raio de luz (cor com o dia no máximo)
 ];
 
 // Quão claro cada índice aparece em preto e branco: 0 = preto, 16 = branco (mono.js).
@@ -135,10 +142,15 @@ export const TONS = [
   16, // 52
   16, // 53 a 54: coração (colorido)
   16, // 54
+  16, // 55 a 59: clima (colorido)
+  16, // 56
+  16, // 57
+  16, // 58
+  16, // 59
 ];
 
 // Índices que não passam pelo preto e branco: são pintados sólidos, na cor da PALETA.
-export const COLORIDOS = [2, 3, 4, 5, 6, 7, 8, 9, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54];
+export const COLORIDOS = [2, 3, 4, 5, 6, 7, 8, 9, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59];
 
 // Nomes para quem desenha (os números acima são os índices da PALETA).
 export const COR = {
@@ -177,6 +189,12 @@ export const COR = {
   OVO_BRILHO: 52,
   CORACAO: 53,
   CORACAO_CLARO: 54,
+  // O clima (render/luz.js, ceu.js, chuva.js, raios.js, hud.js).
+  CEU_RELAMPAGO: 55,
+  ESTRELA_FRACA: 56,
+  CHUVA: 57,
+  GELO: 58,
+  RAIO_DE_LUZ: 59,
   // A comida (comida.js).
   GRAO: 44,
   GRAO_BRILHO: 45,

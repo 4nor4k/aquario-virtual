@@ -15,6 +15,9 @@ import { desenharGraos } from './comida.js';
 import { desenharCocos } from './cocos.js';
 import { desenharOvos } from './ovos.js';
 import { desenharCoracoes } from './coracoes.js';
+import { luzDoClima, restaurarPaleta, aplicarLuz } from './luz.js';
+import { desenharCeu } from './ceu.js';
+import { desenharRaiosDeLuz } from './raios.js';
 import { LARGURA, ALTURA } from './tela.js';
 
 const COR_AGUA = 1;
@@ -68,8 +71,11 @@ export function desenharPeixes(quadro, peixes, camera) {
 // turvacao (0 a 1: o quanto a água está turva) e graos (comida) também são opcionais.
 export function desenharQuadro(quadro, {
   mapa, camera, peixes, aquario, config, bolhas = [], plantas = [], fundo, tempo = 0, turvacao = 0, graos = [],
-  cocos = [], bolhasDoFundo = [], ovos = [], casais = [], agoraMs = null,
+  cocos = [], bolhasDoFundo = [], ovos = [], casais = [], agoraMs = null, clima = null,
 }) {
+  // clima (opcional, core/clima.js): a hora do dia, a chuva e o relâmpago. Sem ele a cena é a de sempre (dia).
+  const luz = clima ? luzDoClima(clima, config?.clima?.horas) : null;
+  if (luz) restaurarPaleta();                 // as cores do cenário voltam ao que eram, antes da luz de agora
   quadro.fill(COR_AGUA);                      // a água: preto sólido
   desenharBolor(quadro, camera, turvacao, tempo); // o bolor nas paredes de vidro: atrás de tudo
   // Os peixes nadam em três planos (peixe.plano, sem plano = frente): atrás da pedra grande (e das
@@ -82,13 +88,16 @@ export function desenharQuadro(quadro, {
   desenharPeixes(quadro, doPlano('meio'), camera); // na frente da pedra e do cenário, atrás das algas
   desenharPlantas(quadro, plantas, camera, tempo);
   desenharSuperficie(quadro, camera, tempo);
+  if (luz) desenharCeu(quadro, camera, luz, tempo); // estrelas de noite e o clarão do relâmpago (depois da superfície, que repinta o ar)
   desenharFiltro(quadro, camera, tempo);     // caixa, bico e queda d'água, por cima da superfície
   desenharTurvacao(quadro, camera, turvacao, tempo); // a cor da água suja e as partículas: atrás dos peixes
+  if (luz && luz.dia > 0.02) desenharRaiosDeLuz(quadro, camera, tempo); // os raios de luz do dia, na água ainda limpa
   desenharOvos(quadro, ovos, camera, { tempo, agoraMs }); // os ovos do casal, na areia
   desenharPeixes(quadro, doPlano('frente'), camera);
   if (config) desenharCoracoes(quadro, casais, camera, config); // os corações do namoro, por cima dos peixes
   if (config) desenharCocos(quadro, cocos, camera, config); // o cocô sai da cauda: por cima do peixe
   desenharGraos(quadro, graos, camera);
   desenharBolhas(quadro, bolhas, camera);
+  if (luz) aplicarLuz(luz);                   // a luz do dia e da noite: troca as cores do cenário (nunca as da tela)
   if (aquario && config) desenharHud(quadro, { aquario, config, camera });
 }

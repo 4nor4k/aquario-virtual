@@ -156,4 +156,5 @@ Todas **[proposta]** (recomendação primeiro; se nada for dito, vale a recomend
 ## 11. Andamento
 
 - **1 feito em 2026-11-19**: `core/clima.js` (hora do dia por modo relógio/ciclo/fixa, chuva automática ou forçada com nível suave, relâmpago de duas piscadas, temperatura por curva do dia + variação lenta, frio < 18), bloco `clima` no `jogo.json`, 16 testes.
-- 2 a 6: por fazer.
+- **2 feito em 2026-11-19**: `render/luz.js` (tom por hora, chuva e relâmpago; restaurar e aplicar na paleta), `render/ceu.js` (estrelas e clarão, desenhados depois da superfície porque ela repinta o ar), `render/raios.js` (3 raios de luz só de dia), 5 cores novas na paleta (55 a 59), ligação na cena e no `main.js` (hora = relógio do computador). 576 testes.
+- 3 a 6: por fazer.

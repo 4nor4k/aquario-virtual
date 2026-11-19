@@ -14,6 +14,7 @@ import { criarPainel } from './sim/panel.js';
 import { MUNDO_LARGURA, MUNDO_ALTURA } from './core/mundo.js';
 import { criarAquario } from './core/aquarium.js';
 import { criarBolhas } from './core/bolhas.js';
+import { criarClima } from './core/clima.js';
 import { TAMANHO_POR_FASE } from './core/fish.js';
 import { criarClock } from './core/clock.js';
 import { criarMenu } from './core/menu.js';
@@ -67,6 +68,14 @@ async function carregarJson(caminho) {
 }
 const config = await carregarJson('config/jogo.json');
 const textos = await carregarJson('config/textos.json');
+
+// O clima e a hora do dia (doc 11). No simulador a hora é a do relógio do computador; o core não usa Date,
+// então é aqui que se lê e se entrega.
+const clima = criarClima({ semente: Date.now() >>> 0, config });
+function minutosDoDiaReal() {
+  const agora = new Date();
+  return agora.getHours() * 60 + agora.getMinutes() + agora.getSeconds() / 60;
+}
 
 let aquario;
 let numeroDoJogo = 0;
@@ -243,6 +252,7 @@ function atualizar(dt) {
   }
   bolhas.atualizar(dt);
   bolhasDoFundo.atualizar(dt);
+  clima.atualizar(dt, minutosDoDiaReal());
   turvacao.atualizar(dt, nivelDaSujeira(aquario.sujeira));
   tempoVisual += dt;
   menu.atualizar(dt, aquario);
@@ -264,7 +274,7 @@ function mostrarAvisosDoCore() {
 function desenhar() {
   desenharQuadro(quadro, {
     mapa, camera, peixes: aquario.peixes, aquario, config, bolhas: bolhas.lista, bolhasDoFundo: bolhasDoFundo.lista, plantas, fundo, tempo: tempoVisual,
-    turvacao: turvacao.nivel, graos: aquario.graos, cocos: aquario.cocos, ovos: aquario.ovos, casais: aquario.casais, agoraMs: clock.agoraMs(),
+    turvacao: turvacao.nivel, graos: aquario.graos, cocos: aquario.cocos, ovos: aquario.ovos, casais: aquario.casais, agoraMs: clock.agoraMs(), clima,
   });
   desenharTelas(quadro, { menu, aquario, config, textos, agoraMs: clock.agoraMs() });
   mostrarQuadro(ctx, quadro);
@@ -290,7 +300,7 @@ function ciclo(agora) {
 // Ajuda para desenvolver: abrindo http://localhost:8080/?debug, dá para mexer no jogo pelo
 // console do navegador (ex.: __debug.camera.irPara(0, 0)). Sem "?debug" nada disso existe.
 if (new URLSearchParams(location.search).has('debug')) {
-  window.__debug = { camera, seguidor, clock, config, textos, menu, turvacao, aquario: () => aquario, salvamento, salvar };
+  window.__debug = { clima, camera, seguidor, clock, config, textos, menu, turvacao, aquario: () => aquario, salvamento, salvar };
 }
 
 desenhar();

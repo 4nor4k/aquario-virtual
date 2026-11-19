@@ -97,6 +97,9 @@ export const COR_AGUA_SUJA = [0x58, 0x4f, 0x24];
 
 // O CHÃO: cada cor da areia (e dos grãos) caminha até uma versão escura, mais acastanhada.
 const AREIA_INDICES = [COR.AREIA, COR.AREIA_ESCURA, ...COR.GRAOS];
+// Os índices da paleta cuja cor esta tela reescreve a cada quadro (a luz do dia e da noite, em luz.js,
+// parte da cor que ela deixou e não pode restaurá-los do original).
+export const INDICES_DA_TURVACAO = [COR.AZUL_AGUA, COR.AGUA_SUJA, ...AREIA_INDICES];
 const AREIA_ORIGINAL = AREIA_INDICES.map((i) => [...PALETA[i]]);
 export const COR_CHAO_ESCURO = [0x24, 0x1e, 0x10];
 export const FORCA_DO_CHAO_ESCURO = 0.65; // com o chão no pior, 65% do caminho até a cor escura
