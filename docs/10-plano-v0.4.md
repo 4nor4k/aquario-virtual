@@ -2,7 +2,7 @@
 
 Legenda: **[fechado]** decidido pelo usuário · **[proposta]** sugestão a confirmar.
 
-**Status: plano fechado em 2026-11-19.** O usuário disse "manda bala" sem alterar nenhuma das
+**Status: v0.4 concluída em 2026-11-19 (tag `v0.4`).** Plano fechado em 2026-11-19. O usuário disse "manda bala" sem alterar nenhuma das
 nove decisões da seção 9, então todas as recomendações valem como **[fechado]** (ele pode
 reabrir qualquer uma). As decisões novas já entraram no `03-jogo.md`. Progresso dos passos: seção 11.
 
@@ -226,4 +226,22 @@ Passos:
 - **1 e 4 (núcleo) feitos em 2026-11-19**: `core/reproducao.js`, casais, ovos, vagas, parceiro, mortos que somem, Game Over esperando ovos, salvamento dos campos novos (arquivo da v0.3 ainda abre) e ausência sem animação. Fiz o passo 4 junto com o 1 porque o Game Over e as vagas dependem dos ovos. 508 testes (26 novos em `tests/reproducao.test.js`).
 - **2 e 3 feitos em 2026-11-19** (foram juntos): foco no menu (`peixeEmFoco`, troca na tela de status com esquerda/direita), status com posição "2/3", sexo (só no adulto) e parceiro, HUD do peixe em foco, câmera automática seguindo o foco, 4º item "Adotar parceiro" no menu (tela de adoção em modo parceiro, B cancela, mensagem do motivo se não der), painel com seletor de peixe, "Adotar parceiro" e "Forçar namoro", e mensagens de namoro e nascimento (`menu.avisar`). 526 testes.
 - **5 feito em 2026-11-19**: `render/coracoes.js` (4 corações rosa de 5×5 subindo do ponto de encontro durante os 6 s do namoro) e `render/ovos.js` (ovo 3×3 rosado claro, redondo em cima, que treme nos últimos 5 min antes de eclodir); cores sólidas novas na paleta (51 a 54); os peixes se encontram de frente um para o outro. 537 testes. Ovo de 2×2 foi tentado e ficou pequeno demais.
-- 6 (fechamento, com conferência no navegador): por fazer.
+- **6 feito em 2026-11-19**: conferência no navegador, README, `CLAUDE.md`, versão 0.4.0 e tag `v0.4`.
+
+## 12. Resultado da conferência da v0.4 (2026-11-19)
+
+`node --test`: **537 testes passando** (`reproducao`, `foco` e `namoro-render` são novos).
+
+Conferido **no navegador** (servidor de teste em outra porta, com o jogo salvo numa pasta
+temporária, sem tocar no `sim/saves` nem na porta 8080 do usuário):
+- Adotar, "Pular fase" duas vezes (adulto) e **Adotar parceiro** pelo painel: apareceu "Dory"
+  (macho, adulto, azul), o aviso "Parceiro adotado!", o seletor de peixe e a linha "Vivos: 2 de 5 ·
+  ovos: 0 · parceiro: Dory"; o botão ficou desabilitado ("ele já tem parceiro").
+- **Forçar namoro**: mensagem "Seus peixes estão namorando!", corações na tela, 1 ovo na areia.
+- Relógio a **3600×**: o ovo eclodiu, nasceu "Filhote 1" (macho) com a mensagem "Nasceu um filhote!".
+- **Salvar e recarregar** a página: voltaram os 3 peixes, o casal (com a hora do último namoro) e o
+  contador de filhotes. Status do 2º peixe mostrou "2/3", sexo e parceiro.
+- Sem nenhum erro no console durante a conferência.
+
+**Não conferido à mão** (só pelos testes): o limite de 5 peixes com 5 vivos na tela, ausência longa
+com o servidor desligado e ovos na tela de "Bem-vindo de volta" (não há resumo, ver seção 2).

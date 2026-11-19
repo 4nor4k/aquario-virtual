@@ -3,7 +3,7 @@
 Tamagotchi de aquário rodando em um ESP32, com display colorido, joystick e botões.
 Pode ser gerenciado pelo smartphone via WiFi e também funciona offline.
 
-> Status: **v0.3 do simulador pronta** (Fase A). O firmware do ESP32 (Fase B) começa quando
+> Status: **v0.4 do simulador pronta** (Fase A). O firmware do ESP32 (Fase B) começa quando
 > as peças chegarem.
 
 ## Como rodar o simulador
@@ -25,6 +25,21 @@ Depois abra **http://localhost:8080** no navegador. Para parar, use `Ctrl+C` no 
   terminal). Feche o outro ou use outra porta.
 
 ## O que o simulador faz
+
+### v0.4: vários peixes, casal e ovos
+
+- **Até 5 peixes** ao mesmo tempo (vivos mais ovos). Na **tela de status** (botão **C**), o joystick
+  para os lados **troca o peixe em foco** ("2/3"); o HUD e a câmera automática seguem o peixe em foco.
+- Quando o peixe vira **adulto**, o **sexo aparece** (antes é "?") e o menu **Adotar parceiro**
+  (ou o painel) adota um parceiro já adulto, de sexo oposto e da cor que você escolher. Cada peixe
+  tem no máximo um parceiro; filho só reproduz se você adotar um parceiro para ele.
+- O casal **bem cuidado** (os dois adultos, saúde 90 ou mais por 30 min seguidos, 3 dias desde a
+  última vez, e vaga no aquário) **namora**: os dois se encontram, sobem corações, aparecem 1 a 3
+  **ovos** que caem na areia e **eclodem em 1 hora**. O filhote tem a cor de um dos pais, sexo
+  sorteado e se chama "Filhote 1", "Filhote 2"... (renomeie pelo painel). Com o jogo fechado, o
+  namoro e a eclosão também acontecem.
+- **Peixe morto** sai com "Limpar aquário" ou some sozinho 12 h depois. Ovos seguram o Game Over.
+- No painel: seletor de peixe, **Adotar parceiro** e **Forçar namoro** (para testar sem esperar).
 
 ### v0.3: o aquário dura de verdade
 
@@ -67,7 +82,7 @@ Para não esperar, o painel acelera o tempo.
 | Botão B | **X** | Mostra/oculta o HUD de indicadores | Volta |
 | Botão C | **C** | Abre o status | (nada) |
 
-O menu tem **Dar comida**, **Limpar aquário** e **Regular pH**. O jogo **não pausa** com o menu
+O menu tem **Dar comida**, **Limpar aquário**, **Regular pH** e **Adotar parceiro**. O jogo **não pausa** com o menu
 aberto. O **HUD de indicadores** (B na tela do jogo) aparece por cima do jogo, sem trocar de tela, com
 um indicador em cada canto: fome, saúde, pH, temperatura da água e sujeira. No Game Over, **Z** abre a tela de adoção.
 
@@ -125,6 +140,7 @@ disponível no console do navegador (`camera`, `clock`, `config`, `textos`, `men
 | [07-plano-v0.1.md](docs/07-plano-v0.1.md) | Plano e resultado da v0.1 | concluído |
 | [08-plano-v0.2.md](docs/08-plano-v0.2.md) | Plano e resultado da v0.2 | concluído |
 | [09-plano-v0.3.md](docs/09-plano-v0.3.md) | Plano e resultado da v0.3 (salvar, adotar, cores) | concluído |
+| [10-plano-v0.4.md](docs/10-plano-v0.4.md) | Plano e resultado da v0.4 (vários peixes, casal, ovos) | concluído |
 
 ## Como trabalhamos
 

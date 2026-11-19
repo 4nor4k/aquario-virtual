@@ -267,6 +267,12 @@ não de resolução.
   Ao abrir o jogo já aparece como estava. As cores e os limites das faixas são do usuário (as
   faixas) e **[proposta]** meus (os tons exatos, em `render/turvacao.js`: `COR_AGUA_SUJA`,
   `COR_CHAO_ESCURO`, `COR_SUPERFICIE_SUJA`).
+- **[fechado]** **Namoro, ovos e corações** (v0.4, plano `10`): `render/coracoes.js` desenha 4 corações rosa de
+  5×5 px (`#ff5d8f`, brilho `#ffb4cb`) que saem um após o outro e sobem 16 px do ponto de encontro durante
+  os 6 s do namoro, balançando e piscando antes de sumir; `render/ovos.js` desenha o ovo em **3×3 px**,
+  redondo em cima, rosado claro (`#ffdce6`) com 1 px de brilho, parado na areia, que **treme** nos últimos
+  5 min antes de eclodir. (O ovo 2×2 em creme foi tentado e sumia na areia.) **[proposta]** Tons e
+  tamanhos são meus. O sexo não muda o desenho do peixe por enquanto.
 - **[fechado]** **Bolhas** (pedido do usuário em 19/11/2026): a fonte da **direita (x = 236) foi
   tirada**; fica só a de x = 84. Foi acrescentada uma **fonte atrás da pedra grande, na camada 3**
   (mais longe que a camada 2 das pedras): ela anda a **70%** da câmera (a pedra, a 85%), é
