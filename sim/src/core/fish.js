@@ -78,6 +78,7 @@ export function criarPeixe({
     causaDaMorte,          // 'velhice' ou 'cuidado' (falta de cuidado), só depois de morrer
     nascimentoMs,          // hora do jogo em que nasceu (a idade é "agora" menos isto)
     morteMs,               // hora do jogo em que morreu (null enquanto vive); o morto some depois de um tempo
+    controlado: false,     // na caçada (core/cacada.js): o joystick manda no peixe e o aquário não o move
     namorando: null,       // durante o namoro: { x, y, olharPara } = onde ele fica, e para que lado olha (só animação)
     x,
     y,
@@ -289,6 +290,23 @@ export function atualizarPeixeNamorando(peixe, dt, alvo) {
     peixe.movimento = 'nadando';
     if (Math.abs(dx) > 0.5) peixe.direcao = dx > 0 ? 1 : -1;
   }
+}
+
+// Peixe controlado pelo joystick (caçada, core/cacada.js). dir = { x, y } (-1, 0 ou 1; na diagonal a
+// velocidade não aumenta). velocidade em pixels por segundo; ritmo = quantas vezes mais rápido bate a cauda.
+export function atualizarPeixeControlado(peixe, dt, dir, velocidade, ritmo = 1) {
+  const lim = limitesDoPeixe(peixe.fase);
+  const tamanho = Math.hypot(dir.x, dir.y);
+  peixe.destino = null;
+  peixe.tempoAnimacao += dt * ritmo;
+  if (tamanho === 0) {
+    peixe.movimento = 'esperando';
+    return;
+  }
+  peixe.movimento = 'nadando';
+  peixe.x = limitar(peixe.x + (dir.x / tamanho) * velocidade * dt, lim.minX, lim.maxX);
+  peixe.y = limitar(peixe.y + (dir.y / tamanho) * velocidade * dt, lim.minY, lim.maxY);
+  if (dir.x !== 0) peixe.direcao = dir.x > 0 ? 1 : -1;
 }
 
 // Peixe parado (fazendo cocô): não sai do lugar, mas a cauda continua batendo.

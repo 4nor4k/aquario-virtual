@@ -17,7 +17,7 @@ import { criarBolhas } from './core/bolhas.js';
 import { criarClima } from './core/clima.js';
 import { TAMANHO_POR_FASE } from './core/fish.js';
 import { criarClock } from './core/clock.js';
-import { criarMenu } from './core/menu.js';
+import { criarMenu, TELAS } from './core/menu.js';
 import { exportarJogo, importarJogo, ErroDeSalvamento } from './core/salvar.js';
 import { calcularAusencia, aplicarAusencia } from './core/ausencia.js';
 import { criarArmazenamento } from './sim/armazenamento.js';
@@ -102,7 +102,7 @@ let jaSalvouOGameOver = false;
 async function salvar({ keepalive = false } = {}) {
   if (salvamento.bloqueado || semJogo) return;
   const agora = Date.now();
-  const dados = exportarJogo(aquario, { tempoJogoMs: clock.agoraMs(), salvoEmMs: agora });
+  const dados = exportarJogo(aquario, { tempoJogoMs: clock.agoraMs(), salvoEmMs: agora, recordeCacada: menu.recorde });
   const ok = await armazenamento.gravar(dados, { keepalive });
   salvamento.falhou = !ok;
   if (ok) salvamento.quando = agora;
@@ -115,6 +115,8 @@ const novaSemente = () => (Date.now() + numeroDoJogo) >>> 0;
 const menu = criarMenu({
   textos,
   cores: config.cores,
+  config,
+  semente: Date.now() >>> 0,
   aoNovoJogo: ({ cor }) => adotar({ cor }),
   aoAgir: () => salvar(),
   // A comida cai no meio do que você está vendo.
@@ -154,6 +156,7 @@ function esperarAdocao() {
 async function apagarJogo() {
   if (!salvamento.bloqueado) await armazenamento.apagar();
   esperarAdocao();
+  menu.definirRecorde(0); // apagar o jogo apaga também o recorde da caçada
 }
 
 // Tenta voltar ao jogo salvo. Devolve true se conseguiu.
@@ -167,13 +170,14 @@ async function carregarJogoSalvo() {
   }
   try {
     if (lido.estado === 'ilegivel') throw new ErroDeSalvamento('o arquivo não é um JSON válido');
-    const { aquario: carregado, tempoJogoMs, salvoEmMs } = importarJogo(lido.dados, { config, semente: novaSemente() });
+    const { aquario: carregado, tempoJogoMs, salvoEmMs, recordeCacada } = importarJogo(lido.dados, { config, semente: novaSemente() });
     // O tempo com o jogo fechado conta: as regras rodam por ele todo (doc 03 e 09, seção 4).
     const ausenciaMs = calcularAusencia(salvoEmMs, Date.now());
     const r = aplicarAusencia(carregado, { ausenciaMs, horaDoJogoAntesMs: tempoJogoMs }, config);
     clock.reiniciar();
     clock.avancar(r.horaDoJogoMs);
     menu.reiniciar();
+    menu.definirRecorde(recordeCacada);
     aquario = carregado;
     turvacao.irPara(nivelDaSujeira(aquario.sujeira)); // abre já com a água como estava
     jaSalvouOGameOver = aquario.gameOver;
@@ -261,12 +265,20 @@ function atualizar(dt) {
   }
   // Jogador parado e peixe fora da tela: a câmera vai atrás dele (câmera-segue.js).
   const foco = menu.peixeEmFoco(aquario);
-  if (foco) {
+  // Caçar (doc 14): o joystick nada com o peixe, B segurado acelera e a câmera fica TRAVADA nele.
+  const cacando = menu.tela === TELAS.CACADA;
+  if (cacando) {
+    menu.cacada.atualizar(dt, { dir, acelerando: teclado.segurando('b') });
+    const cacador = menu.cacada.peixe;
+    if (cacador) camera.irPara(cacador.x - LARGURA / 2, cacador.y - ALTURA / 2);
+  } else if (foco) {
     const { largura, altura } = TAMANHO_POR_FASE[foco.fase];
     seguidor.atualizar(dt, { alvo: { x: foco.x, y: foco.y, largura, altura }, joystick: dir, livre });
   }
+  // Na pausa e no resultado da caçada o aquário congela (as regras recuperam o tempo parado no passo seguinte).
+  const congelado = cacando && (menu.cacada.fase === 'pausa' || menu.cacada.fase === 'fim');
   // Chovendo, os peixes se escondem atrás da pedra grande (onde ela está na tela agora, por causa da paralaxe).
-  aquario.atualizar(dt, clock.agoraMs(), { chuvaNivel: clima.chuvaNivel, abrigo: abrigoDaPedraGrande({ fundo, camera }) });
+  if (!congelado) aquario.atualizar(dt, clock.agoraMs(), { chuvaNivel: clima.chuvaNivel, abrigo: abrigoDaPedraGrande({ fundo, camera }) });
   mostrarAvisosDoCore();
   // Por onde o peixe passa (atrás ou na frente das algas e da pedra): troca quando não está sobre elas.
   atualizarPlanos(aquario.peixes, { plantas, fundo, camera });
@@ -298,7 +310,7 @@ function mostrarAvisosDoCore() {
 function desenhar() {
   desenharQuadro(quadro, {
     mapa, camera, peixes: aquario.peixes, aquario, config, bolhas: bolhas.lista, bolhasDoFundo: bolhasDoFundo.lista, plantas, fundo, tempo: tempoVisual,
-    turvacao: turvacao.nivel, graos: aquario.graos, cocos: aquario.cocos, ovos: aquario.ovos, casais: aquario.casais, agoraMs: clock.agoraMs(), clima,
+    turvacao: turvacao.nivel, graos: aquario.graos, cocos: aquario.cocos, ovos: aquario.ovos, casais: aquario.casais, agoraMs: clock.agoraMs(), clima, larvas: menu.cacada.larvas,
   });
   desenharTelas(quadro, { menu, aquario, config, textos, agoraMs: clock.agoraMs(), clima });
   mostrarQuadro(ctx, quadro);

@@ -23,7 +23,7 @@ bateria + USB), gerenciado também pelo celular via WiFi. Veja `README.md` e `do
   Usuário ainda não tem nenhuma peça.
 - Fechado: `05-arquitetura.md` (a seção 9, Fase B, fica como proposta até o hardware chegar).
 - Git: só local por enquanto. Pasta `C:\dev\aquario-virtual`; autor dos commits "Anorak".
-  Nome do projeto provisório: "Aquário". Uma tag por versão (`v0.1`, `v0.2` e `v0.3` criadas).
+  Nome do projeto provisório: "Aquário". Uma tag por versão (`v0.1` a `v0.8` criadas).
   Pendente: apagar cópia antiga do OneDrive (se existir).
 - Fechado: `06-web.md` (página do celular; design visual fica para depois do v0.5).
 - **v0.1 do simulador concluída** (`sim/`, doc `07-plano-v0.1.md`, resultado na seção 8):
@@ -111,7 +111,14 @@ bateria + USB), gerenciado também pelo celular via WiFi. Veja `README.md` e `do
   vê `/app/` e a API do celular, o resto dá 403. IP do PC do usuário na rede: muda (DHCP; 192.168.1.101 e depois .100, Ethernet): usar o endereço que o servidor
   mostra ao iniciar ou `ipconfig`; o `26.x` é do Radmin VPN, não serve. Limite: a aba do
   jogo precisa ficar visível (senão o jogo para). Aparência da página é proposta minha. Pendente da v0.7: nada.
-- Próximo: **depois da v0.7** (refinar arte/balanceamento/aparência da página jogando → esperar o hardware; perguntar ao usuário).
+- **v0.8 concluída em 20/11/2026 (tag `v0.8`)** (plano e resultado em `docs/14-plano-v0.8.md`; 712 testes). Pedido do usuário: **minigame "Caçar"** no menu
+  (A): 1 minuto, larvas que fogem, joystick nada, **B acelera**, **A pausa** (Continuar/Reiniciar/Sair), recorde salvo, câmera travada no peixe.
+  O usuário disse "pode" e aceitou as 5 recomendações. Núcleo em `core/cacada.js` (números em `jogo.json` > `cacada`), desenho em
+  `render/cacada.js`, recorde no arquivo salvo (`recordeCacada`, opcional; "Apagar jogo" zera). Comer larva **não** mexe em fome/saúde/sujeira.
+  `criarMenu` agora recebe `config` e `semente`. Balanço: `node tools/cacada.js` (em `sim/`): bot perfeito faz ~44 larvas, sem B ~14;
+  **dificuldade a ajustar pelo usuário jogando**. Não testado à mão: setas + B segurado juntos. Página do celular não tem a caçada.
+- Próximo: **depois da v0.8** (refinar arte/balanceamento/caçada jogando → esperar o hardware; perguntar ao usuário).
+  Antes: **depois da v0.7** (refinar arte/balanceamento/aparência da página jogando → esperar o hardware; perguntar ao usuário).
   Antes: **depois da v0.6** (plano combinado: refinar arte e balanceamento jogando → esperar o hardware).
   Antes: **depois da v0.5.** O roadmap do `docs/01-visao.md` vai da v0.5 direto para a v1.0 (firmware no ESP32, Fase B, quando o hardware chegar) e v1.1 (WiFi, celular, hora e clima reais). Perguntar ao usuário o que quer a seguir: refinar arte e balanceamento, simular a página do celular (doc 06) no navegador, ou esperar o hardware.
   **Plano escrito em `docs/10-plano-v0.4.md` (19/11/2026, rascunho, sem commit): aguardando o usuário confirmar a seção 9 antes de codar.** As dúvidas de ovos além do

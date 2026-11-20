@@ -181,6 +181,10 @@ export function criarAquario({ semente = 1, config } = {}) {
           continue;
         }
         atualizarIdade(peixe, agoraMs);
+        if (peixe.controlado) {
+          peixe.planoDesejado = 'frente'; // na caçada, quem o move é a caçada (core/cacada.js) e ele fica na frente de tudo
+          continue;
+        }
         if (peixe.namorando) {
           atualizarPeixeNamorando(peixe, dt, peixe.namorando); // vai ao encontro do parceiro
           continue;

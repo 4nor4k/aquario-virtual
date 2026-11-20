@@ -1,7 +1,7 @@
 {
   "menu": {
     "titulo": "Menu",
-    "itens": ["Dar comida", "Limpar aquário", "Regular pH", "Adotar parceiro"],
+    "itens": ["Dar comida", "Limpar aquário", "Regular pH", "Adotar parceiro", "Caçar"],
     "dica": "A: ok  B: voltar"
   },
 
@@ -19,9 +19,28 @@
       "temParceiro": "Ele já tem parceiro",
       "cheio": "Aquário cheio (5 peixes)"
     },
+    "cacar": {
+      "morto": "Não há peixe vivo.",
+      "fraco": "Ele está fraco demais para caçar.",
+      "namorando": "Ele está namorando agora."
+    },
+    "cacadaInterrompida": "{nome} não pode mais caçar",
     "morreu": "{nome} morreu",
     "namoro": "Seus peixes estão namorando!",
     "nasceu": "Nasceu um filhote!"
+  },
+
+  "cacada": {
+    "larvas": "LARVAS",
+    "recorde": "REC",
+    "pausa": { "titulo": "Pausa", "itens": ["Continuar", "Reiniciar", "Sair"], "dica": "A: ok  B: voltar" },
+    "fim": {
+      "titulo": "Fim!",
+      "larvas": "Larvas: {n}",
+      "recorde": "Recorde: {n}",
+      "novoRecorde": "NOVO RECORDE!",
+      "dica": "A: de novo  B: sair"
+    }
   },
 
   "status": {

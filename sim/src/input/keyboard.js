@@ -50,6 +50,11 @@ export function criarTeclado(alvo) {
       return { x, y };
     },
 
+    // O botão ('a', 'b' ou 'c') está apertado AGORA? (a caçada usa o B segurado para acelerar)
+    segurando(botao) {
+      return (BOTOES[botao] ?? []).some((c) => seguradas.has(c));
+    },
+
     // O que foi apertado desde a última chamada: { a, b, c, cima, baixo, esquerda, direita }.
     // Chame uma vez por passo do jogo.
     botoes() {

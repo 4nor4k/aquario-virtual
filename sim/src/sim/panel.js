@@ -47,6 +47,7 @@ export function criarPainel({
   const campoChuva = $('clima-chuva');
   const campoTemperatura = $('clima-temperatura');
   const botaoApagar = $('apagar');
+  const botaoZerarRecorde = $('zerar-recorde');
   let ultimaAtualizacao = -Infinity;
   let escala = 2;
 
@@ -90,6 +91,12 @@ export function criarPainel({
     confirmandoApagar = null;
     botaoApagar.textContent = 'Apagar jogo';
     await aoApagar();
+    atualizar(true);
+  });
+
+  // O recorde do minigame Caçar: o próximo salvamento (a cada 10 s) já grava o zero.
+  botaoZerarRecorde.addEventListener('click', () => {
+    menu.definirRecorde(0);
     atualizar(true);
   });
 
@@ -251,6 +258,8 @@ export function criarPainel({
     }
 
     mostrarSalvamento(obterSalvamento());
+    $('recorde-cacada').textContent = `Recorde da caçada: ${menu.recorde} larva${menu.recorde === 1 ? '' : 's'}`;
+    botaoZerarRecorde.disabled = menu.recorde === 0;
 
     // Adoção: o nome do peixe atual e a seção de adotar.
     const aguardando = aguardandoAdocao();

@@ -122,5 +122,22 @@
     "subidaPx": 4,
     "alturaNoChaoPx": 2,
     "toleranciaPx": 6
+  },
+
+  "cacada": {
+    "duracaoSeg": 60,
+    "contagemSeg": 3,
+    "velocidadePeixe": 38,
+    "velocidadeComB": 66,
+    "larvas": 5,
+    "reaparecerSeg": 1.5,
+    "distanciaMinimaAoNascer": 50,
+    "distanciaMaximaAoNascer": 90,
+    "velocidadePasseio": 10,
+    "velocidadeFuga": 50,
+    "raioSusto": 34,
+    "raioCaptura": 6,
+    "zigueZagueGraus": 50,
+    "trocaDirecaoSeg": [1, 3]
   }
 }

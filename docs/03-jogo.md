@@ -161,6 +161,12 @@ deixado descendentes, é Game Over.
   pontas), para o jogador ver que ele está ali. Sai pouco depois que a chuva passa. É só animação (não muda fome, saúde nem pH). A comida tem prioridade. Ver `12-plano-v0.6.md`, seção 2.
 - Calor: sem regra por enquanto.
 
+## 7.1 Minigame "Caçar" (v0.8)
+
+Menu > **Caçar**: 1 minuto caçando larvas com o peixe em foco (joystick nada, **B** acelera, **A** pausa). É só
+diversão: **não mexe em fome, saúde nem sujeira**. Só caça peixe saudável e fora do namoro. Recorde único salvo no
+arquivo. Detalhes e números em `14-plano-v0.8.md`.
+
 ## 8. Em aberto
 
 1. Os números das seções 2 e 3 são valores iniciais; serão ajustados testando no aparelho.

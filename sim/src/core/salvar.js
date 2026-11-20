@@ -11,6 +11,7 @@ export const VERSAO_DO_SALVAMENTO = 1;
 // Na lista cabem também os mortos que ainda não sumiram (1 min depois de morrer).
 export const MAXIMO_NA_LISTA = 20;
 const MAXIMO_DE_OVOS = 5;
+const MAXIMO_DO_RECORDE = 100000;
 const MAXIMO_DE_PENDENTES = 200; // cada grão comido vira uma entrada e some em ~6 h
 
 const ESTADOS = ['saudavel', 'doente', 'morto'];
@@ -27,11 +28,13 @@ export class ErroDeSalvamento extends Error {
 
 // Transforma o jogo em um objeto simples, pronto para virar JSON.
 // tempoJogoMs: a hora do jogo (o relógio). salvoEmMs: a hora REAL de agora (ms desde 1970).
-export function exportarJogo(aquario, { tempoJogoMs, salvoEmMs }) {
+// recordeCacada: o recorde do minigame "Caçar" (não é do aquário: sobrevive a um novo peixe).
+export function exportarJogo(aquario, { tempoJogoMs, salvoEmMs, recordeCacada = 0 }) {
   return {
     versao: VERSAO_DO_SALVAMENTO,
     salvoEmMs,
     tempoJogoMs,
+    recordeCacada,
     aquario: {
       sujeira: aquario.sujeira,
       sujeiraPendente: aquario.sujeiraPendente.map((e) => ({ inicioMs: e.inicioMs, duracaoMs: e.duracaoMs, total: e.total })),
@@ -65,7 +68,7 @@ export function exportarJogo(aquario, { tempoJogoMs, salvoEmMs }) {
   };
 }
 
-// Devolve { aquario, tempoJogoMs, salvoEmMs }. Se algo estiver errado, lança ErroDeSalvamento
+// Devolve { aquario, tempoJogoMs, salvoEmMs, recordeCacada }. Se algo estiver errado, lança ErroDeSalvamento
 // em vez de adivinhar. semente: para o sorteio do nado (nada do que foi salvo depende dela).
 export function importarJogo(dados, { config, semente = 1 }) {
   const raiz = objeto(dados, 'arquivo');
@@ -74,6 +77,8 @@ export function importarJogo(dados, { config, semente = 1 }) {
   }
   const salvoEmMs = numero(raiz.salvoEmMs, 'salvoEmMs', 0);
   const tempoJogoMs = numero(raiz.tempoJogoMs, 'tempoJogoMs', 0);
+  // Arquivos de antes da caçada (v0.8) não têm este campo: vale 0.
+  const recordeCacada = raiz.recordeCacada === undefined ? 0 : inteiro(raiz.recordeCacada, 'recordeCacada', 0, MAXIMO_DO_RECORDE);
 
   const a = objeto(raiz.aquario, 'aquario');
   const sujeira = numero(a.sujeira, 'sujeira', 0, 100);
@@ -188,7 +193,7 @@ export function importarJogo(dados, { config, semente = 1 }) {
   }
   // Os ids já usados não podem voltar, mesmo que o peixe maior tenha morrido e sumido.
   aquario.garantirProximoId(proximoId);
-  return { aquario, tempoJogoMs, salvoEmMs };
+  return { aquario, tempoJogoMs, salvoEmMs, recordeCacada };
 }
 
 // --- Conferência dos campos ---------------------------------------------------------------

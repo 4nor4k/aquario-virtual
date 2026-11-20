@@ -14,6 +14,7 @@ import { idadeMs, sexoRevelado } from '../core/fish.js';
 import { diaDaVida, formatarDuracao, formatarPh, preencher } from '../core/formatar.js';
 import { faseDaIdade } from '../core/fish.js';
 import { notaDoPh, valorDoPh, statusDaSaude, faixaDoPh } from '../core/rules.js';
+import { desenharCacada } from './cacada.js';
 import { desenharCruz, desenharQuadradinhoDoPh, CRUZ_DO_STATUS } from './hud.js';
 
 // Cores da paleta (palette.js)
@@ -224,6 +225,11 @@ export function desenharAdocao(quadro, { menu, textos, agoraMs = 0 }) {
 // Desenha por cima do aquário o que a tela atual pede.
 // clima (opcional): dá a temperatura do indicador TEMP.
 export function desenharTelas(quadro, { menu, aquario, config, textos, agoraMs, clima = null }) {
+  if (menu.tela === TELAS.CACADA) {
+    desenharCacada(quadro, { cacada: menu.cacada, textos });
+    if (menu.mensagem) desenharMensagem(quadro, menu.mensagem);
+    return;
+  }
   if (menu.tela === TELAS.ADOCAO) {
     desenharAdocao(quadro, { menu, textos, agoraMs });
     return;

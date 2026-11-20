@@ -37,7 +37,7 @@ test('A abre o menu (câmera para) e B volta', () => {
 
 test('o menu tem um item para cada ação, na mesma ordem', () => {
   const { menu } = novo();
-  assert.deepEqual(ACOES, ['comida', 'limpar', 'ph', 'parceiro']);
+  assert.deepEqual(ACOES, ['comida', 'limpar', 'ph', 'parceiro', 'cacar']);
   assert.equal(menu.itens.length, ACOES.length);
 });
 
@@ -49,9 +49,10 @@ test('cima e baixo escolhem o item, dando a volta nas pontas', () => {
   menu.apertar(aperto('baixo'), aq);
   menu.apertar(aperto('baixo'), aq);
   menu.apertar(aperto('baixo'), aq);
+  menu.apertar(aperto('baixo'), aq);
   assert.equal(menu.item, 0); // deu a volta
   menu.apertar(aperto('cima'), aq);
-  assert.equal(menu.item, 3);
+  assert.equal(menu.item, 4);
 });
 
 test('abrir o menu de novo começa no primeiro item', () => {
