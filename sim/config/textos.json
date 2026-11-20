@@ -70,6 +70,31 @@
     "dica": "A: continuar"
   },
 
+  "celular": {
+    "avisos": {
+      "doente": "{nome} não está bem",
+      "fome": "{nome} está com fome",
+      "sujeira": "A água está suja",
+      "ph": "O pH está fora do ideal",
+      "ovos": "Há ovos prestes a eclodir",
+      "semNome": "Que tal dar um nome a {nome}?",
+      "frio": "Está frio lá fora",
+      "chuva": "Está chovendo lá fora"
+    },
+    "erros": {
+      "semJogo": "Ainda não há um peixe: adote o primeiro.",
+      "jaTemJogo": "Você já tem um jogo em andamento.",
+      "corInvalida": "Essa cor não existe.",
+      "peixeInvalido": "Esse peixe não existe.",
+      "peixeMorto": "Esse peixe está morto.",
+      "pedidoInvalido": "Pedido não entendido.",
+      "desligado": "O aparelho não está respondendo. Confira se ele está ligado.",
+      "semResposta": "O aparelho demorou a responder. Tente de novo.",
+      "ocupado": "O aparelho está ocupado. Tente de novo.",
+      "soNoAparelho": "Isto só funciona no aparelho de verdade."
+    }
+  },
+
   "adocao": {
     "titulo": "Adote um peixe",
     "tituloMacho": "Adote um macho",

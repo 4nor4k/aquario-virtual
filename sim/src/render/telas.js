@@ -10,7 +10,7 @@ import { desenharIndicadores } from './indicadores.js';
 import { TELAS } from '../core/menu.js';
 import { spritesDaCor } from './sprites.js';
 import { QUADROS_POR_SEGUNDO, QUADROS_DE_NADO } from '../core/fish.js';
-import { idadeMs } from '../core/fish.js';
+import { idadeMs, sexoRevelado } from '../core/fish.js';
 import { diaDaVida, formatarDuracao, formatarPh, preencher } from '../core/formatar.js';
 import { faseDaIdade } from '../core/fish.js';
 import { notaDoPh, valorDoPh, statusDaSaude, faixaDoPh } from '../core/rules.js';
@@ -77,11 +77,8 @@ function linhaDeBarra(quadro, y, rotulo, valor, cor, maximo = 100, ideal = null)
   desenharTexto(quadro, numero, LARGURA - MARGEM - larguraDoTexto(numero), y, TEXTO);
 }
 
-// O sexo só aparece quando o peixe é adulto (antes, "?"): doc 03, seção 6.
-export function sexoRevelado(peixe, agoraMs) {
-  const fase = faseDaIdade(idadeMs(peixe, agoraMs));
-  return fase === 'adulto' || fase === 'idoso' ? peixe.sexo : null;
-}
+// O sexo só aparece quando o peixe é adulto (antes, "?"): doc 03, seção 6. A regra mora no core (fish.js).
+export { sexoRevelado };
 
 // menu (opcional): diz qual peixe mostrar (o em foco) e permite trocar; sem ele, o primeiro.
 export function desenharStatus(quadro, { aquario, config, textos, agoraMs, menu = null }) {

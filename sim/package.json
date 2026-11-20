@@ -1,6 +1,6 @@
 {
   "name": "aquario-sim",
-  "version": "0.5.0",
+  "version": "0.7.0",
   "private": true,
   "description": "Simulador do Aquário no navegador (Fase A)",
   "type": "module",

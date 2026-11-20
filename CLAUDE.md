@@ -100,7 +100,19 @@ bateria + USB), gerenciado também pelo celular via WiFi. Veja `README.md` e `do
   As 4 cores do status (`COR.STATUS`) apontam para tons dos peixes (verde, laranja-destaque, vermelho do beta, azul), então
   **mudar as cores dos peixes muda o HUD**. O usuário aceitou as 4 recomendações do plano ("pode"). Conferido no navegador
   (porta 8091). Aparência é proposta minha, a ajustar.
-- Próximo: **depois da v0.6** (plano combinado: refinar arte e balanceamento jogando → esperar o hardware).
+- **v0.7 concluída em 20/11/2026 (tag `v0.7`; testada no celular de verdade, tudo funcionou)** (plano e resultado em
+  `docs/13-plano-v0.7.md`; 674 testes). O usuário pediu "a aplicação que rodará no mobile" e escolheu **testar no celular
+  de verdade via WiFi**, com o servidor do simulador fazendo o papel do ESP32 ("ponte"). Entregue: **página do celular**
+  em `web/` (`index.html`, `estilo.css`, `api.js`, `app.js`; 30 KB; 4 abas; só `api.js` fala com o aparelho), servida
+  em `/app/`; `core/estado-api.js` (`montarEstado`, GET /api/estado) e `core/comandos-api.js` (`executarComando`, usa as
+  mesmas funções dos botões); `sim/celular.js` + `servidor.js` (ponte: retrato, fila de comandos, online por 4 s);
+  `sim/src/sim/ponte.js` (a aba do jogo, a cada 0,5 s); textos em `textos.json` > `celular`.
+  **Modo rede:** `REDE=1 node servidor.js` (PowerShell: `$env:REDE="1"; node servidor.js`) abre para a rede de casa; a rede só
+  vê `/app/` e a API do celular, o resto dá 403. IP do PC do usuário na rede: muda (DHCP; 192.168.1.101 e depois .100, Ethernet): usar o endereço que o servidor
+  mostra ao iniciar ou `ipconfig`; o `26.x` é do Radmin VPN, não serve. Limite: a aba do
+  jogo precisa ficar visível (senão o jogo para). Aparência da página é proposta minha. Pendente da v0.7: nada.
+- Próximo: **depois da v0.7** (refinar arte/balanceamento/aparência da página jogando → esperar o hardware; perguntar ao usuário).
+  Antes: **depois da v0.6** (plano combinado: refinar arte e balanceamento jogando → esperar o hardware).
   Antes: **depois da v0.5.** O roadmap do `docs/01-visao.md` vai da v0.5 direto para a v1.0 (firmware no ESP32, Fase B, quando o hardware chegar) e v1.1 (WiFi, celular, hora e clima reais). Perguntar ao usuário o que quer a seguir: refinar arte e balanceamento, simular a página do celular (doc 06) no navegador, ou esperar o hardware.
   **Plano escrito em `docs/10-plano-v0.4.md` (19/11/2026, rascunho, sem commit): aguardando o usuário confirmar a seção 9 antes de codar.** As dúvidas de ovos além do
   limite e segundo parceiro (`03`, seção 8) entram nesse plano. O código e as regras já aceitam

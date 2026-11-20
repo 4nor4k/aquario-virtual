@@ -56,6 +56,7 @@ A página pede dados e manda comandos por pedidos HTTP simples, em JSON:
 | Pedido | Para que serve |
 |---|---|
 | `GET /api/estado` | Tudo que a página mostra: peixes, indicadores, clima, hora |
+| `GET /api/textos` | Os textos do jogo (mesmo `config/textos.json` do aparelho); a página busca uma vez (v0.7) |
 | `POST /api/comida` | Dar comida |
 | `POST /api/limpar` | Limpar o aquário |
 | `POST /api/ph` | Regular pH (sobe 1 passo) |
@@ -99,7 +100,8 @@ Navegação por uma barra embaixo, com 4 abas: **Aquário · Peixes · Adotar ·
 +---------------------------+
 ```
 
-- Mostra os três indicadores e a saúde de cada peixe (valores do `03-jogo.md`).
+- Mostra os três indicadores e a saúde de cada peixe (valores do `03-jogo.md`). **A saúde aparece como cruz
+  colorida + texto, não como barra** (igual ao aparelho; mudou na v0.7, `13-plano-v0.7.md`). Só a fome tem barra.
 - Os três botões de ação ficam sempre à vista. Cada um confirma o que fez ("+60 de
   saciedade") e fica desabilitado quando não faz sentido (ex.: limpar com sujeira zero).
 - Avisos no topo: peixe doente, reprodução em andamento, ovos eclodindo, filhote sem nome,
@@ -118,7 +120,8 @@ Navegação por uma barra embaixo, com 4 abas: **Aquário · Peixes · Adotar ·
 1. **Espécie**: na v1 só **beta** (guppy e neon entram depois).
 2. **Cor**: paleta de opções.
 3. **Nome**: até **12 caracteres**, e pode repetir [fechado].
-4. Botão **Adotar** → chega um filhote (sexo sorteado e escondido).
+4. Botão **Adotar** → chega um filhote (sexo sorteado e escondido). **Só no começo ou depois do Game Over**
+   (mesma regra do aparelho); com o jogo em andamento a aba oferece só o **parceiro** (v0.7).
 
 Regras que a tela aplica:
 - Com **5 peixes**, o botão fica desabilitado, com a explicação.

@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b1f2a">
+  <title>Aquário</title>
+  <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+  <!-- Estrutura da página do celular (doc 06 e 13). O visual inteiro mora no estilo.css. -->
+  <header class="topo">
+    <h1>Aquário</h1>
+    <span id="conexao" class="conexao conexao-off"><span class="ponto"></span><span id="conexao-texto">conectando…</span></span>
+  </header>
+
+  <div id="faixa-offline" class="faixa-offline" hidden></div>
+  <ul id="avisos" class="avisos"></ul>
+
+  <main>
+    <!-- 1. Aquário -->
+    <section id="tela-aquario" class="tela">
+      <div id="cartao-jogo" class="cartao cartao-destaque" hidden>
+        <h2 id="jogo-titulo"></h2>
+        <p id="jogo-texto"></p>
+        <button id="jogo-adotar" class="botao botao-principal" type="button">Adotar um peixe</button>
+      </div>
+
+      <div class="cartao">
+        <h2>Água</h2>
+        <div class="linha">
+          <span class="rotulo">Sujeira</span>
+          <div class="barra"><div id="barra-sujeira" class="barra-cheia"></div></div>
+          <span id="valor-sujeira" class="valor">0</span>
+        </div>
+        <div class="linha">
+          <span class="rotulo">pH</span>
+          <span id="valor-ph" class="valor-grande">7,0</span>
+          <span id="faixa-ph" class="pilula">ideal</span>
+        </div>
+      </div>
+
+      <div class="cartao">
+        <h2>Peixes <span id="contagem" class="suave"></span></h2>
+        <div id="peixes-resumo"></div>
+      </div>
+
+      <div class="acoes">
+        <button id="acao-comida" class="botao-acao" type="button"><span class="emoji" aria-hidden="true">🍽️</span>Comida</button>
+        <button id="acao-limpar" class="botao-acao" type="button"><span class="emoji" aria-hidden="true">🧽</span>Limpar</button>
+        <button id="acao-ph" class="botao-acao" type="button"><span class="emoji" aria-hidden="true">🧪</span>pH</button>
+      </div>
+    </section>
+
+    <!-- 2. Peixes -->
+    <section id="tela-peixes" class="tela" hidden>
+      <div id="lista-peixes">
+        <h2 class="titulo-secao">Seus peixes <span id="contagem-lista" class="suave"></span></h2>
+        <div id="peixes-lista"></div>
+      </div>
+
+      <div id="detalhe" class="cartao" hidden>
+        <button id="detalhe-voltar" class="botao-link" type="button">‹ Voltar</button>
+        <h2 id="detalhe-titulo"></h2>
+        <label class="campo">
+          <span class="rotulo">Nome</span>
+          <span class="campo-linha">
+            <input id="detalhe-nome" type="text" autocomplete="off" autocapitalize="words" spellcheck="false">
+            <button id="detalhe-salvar" class="botao" type="button">Salvar</button>
+          </span>
+        </label>
+        <dl id="detalhe-dados" class="dados"></dl>
+      </div>
+    </section>
+
+    <!-- 3. Adotar -->
+    <section id="tela-adotar" class="tela" hidden>
+      <div class="cartao">
+        <h2 id="adotar-titulo">Adotar</h2>
+        <p id="adotar-texto" class="suave"></p>
+
+        <div id="adotar-parceiro-campo" class="campo" hidden>
+          <span class="rotulo">Parceiro de quem?</span>
+          <select id="adotar-parceiro-de"></select>
+        </div>
+
+        <fieldset class="campo" id="adotar-formulario">
+          <legend class="rotulo">Cor</legend>
+          <div id="adotar-cores" class="cores" role="radiogroup" aria-label="Cor do peixe"></div>
+
+          <label class="campo">
+            <span class="rotulo">Nome <span class="suave">(até <span id="adotar-max">12</span> letras, opcional)</span></span>
+            <input id="adotar-nome" type="text" autocomplete="off" autocapitalize="words" spellcheck="false">
+          </label>
+          <button id="adotar-botao" class="botao botao-principal" type="button">Adotar</button>
+        </fieldset>
+      </div>
+    </section>
+
+    <!-- 4. Ajustes -->
+    <section id="tela-ajustes" class="tela" hidden>
+      <div class="cartao">
+        <h2>Aparelho</h2>
+        <dl class="dados">
+          <dt>Conexão</dt><dd id="ajuste-conexao">—</dd>
+          <dt>Hora no jogo</dt><dd id="ajuste-hora">—</dd>
+          <dt>Temperatura</dt><dd id="ajuste-temperatura">—</dd>
+          <dt>Lá fora</dt><dd id="ajuste-tempo">—</dd>
+          <dt>Versão</dt><dd>Simulador v0.7</dd>
+        </dl>
+      </div>
+      <div class="cartao">
+        <h2>Só no aparelho de verdade</h2>
+        <ul class="desabilitados">
+          <li><span>WiFi de casa</span><span class="suave">em breve</span></li>
+          <li><span>Cidade (clima)</span><span class="suave">em breve</span></li>
+          <li><span>Cenário</span><span class="suave">em breve</span></li>
+          <li><span>Bateria</span><span class="suave">em breve</span></li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <div id="aviso-toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <nav class="abas" aria-label="Telas">
+    <button type="button" data-aba="aquario" class="aba aba-ativa"><span class="emoji" aria-hidden="true">🐠</span>Aquário</button>
+    <button type="button" data-aba="peixes" class="aba"><span class="emoji" aria-hidden="true">📋</span>Peixes</button>
+    <button type="button" data-aba="adotar" class="aba"><span class="emoji" aria-hidden="true">➕</span>Adotar</button>
+    <button type="button" data-aba="ajustes" class="aba"><span class="emoji" aria-hidden="true">⚙️</span>Ajustes</button>
+  </nav>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

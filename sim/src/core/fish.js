@@ -124,6 +124,12 @@ export function idadeMs(peixe, agoraMs) {
   return Math.max(0, agoraMs - peixe.nascimentoMs);
 }
 
+// O sexo só aparece quando o peixe é adulto (antes, null): doc 03, seção 6.
+export function sexoRevelado(peixe, agoraMs) {
+  const fase = faseDaIdade(idadeMs(peixe, agoraMs));
+  return fase === 'adulto' || fase === 'idoso' ? peixe.sexo : null;
+}
+
 // Quantos ms faltam para a próxima fase começar, ou null se já é idoso.
 // Arredonda para cima para nunca ficar 1 ms antes da fronteira.
 export function msAteProximaFase(peixe, agoraMs) {

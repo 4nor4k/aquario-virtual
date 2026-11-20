@@ -21,6 +21,9 @@ import { criarMenu } from './core/menu.js';
 import { exportarJogo, importarJogo, ErroDeSalvamento } from './core/salvar.js';
 import { calcularAusencia, aplicarAusencia } from './core/ausencia.js';
 import { criarArmazenamento } from './sim/armazenamento.js';
+import { criarPonteDoJogo } from './sim/ponte.js';
+import { montarEstado } from './core/estado-api.js';
+import { executarComando } from './core/comandos-api.js';
 import { caracteresSemGlifo } from './render/fonte.js';
 import { preencher } from './core/formatar.js';
 
@@ -226,6 +229,25 @@ const painel = criarPainel({
   },
   aoApagar: apagarJogo,
 });
+
+// A página do celular (doc 13): a cada meio segundo a aba entrega o retrato do jogo ao servidor e executa os
+// comandos que o celular mandou (comida, limpar, adotar...) com as mesmas funções dos botões do aparelho.
+const ponte = criarPonteDoJogo({
+  obterEstado: () => montarEstado(aquario, {
+    config, textos, agoraMs: clock.agoraMs(), clima, aguardandoAdocao: semJogo,
+  }),
+  executar: (comando) => executarComando(comando, {
+    get aquario() { return aquario; }, // o aquário é trocado ao adotar: sempre o de agora
+    menu,
+    config,
+    textos,
+    aguardandoAdocao: () => semJogo,
+    adotar: (pedido) => adotar(pedido),
+    aceitaNoNome,
+    salvar: () => salvar(),
+  }),
+});
+ponte.ligar();
 
 // Um passo do jogo (dt em segundos reais).
 function atualizar(dt) {
