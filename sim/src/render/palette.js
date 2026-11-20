@@ -295,6 +295,18 @@ for (const [nome, base] of Object.entries(TONS_DAS_CORES)) {
   };
 }
 
+// --- As cores do status (doc 12): verde, amarelo, vermelho e azul --------------------------------
+// A cruz da saúde (verde, amarelo, vermelho) e a faixa do pH (azul, verde, amarelo). A paleta só tem 3 índices
+// livres (o limite é 247, os moldes dos sprites usam 248 a 255), então em vez de registrar cores novas estas
+// APONTAM para tons que já existem nas cores de peixe: são sólidos e a luz não os escurece (estão em CORES_DO_PEIXE
+// da luz.js). Se um dia o usuário refizer os tons dos peixes, estes quatro mudam junto: confira o HUD.
+COR.STATUS = {
+  verde: COR.PEIXE.verde.vivo.nadadeira,       // #5fc86a
+  amarelo: COR.PEIXE.laranja.vivo.destaque,    // #ffe45e
+  vermelho: COR.BETA.nadadeira,                // #e85a4f
+  azul: COR.PEIXE.azul.vivo.nadadeira,         // #5a8cf0
+};
+
 // --- As cores "iluminadas" (o spot da noite, render/spot.js) -----------------------------------
 // Onde o spot ilumina, o cenário fica mais claro que no resto. Como o quadro é indexado, cada cor do
 // cenário que o feixe alcança ganha uma GÊMEA (outro índice) que a luz.js pinta mais clara a cada quadro.

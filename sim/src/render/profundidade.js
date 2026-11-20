@@ -55,6 +55,18 @@ export function peixeSobrePedraGrande(peixe, { fundo, camera }) {
   return tocaPixel(PEDRA_GRANDE, ox, oy, x0, y0, x1, y1);
 }
 
+// Onde a pedra grande está AGORA, em coordenadas do mundo, para o peixe se abrigar perto dela quando chove
+// (core/abrigo.js). A pedra anda a 85% da câmera (paralaxe), então o centro dela na tela é o x dela menos o
+// deslocamento do fundo, e somando o x da câmera sai o x do mundo onde o peixe tem de estar para ficar atrás
+// dela. Devolve { x, meiaLargura } (o centro e a meia largura da pedra) ou null se não há pedra grande.
+export function abrigoDaPedraGrande({ fundo, camera }) {
+  if (!fundo || !fundo.pedraGrande) return null;
+  return {
+    x: fundo.pedraGrande.x - deslocamentoDoFundo(camera) + Math.round(camera.x),
+    meiaLargura: PEDRA_GRANDE.largura / 2,
+  };
+}
+
 // O retângulo do corpo do peixe na tela, com a folga.
 function retanguloDoPeixe(peixe, camera) {
   const cx = Math.round(camera.x);

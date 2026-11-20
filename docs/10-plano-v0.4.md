@@ -243,5 +243,13 @@ temporária, sem tocar no `sim/saves` nem na porta 8080 do usuário):
   contador de filhotes. Status do 2º peixe mostrou "2/3", sexo e parceiro.
 - Sem nenhum erro no console durante a conferência.
 
-**Não conferido à mão** (só pelos testes): o limite de 5 peixes com 5 vivos na tela, ausência longa
-com o servidor desligado e ovos na tela de "Bem-vindo de volta" (não há resumo, ver seção 2).
+**Conferido à mão em 19/11/2026** (depois da v0.5, servidor de teste na porta 8091, sem tocar no jogo do usuário):
+- **Limite de 5 peixes:** com 2 adultos em casal, "Forçar namoro" repetido deu 3 ovos e parou (2 vivos + 3 ovos = 5,
+  vagas 0); os ovos seguintes não nasceram. Os 3 ovos eclodiram e o painel mostrou "Vivos: 5 de 5 · ovos: 0",
+  com a mensagem "Nasceu um filhote!". "Adotar" e "Adotar parceiro" ficaram desabilitados.
+- **Ausência longa:** arquivo salvo com a data recuada 2 dias, página reaberta: tela "Seu peixe dormiu por 2 dias.
+  Bem-vindo de volta!", 5 peixes vivos com saciedade 0, aquário 100% sujo e saúde 80; A voltou ao jogo com os
+  indicadores F e S. Sem erros no console.
+- Sem nada novo para corrigir.
+
+**Ainda não conferido à mão:** ovos na tela de "Bem-vindo de volta" (não há resumo, ver seção 2).

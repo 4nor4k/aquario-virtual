@@ -13,7 +13,8 @@ import { QUADROS_POR_SEGUNDO, QUADROS_DE_NADO } from '../core/fish.js';
 import { idadeMs } from '../core/fish.js';
 import { diaDaVida, formatarDuracao, formatarPh, preencher } from '../core/formatar.js';
 import { faseDaIdade } from '../core/fish.js';
-import { notaDoPh, valorDoPh } from '../core/rules.js';
+import { notaDoPh, valorDoPh, statusDaSaude, faixaDoPh } from '../core/rules.js';
+import { desenharCruz, desenharQuadradinhoDoPh, CRUZ_DO_STATUS } from './hud.js';
 
 // Cores da paleta (palette.js)
 const FUNDO_DA_TELA = 13;  // preto liso (a água em pontinhos atrapalharia a leitura)
@@ -108,23 +109,27 @@ export function desenharStatus(quadro, { aquario, config, textos, agoraMs, menu 
       cfg.saciedade.maximo, cfg.saciedade.ideal);
     linhaDeBarra(quadro, 44, t.sujeira, aquario.sujeira,
       aquario.sujeira > cfg.sujeira.improprioAcimaDe ? RUIM : DESTAQUE);
-    linhaDeBarra(quadro, 56, t.saude, peixe.saude,
-      peixe.saude < cfg.saude.doenteAbaixoDe ? RUIM : DESTAQUE);
+    // Saúde: sem número, só a cruz na cor do status e o nome dele (doc 12). Morto: só o texto.
+    const status = statusDaSaude(peixe, cfg);
+    desenharTexto(quadro, t.saude, MARGEM, 56, TEXTO);
+    const cruz = CRUZ_DO_STATUS[status];
+    if (cruz) desenharCruz(quadro, 46, 55, cruz);
+    desenharTexto(quadro, t.saudeNiveis[status], cruz ? 56 : 46, 56, status === 'saudavel' ? TEXTO : RUIM);
 
+    // pH: "pH 7,0" e um quadradinho logo depois, na cor da faixa (azul ácido, verde ideal, amarelo alcalino).
     const nota = notaDoPh(aquario, cfg);
-    const notaTexto = nota >= 100 ? t.phNotas.ideal : nota > cfg.ph.improprioNotaAte ? t.phNotas.aceitavel : t.phNotas.ruim;
-    desenharTexto(quadro, `${t.ph} ${formatarPh(valorDoPh(aquario, cfg))} - ${notaTexto}`, MARGEM, 72,
-      nota <= cfg.ph.improprioNotaAte ? RUIM : TEXTO);
+    const faixa = faixaDoPh(valorDoPh(aquario, cfg), cfg);
+    const textoDoPh = `${t.ph} ${formatarPh(valorDoPh(aquario, cfg))}`;
+    desenharTexto(quadro, textoDoPh, MARGEM, 72, nota <= cfg.ph.improprioNotaAte ? RUIM : TEXTO);
+    desenharQuadradinhoDoPh(quadro, MARGEM + larguraDoTexto(textoDoPh) + 3, 72, faixa);
 
-    desenharTexto(quadro, `${t.estado}: ${t.estados[peixe.estado]}`, MARGEM, 82,
-      peixe.estado === 'saudavel' ? TEXTO : RUIM);
     const sexo = sexoRevelado(peixe, agoraMs);
-    desenharTexto(quadro, `${t.sexo}: ${sexo ? t.sexos[sexo] : t.sexos.oculto}`, MARGEM, 91, TEXTO);
+    desenharTexto(quadro, `${t.sexo}: ${sexo ? t.sexos[sexo] : t.sexos.oculto}`, MARGEM, 84, TEXTO);
     if (peixe.causaDaMorte) {
-      desenharTexto(quadro, `(${t.causas[peixe.causaDaMorte]})`, MARGEM, 100, RUIM);
+      desenharTexto(quadro, `(${t.causas[peixe.causaDaMorte]})`, MARGEM, 94, RUIM);
     } else {
       const parceiro = aquario.parceiroDe(peixe);
-      desenharTexto(quadro, `${t.parceiro}: ${parceiro ? parceiro.nome : t.semParceiro}`, MARGEM, 100, TEXTO);
+      desenharTexto(quadro, `${t.parceiro}: ${parceiro ? parceiro.nome : t.semParceiro}`, MARGEM, 94, TEXTO);
     }
   }
   const dica = varios.total > 1 ? t.dicaVarios : t.dica;

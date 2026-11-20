@@ -97,6 +97,11 @@ export function criarPeixe({
     planoDesejado: 'frente',
     trajeto: 0,            // conta os trajetos (cada vez que escolhe um destino novo)
     trajetoDoPlano: 0,     // o trajeto para o qual o plano já foi sorteado
+    // O abrigo da chuva (core/abrigo.js): só animação, fora do arquivo salvo.
+    abrigado: false,       // escondido atrás da pedra grande (ou a caminho), enquanto chove
+    abrigoSaiEm: null,     // com a chuva já passada: segundos até sair (null = ainda não começou a contar)
+    abrigoDx: 0,           // onde fica atrás da pedra: deslocamento em x a partir do centro dela
+    abrigoDy: 0,           // e quantos pixels acima da altura mínima (0 = colado no chão)
   };
 }
 
@@ -195,23 +200,63 @@ export function atualizarPeixe(peixe, dt, rng, comida = null) {
     return;
   }
 
+  const passo = VELOCIDADE_NADO * ritmo * (comida ? FATOR_VELOCIDADE_COMIDA : 1) * dt;
+  if (darPasso(peixe, passo)) {
+    peixe.movimento = 'esperando';
+    peixe.espera = rng.inteiro(5, 30) / 10; // de 0,5 a 3 segundos
+  }
+}
+
+// Anda `passo` pixels em direção ao destino. Devolve true se chegou (e então destino vira null).
+function darPasso(peixe, passo) {
   const dx = peixe.destino.x - peixe.x;
   const dy = peixe.destino.y - peixe.y;
   const distancia = Math.sqrt(dx * dx + dy * dy);
-  const passo = VELOCIDADE_NADO * ritmo * (comida ? FATOR_VELOCIDADE_COMIDA : 1) * dt;
-
   if (distancia <= passo) {
     peixe.x = peixe.destino.x;
     peixe.y = peixe.destino.y;
     peixe.destino = null;
-    peixe.movimento = 'esperando';
-    peixe.espera = rng.inteiro(5, 30) / 10; // de 0,5 a 3 segundos
-    return;
+    return true;
   }
-
   peixe.x += (dx / distancia) * passo;
   peixe.y += (dy / distancia) * passo;
   virarParaODestino(peixe);
+  return false;
+}
+
+// Peixe abrigado da chuva (core/abrigo.js): vai depressa até a pedra e fica por ali, indo e vindo ao longo dela
+// (às vezes por trás, às vezes aparecendo nas pontas), para o jogador ver que ele está lá.
+// alvo = { x, y, minX, maxX } (alvoDoAbrigo). Se ele está fora da faixa por mais de toleranciaPx (por exemplo
+// porque a câmera mexeu na pedra, que anda em paralaxe), volta para o alvo na hora. cfg = config.abrigoDaChuva.
+export function atualizarPeixeAbrigado(peixe, dt, rng, alvo, cfg) {
+  const ritmo = peixe.estado === 'doente' ? FATOR_VELOCIDADE_DOENTE : 1;
+  peixe.tempoAnimacao += dt * ritmo;
+  const lim = limitesDoPeixe(peixe.fase);
+  const tx = limitar(alvo.x, lim.minX, lim.maxX);
+  const ty = limitar(alvo.y, lim.minY, lim.maxY);
+  // Dentro da faixa do vai e vem (com folga) e perto do chão: está bem onde está.
+  const aposto = peixe.x >= alvo.minX - cfg.toleranciaPx && peixe.x <= alvo.maxX + cfg.toleranciaPx
+    && peixe.y >= ty - cfg.subidaPx - cfg.toleranciaPx && peixe.y <= ty + cfg.toleranciaPx;
+
+  if (peixe.movimento === 'nadando' && !peixe.destino) peixe.movimento = 'esperando'; // sobrou de outro passeio
+  if (peixe.movimento === 'esperando') {
+    peixe.espera -= dt;
+    if (aposto && peixe.espera > 0) return; // parado um instante
+    if (!aposto) {
+      peixe.destino = { x: tx, y: ty };
+    } else {
+      // Já está na faixa e a espera acabou: vai a outro ponto da pedra (nunca ao mesmo lugar, para se ver o movimento).
+      let x = rng.inteiro(alvo.minX, alvo.maxX);
+      if (Math.abs(x - peixe.x) < cfg.passoMinimoPx) x = peixe.x < (alvo.minX + alvo.maxX) / 2 ? alvo.maxX : alvo.minX;
+      peixe.destino = { x: limitar(x, lim.minX, lim.maxX), y: limitar(ty - rng.inteiro(0, cfg.subidaPx), lim.minY, lim.maxY) };
+    }
+    peixe.movimento = 'nadando';
+    virarParaODestino(peixe);
+  }
+  if (darPasso(peixe, VELOCIDADE_NADO * ritmo * cfg.velocidade * dt)) {
+    peixe.movimento = 'esperando';
+    peixe.espera = rng.inteiro(cfg.esperaSeg[0] * 10, cfg.esperaSeg[1] * 10) / 10;
+  }
 }
 
 // Peixe namorando: nada (mais animado) até o lugar do encontro e, ao chegar, fica ali olhando para

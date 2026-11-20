@@ -19,6 +19,7 @@
 
   "saude": {
     "doenteAbaixoDe": 30,
+    "saudavelAPartirDe": 70,
     "faixas": [
       { "mediaMinima": 70, "porHora": 6 },
       { "mediaMinima": 40, "porHora": 0 },
@@ -107,6 +108,19 @@
     "horasPorPasso": { "sujeiraBaixa": 36, "sujeiraMedia": 24, "sujeiraAlta": 12 },
     "sujeiraBaixaAbaixoDe": 30,
     "sujeiraAltaAcimaDe": 70,
-    "improprioNotaAte": 30
+    "improprioNotaAte": 30,
+    "faixas": { "acidoAte": 6.6, "alcalinoDe": 7.5 }
+  },
+
+  "abrigoDaChuva": {
+    "entraComChuvaAcimaDe": 0.5,
+    "saiComChuvaAbaixoDe": 0.2,
+    "saiDepoisDeSeg": [3, 8],
+    "esperaSeg": [1, 3],
+    "velocidade": 2,
+    "passoMinimoPx": 12,
+    "subidaPx": 4,
+    "alturaNoChaoPx": 2,
+    "toleranciaPx": 6
   }
 }

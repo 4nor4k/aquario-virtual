@@ -240,3 +240,25 @@ export function valorDoPh(aquario, config) {
 export function notaDoPh(aquario, config) {
   return config.ph.notas[aquario.phPasso];
 }
+
+// --- O que o jogador vê (doc 12): status da saúde e faixa do pH -------------------------------------
+// A saúde continua sendo um número de 0 a 100 por dentro (as regras não mudam); na tela vira um status.
+//   saudavel    : a partir de saude.saudavelAPartirDe (70)
+//   doente      : de doenteAbaixoDe (30) até logo abaixo do saudável
+//   muitoDoente : abaixo de doenteAbaixoDe (30). É o mesmo limite do peixe.estado === 'doente'
+//                 (nada devagar), por isso o estado interno "doente" aparece na tela como "muito doente".
+// Peixe morto: 'morto'.
+export function statusDaSaude(peixe, config) {
+  if (peixe.estado === 'morto') return 'morto';
+  if (peixe.saude < config.saude.doenteAbaixoDe) return 'muitoDoente';
+  if (peixe.saude < config.saude.saudavelAPartirDe) return 'doente';
+  return 'saudavel';
+}
+
+// A faixa de um valor de pH: 'acido' (até ph.faixas.acidoAte), 'alcalino' (de ph.faixas.alcalinoDe em
+// diante) ou 'ideal' (no meio).
+export function faixaDoPh(valor, config) {
+  if (valor <= config.ph.faixas.acidoAte) return 'acido';
+  if (valor >= config.ph.faixas.alcalinoDe) return 'alcalino';
+  return 'ideal';
+}

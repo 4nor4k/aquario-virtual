@@ -176,8 +176,17 @@ Conferido **no navegador** (servidor de teste em outra porta, jogo salvo numa pa
 
 **Imagens geradas por script** (sem navegador) conferiram dia, amanhecer, entardecer, noite, relâmpago e chuva.
 
-**Não conferido à mão**: o relâmpago ao vivo no navegador (só os testes e as imagens), o ciclo rápido
-completo de 24 h (a aba de automação roda poucos quadros por segundo) e a chuva automática (de 5 a 20 min).
+**Conferido depois, em 19/11/2026** (servidor de teste na porta 8091):
+- **Relâmpago ao vivo:** com a chuva forçada, o `clima.raio` chegou a 1 (piscada forte, respiro de 0,1, segunda
+  piscada de 0,9 e apagar, 0,35 s). Com a câmera no topo e o raio travado em 0, 0,5 e 1, o céu foi de preto a
+  `#3c4868` e a `#7890d0` (largura toda). **Atenção para quem testar:** com a câmera embaixo (y=32, a superfície
+  fica fora da tela) só se vê o brilho da lâmpada ficar mais fraco (×0,4) e o cenário clarear; é o previsto.
+- **Chuva automática e ciclo rápido de 24 h** foram conferidos no navegador chamando `clima.atualizar` com passos
+  de 1 s (3.900 s simulados), **não em tempo real**: a chuva alternou 9 vezes, com períodos secos de 370 a 1.019 s
+  (config: 300 a 1.200) e chuvas de 60 a 180 s (config: 60 a 240), 79 relâmpagos, todos com chuva; o ciclo
+  deu a volta em 60 s e voltou à mesma hora. Continua sem uma espera real de 5 a 20 min.
+- Detalhe do painel: ao voltar a chuva para "automática" depois de forçá-la, ela continua como estava (chovendo
+  ou não) até o contador interno de alternância zerar; só então segue o ritmo automático.
 
 ## 13. Para o usuário olhar e ajustar
 

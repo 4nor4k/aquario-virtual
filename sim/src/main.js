@@ -8,7 +8,7 @@ import { gerarFundo } from './render/fundo.js';
 import { desenharQuadro } from './render/scene.js';
 import { desenharTelas } from './render/telas.js';
 import { criarTurvacao, nivelDaSujeira } from './render/turvacao.js';
-import { atualizarPlanos } from './render/profundidade.js';
+import { atualizarPlanos, abrigoDaPedraGrande } from './render/profundidade.js';
 import { criarTeclado } from './input/keyboard.js';
 import { criarPainel } from './sim/panel.js';
 import { MUNDO_LARGURA, MUNDO_ALTURA } from './core/mundo.js';
@@ -243,7 +243,8 @@ function atualizar(dt) {
     const { largura, altura } = TAMANHO_POR_FASE[foco.fase];
     seguidor.atualizar(dt, { alvo: { x: foco.x, y: foco.y, largura, altura }, joystick: dir, livre });
   }
-  aquario.atualizar(dt, clock.agoraMs());
+  // Chovendo, os peixes se escondem atrás da pedra grande (onde ela está na tela agora, por causa da paralaxe).
+  aquario.atualizar(dt, clock.agoraMs(), { chuvaNivel: clima.chuvaNivel, abrigo: abrigoDaPedraGrande({ fundo, camera }) });
   mostrarAvisosDoCore();
   // Por onde o peixe passa (atrás ou na frente das algas e da pedra): troca quando não está sobre elas.
   atualizarPlanos(aquario.peixes, { plantas, fundo, camera });

@@ -106,9 +106,13 @@ test('valores: fome 0 a 200, saúde, pH, sujeira e temperatura vêm do jogo', ()
   assert.equal(v.fome.texto, '130');
   assert.equal(v.fome.maximo, 200);
   assert.equal(v.fome.ideal, 100);
-  assert.equal(v.saude.texto, '64');
+  assert.equal(v.saude.texto, textos.status.saudeNiveis.doente, 'saúde 64: doente, sem número');
+  assert.equal(v.saude.cruz, 'amarelo');
+  assert.equal(v.saude.valor, null, 'a saúde não tem barra');
   assert.equal(v.sujeira.texto, '42');
   assert.equal(v.ph.texto, '7,2');
+  assert.equal(v.ph.faixa, 'ideal');
+  assert.equal(v.ph.valor, null, 'o pH não tem barra, só a faixa colorida');
   assert.equal(v.temperatura.texto, `${config.agua.temperatura}°C`);
   assert.equal(v.temperatura.valor, null, 'a temperatura não tem barra');
 });
@@ -192,9 +196,12 @@ test('os textos cabem nas caixinhas e só usam letras da fonte', () => {
   aq.peixes[0].saude = 100;
   aq.sujeira = 100;
   const v = valoresDoHud(aq, config, textos);
-  for (const k of ['fome', 'saude', 'ph', 'sujeira']) {
+  for (const k of ['fome', 'ph', 'sujeira']) {
     assert.ok(larguraDoTexto(textos.hud[k]) + 3 + larguraDoTexto(v[k].texto) <= maximo, `${k} não cabe: ${textos.hud[k]} ${v[k].texto}`);
   }
+  // Saúde: o rótulo e a cruz de 7 px lado a lado (o nome do status só aparece na tela de status).
+  assert.ok(larguraDoTexto(textos.hud.saude) + 3 + 7 <= maximo, 'saúde: rótulo e cruz não cabem');
+  assert.ok(larguraDoTexto(v.saude.texto) <= 200, 'o nome do status é só um texto (não vai na caixinha)');
   assert.ok(larguraDoTexto(v.temperatura.texto) <= maximo);
   assert.ok(larguraDoTexto(textos.hud.temperatura) <= maximo);
 });

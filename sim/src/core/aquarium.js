@@ -3,9 +3,10 @@
 import { criarRng } from './rng.js';
 import { criarEventos } from './events.js';
 import {
-  criarPeixe, atualizarPeixe, atualizarPeixeMorto, atualizarPeixeParado, atualizarPeixeNamorando, atualizarIdade, limitesDoPeixe,
-  INICIO_DA_FASE_MS,
+  criarPeixe, atualizarPeixe, atualizarPeixeMorto, atualizarPeixeParado, atualizarPeixeNamorando, atualizarPeixeAbrigado,
+  atualizarIdade, limitesDoPeixe, INICIO_DA_FASE_MS,
 } from './fish.js';
+import { atualizarAbrigo, alvoDoAbrigo } from './abrigo.js';
 import { atualizarCocos } from './coco.js';
 import { sortearPlano } from './profundidade.js';
 import { atualizarRegras, matarPeixe, valorDoPh } from './rules.js';
@@ -25,6 +26,7 @@ export function criarAquario({ semente = 1, config } = {}) {
   const rngCoco = criarRng((semente ^ 0xc0c0) >>> 0);   // quando o peixe faz cocô
   const rngPlano = criarRng((semente ^ 0x91a0) >>> 0);  // por onde o peixe passa (atrás ou na frente)
   const rngReproducao = criarRng((semente ^ 0x4e90) >>> 0); // ninhadas: quantos ovos, cor e sexo dos filhotes
+  const rngAbrigo = criarRng((semente ^ 0xa0b1) >>> 0);     // o abrigo da chuva (só sorteia quando chove)
   const peixes = [];
   let proximoId = 1;
   let ultimoMs = null; // hora do jogo no passo anterior (para saber quanto tempo passou)
@@ -163,7 +165,9 @@ export function criarAquario({ semente = 1, config } = {}) {
 
     // Um passo do jogo. dt = segundos reais do passo (movimento e animação);
     // agoraMs = hora do jogo (já acelerada pelo relógio), de onde saem a idade e as regras.
-    atualizar(dt, agoraMs = 0) {
+    // ambiente (opcional): { chuvaNivel, abrigo: { x, meiaLargura } }. Com chuva, os peixes vão se esconder atrás
+    // do abrigo (a pedra grande, já na posição de agora na tela; core/abrigo.js). Sem ele, ninguém se esconde.
+    atualizar(dt, agoraMs = 0, ambiente = null) {
       if (ultimoMs === null) ultimoMs = agoraMs;
       const passouMs = Math.max(0, agoraMs - ultimoMs);
       ultimoMs = agoraMs;
@@ -186,7 +190,15 @@ export function criarAquario({ semente = 1, config } = {}) {
           continue;
         }
         // Com comida na água o peixe vai atrás do grão mais perto, mesmo sem fome.
-        atualizarPeixe(peixe, dt, rng, graoMaisPerto(peixe, aquario.graos));
+        const grao = graoMaisPerto(peixe, aquario.graos);
+        // Chovendo, ele se esconde atrás da pedra e fica quieto; a comida tem prioridade (ele sai para comer).
+        atualizarAbrigo(peixe, dt, rngAbrigo, ambiente, config.abrigoDaChuva);
+        if (peixe.abrigado && !grao) {
+          peixe.planoDesejado = 'fundo'; // para passar para trás da pedra (a interface troca quando dá)
+          atualizarPeixeAbrigado(peixe, dt, rngAbrigo, alvoDoAbrigo(peixe, ambiente.abrigo), config.abrigoDaChuva);
+          continue;
+        }
+        atualizarPeixe(peixe, dt, rng, grao);
         // A cada trajeto novo ele sorteia de novo por onde passa: atrás ou na frente do cenário.
         if (peixe.trajetoDoPlano !== peixe.trajeto) {
           peixe.trajetoDoPlano = peixe.trajeto;

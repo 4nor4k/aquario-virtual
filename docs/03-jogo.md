@@ -81,6 +81,11 @@ Sujeira, pH e saúde são de 0 a 100. A saciedade é de **0 a 200** (veja abaixo
 | 6,4 | 30 |
 | 6,2 | 0 |
 
+**Como o pH aparece na tela [fechado em 2026-11-19, pedido do usuário; faixas = proposta]:** "pH valor" e um
+**quadradinho com a cor** da faixa (sem barra). Do **amarelo (alcalino)** ao **azul (ácido)**, passando pelo verde. São 3 faixas: **azul** de 6,2 a 6,6
+(ácido), **verde** de 6,8 a 7,2 (ideal) e **amarelo** em 7,5 (alcalino). Limites em `jogo.json` (`ph.faixas`).
+Detalhes em `12-plano-v0.6.md`.
+
 ### Tempo com o aparelho desligado [fechado em 2026-11-19]
 O tempo em que o jogo ficou fechado ou desligado **conta**: ao voltar, o jogo compara a hora
 em que foi salvo com a hora de agora e aplica esse tempo todo às regras (fome, sujeira, pH,
@@ -103,6 +108,12 @@ por 5 h 20 min. Bem-vindo de volta!". Detalhes e números em `09-plano-v0.3.md`.
 
 - Saúde abaixo de **30%**: o peixe fica **doente** (visual de doente, nada mais lento).
 - Saúde em **0%**: o peixe **morre**.
+- **O que o jogador vê [fechado em 2026-11-19, pedido do usuário; limites = proposta aceita]:** a saúde **não aparece
+  como número**, e sim como um status com uma **cruz "+" colorida**: **saudável** (70 a 100, verde), **doente**
+  (30 a 69, amarelo) e **muito doente** (abaixo de 30, vermelho). O efeito no peixe (nadar devagar, visual
+  pálido) só vale em *muito doente*, como antes (o estado interno "doente" de cima é o *muito doente* da tela).
+  A cruz aparece na tela de status e no HUD de indicadores (**não** acompanha o peixe: sobre ele fica só o F da
+  fome). O número continua existindo por dentro e no painel de testes. Limites em `jogo.json` (`saude`). Ver `12-plano-v0.6.md`.
 - Com média 0, o peixe leva cerca de 20 h para morrer. Isso protege os períodos longe de casa.
 - Tempo com o aparelho desligado conta com um **teto máximo** (ver `02-hardware.md`).
 
@@ -145,6 +156,9 @@ deixado descendentes, é Game Over.
 - **Frio:** temperatura abaixo de **18 °C** mostra o ícone de frio.
 - **Chuva:** relâmpagos e animação de chuva na superfície da água.
 - O clima não afeta a saúde do peixe.
+- **Peixe se abriga da chuva [fechado em 2026-11-19, pedido do usuário]:** quando chove, o peixe vai depressa para
+  perto da pedra grande, rente ao chão, e fica indo e vindo ao longo dela (às vezes atrás, às vezes aparecendo nas
+  pontas), para o jogador ver que ele está ali. Sai pouco depois que a chuva passa. É só animação (não muda fome, saúde nem pH). A comida tem prioridade. Ver `12-plano-v0.6.md`, seção 2.
 - Calor: sem regra por enquanto.
 
 ## 8. Em aberto
