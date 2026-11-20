@@ -14,6 +14,7 @@ bateria + USB), gerenciado também pelo celular via WiFi. Veja `README.md` e `do
 
 ## Onde paramos
 - Fechados: visão (`01`), regras do jogo (`03`), arte e renderização (`04`), planos da v0.4 e v0.5 (`10`, `11`).
+- Hardware: placa escolhida = **LOLIN D32**; WiFi fechado; lista de compras e pinagem em rascunho (`02`).
   Hardware em rascunho (`02`).
 - Arte: dia e noite com hora real na v1 (troca de paleta); sprites provisórios gerados
   pelo Claude, o usuário refina depois.
