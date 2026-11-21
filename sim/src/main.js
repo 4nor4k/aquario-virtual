@@ -10,7 +10,12 @@ import { desenharTelas } from './render/telas.js';
 import { criarTurvacao, nivelDaSujeira } from './render/turvacao.js';
 import { atualizarPlanos, abrigoDaPedraGrande } from './render/profundidade.js';
 import { criarTeclado } from './input/keyboard.js';
+import { criarControlesToque } from './input/toque.js';
+import { combinarEntradas } from './input/combinar.js';
 import { criarPainel } from './sim/panel.js';
+import { criarArmazenamentoLocal, nomeDoBackup } from './sim/armazenamento-local.js';
+import { ligarAparelho } from './sim/aparelho-ui.js';
+import { lerBackup, textoDoBackup } from './sim/backup.js';
 import { MUNDO_LARGURA, MUNDO_ALTURA } from './core/mundo.js';
 import { criarAquario } from './core/aquarium.js';
 import { criarBolhas } from './core/bolhas.js';
@@ -30,6 +35,13 @@ import { preencher } from './core/formatar.js';
 const PASSO_MS = 50;           // passo fixo: 20 por segundo (igual no ESP32)
 const VELOCIDADE_CAMERA = 60;  // pixels por segundo
 
+// Dois jeitos de abrir o mesmo jogo (doc 15):
+//   - index.html   : o SIMULADOR no computador, com o painel de testes, salvando em sim/saves pelo servidor
+//                    e servindo a página do celular (ponte);
+//   - aparelho.html: o APARELHO na página do celular (GitHub Pages): tela, analógico e botões de toque, salvando
+//                    no próprio navegador, sem painel e sem servidor.
+const modoAparelho = document.body.dataset.modo === 'aparelho';
+
 const canvas = document.getElementById('tela');
 const ctx = canvas.getContext('2d');
 
@@ -37,7 +49,9 @@ const quadro = criarQuadro();
 const mapa = gerarMapa();
 const plantas = gerarPlantas(mapa);
 const fundo = gerarFundo();
-const teclado = criarTeclado(window);
+// Teclado e toque valem ao mesmo tempo: no computador o aparelho.html também joga com o teclado e o mouse.
+const toque = criarControlesToque();
+const entrada = combinarEntradas(criarTeclado(window), toque);
 // Começa no meio do mundo, na altura do fundo (para ver areia e rochas).
 const camera = criarCamera({
   mundoLargura: MUNDO_LARGURA,
@@ -88,9 +102,10 @@ let semJogo = false;
 const aceitaNoNome = (letra) => caracteresSemGlifo(letra).length === 0;
 
 // --- Salvamento (doc 09) ------------------------------------------------------------------
-// O jogo é gravado em sim/saves/aquario.json pelo servidor. O core só transforma o aquário em
-// dados (salvar.js); a hora REAL (Date.now) só existe aqui, na interface.
-const armazenamento = criarArmazenamento();
+// No simulador o jogo é gravado em sim/saves/aquario.json pelo servidor; na página do celular, no próprio
+// navegador (localStorage). O core só transforma o aquário em dados (salvar.js); a hora REAL (Date.now) só
+// existe aqui, na interface.
+const armazenamento = modoAparelho ? criarArmazenamentoLocal() : criarArmazenamento();
 const salvamento = {
   bloqueado: false, // true: não consegui ler o que existe; não posso gravar por cima
   quando: null,     // hora real da última gravação que deu certo
@@ -165,7 +180,9 @@ async function carregarJogoSalvo() {
   if (lido.estado === 'vazio') return false;
   if (lido.estado === 'sem-servidor') {
     salvamento.bloqueado = true;
-    salvamento.aviso = 'Não consegui falar com o servidor: este jogo não será salvo. Recarregue a página.';
+    salvamento.aviso = modoAparelho
+      ? 'Este navegador não deixa guardar o jogo (aba privada?): ele não será salvo.'
+      : 'Não consegui falar com o servidor: este jogo não será salvo. Recarregue a página.';
     return false;
   }
   try {
@@ -191,8 +208,9 @@ async function carregarJogoSalvo() {
     if (!(erro instanceof ErroDeSalvamento)) throw erro;
     // Não apago nada: o arquivo ruim fica guardado com outro nome e o jogo recomeça.
     const guardou = await armazenamento.guardarComoCorrompido();
+    const ondeFicou = modoAparelho ? 'à parte, no navegador' : 'como saves/aquario.corrompido.json';
     salvamento.aviso = guardou
-      ? `O jogo salvo estava estragado (${erro.message}). Guardei como saves/aquario.corrompido.json e comecei um aquário novo.`
+      ? `O jogo salvo estava estragado (${erro.message}). Guardei ${ondeFicou} e comecei um aquário novo.`
       : `O jogo salvo está estragado (${erro.message}) e não consegui guardá-lo. Nada foi gravado.`;
     if (!guardou) salvamento.bloqueado = true;
     return false;
@@ -208,55 +226,84 @@ document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'hidden') salvar({ keepalive: true });
 });
 
-const painel = criarPainel({
-  clock,
-  camera,
-  menu,
-  config,
-  obterAquario: () => aquario,
-  obterPeixe: () => menu.peixeEmFoco(aquario),
-  textos,
-  obterSalvamento: () => salvamento,
-  aguardandoAdocao: () => semJogo,
-  podeAdotar: () => semJogo || aquario.gameOver,
-  aoAdotar: (pedido) => adotar(pedido),
-  aoRenomear: (bruto) => {
-    const peixe = menu.peixeEmFoco(aquario);
-    if (peixe) aquario.renomear(peixe, bruto, aceitaNoNome);
-    salvar();
-  },
-  clima,
-  aoAdotarParceiro: ({ nome, cor }) => {
-    const r = menu.adotarParceiro(aquario, { cor });
-    if (r.ok && nome) aquario.renomear(r.parceiro, nome, aceitaNoNome);
-    return r;
-  },
-  aoApagar: apagarJogo,
-});
+// Exportar e importar o jogo como arquivo (só na página do aparelho; doc 15, seção 5).
+async function exportarParaArquivo() {
+  if (semJogo) return { ok: false, motivo: 'Ainda não há jogo para exportar: adote um peixe primeiro.' };
+  const agora = Date.now();
+  const dados = exportarJogo(aquario, { tempoJogoMs: clock.agoraMs(), salvoEmMs: agora, recordeCacada: menu.recorde });
+  return { ok: true, nome: nomeDoBackup(agora), texto: textoDoBackup(dados) };
+}
 
-// A página do celular (doc 13): a cada meio segundo a aba entrega o retrato do jogo ao servidor e executa os
-// comandos que o celular mandou (comida, limpar, adotar...) com as mesmas funções dos botões do aparelho.
-const ponte = criarPonteDoJogo({
-  obterEstado: () => montarEstado(aquario, {
-    config, textos, agoraMs: clock.agoraMs(), clima, aguardandoAdocao: semJogo,
-  }),
-  executar: (comando) => executarComando(comando, {
-    get aquario() { return aquario; }, // o aquário é trocado ao adotar: sempre o de agora
+async function importarDeArquivo(texto) {
+  const lido = lerBackup(texto, { config, agoraMs: Date.now() });
+  if (!lido.ok) return lido;
+  // A página vai recarregar e, ao sair, salvar() gravaria o jogo de AGORA por cima do importado: bloqueia antes.
+  const bloqueadoAntes = salvamento.bloqueado;
+  salvamento.bloqueado = true;
+  const gravou = await armazenamento.gravar(lido.dados);
+  if (!gravou) {
+    salvamento.bloqueado = bloqueadoAntes;
+    return { ok: false, motivo: 'Não consegui guardar o jogo importado neste navegador.' };
+  }
+  return { ok: true };
+}
+
+// O painel de testes e a ponte do celular só existem no simulador do computador; na página do aparelho
+// (o próprio celular) ficam desligados.
+let painel = { atualizar() {} };
+if (modoAparelho) {
+  ligarAparelho({ controles: toque, aoExportar: exportarParaArquivo, aoImportar: importarDeArquivo, aoApagar: apagarJogo });
+} else {
+  painel = criarPainel({
+    clock,
+    camera,
     menu,
     config,
+    obterAquario: () => aquario,
+    obterPeixe: () => menu.peixeEmFoco(aquario),
     textos,
+    obterSalvamento: () => salvamento,
     aguardandoAdocao: () => semJogo,
-    adotar: (pedido) => adotar(pedido),
-    aceitaNoNome,
-    salvar: () => salvar(),
-  }),
-});
-ponte.ligar();
+    podeAdotar: () => semJogo || aquario.gameOver,
+    aoAdotar: (pedido) => adotar(pedido),
+    aoRenomear: (bruto) => {
+      const peixe = menu.peixeEmFoco(aquario);
+      if (peixe) aquario.renomear(peixe, bruto, aceitaNoNome);
+      salvar();
+    },
+    clima,
+    aoAdotarParceiro: ({ nome, cor }) => {
+      const r = menu.adotarParceiro(aquario, { cor });
+      if (r.ok && nome) aquario.renomear(r.parceiro, nome, aceitaNoNome);
+      return r;
+    },
+    aoApagar: apagarJogo,
+  });
+
+  // A página do celular (doc 13): a cada meio segundo a aba entrega o retrato do jogo ao servidor e executa os
+  // comandos que o celular mandou (comida, limpar, adotar...) com as mesmas funções dos botões do aparelho.
+  const ponte = criarPonteDoJogo({
+    obterEstado: () => montarEstado(aquario, {
+      config, textos, agoraMs: clock.agoraMs(), clima, aguardandoAdocao: semJogo,
+    }),
+    executar: (comando) => executarComando(comando, {
+      get aquario() { return aquario; }, // o aquário é trocado ao adotar: sempre o de agora
+      menu,
+      config,
+      textos,
+      aguardandoAdocao: () => semJogo,
+      adotar: (pedido) => adotar(pedido),
+      aceitaNoNome,
+      salvar: () => salvar(),
+    }),
+  });
+  ponte.ligar();
+}
 
 // Um passo do jogo (dt em segundos reais).
 function atualizar(dt) {
-  const botoes = teclado.botoes();
-  const dir = teclado.direcao();
+  const botoes = entrada.botoes();
+  const dir = entrada.direcao();
   menu.apertar(botoes, aquario);
   // Com o menu aberto, o joystick escolhe o item e a câmera fica parada.
   const livre = menu.cameraLivre();
@@ -268,7 +315,7 @@ function atualizar(dt) {
   // Caçar (doc 14): o joystick nada com o peixe, B segurado acelera e a câmera fica TRAVADA nele.
   const cacando = menu.tela === TELAS.CACADA;
   if (cacando) {
-    menu.cacada.atualizar(dt, { dir, acelerando: teclado.segurando('b') });
+    menu.cacada.atualizar(dt, { dir, acelerando: entrada.segurando('b') });
     const cacador = menu.cacada.peixe;
     if (cacador) camera.irPara(cacador.x - LARGURA / 2, cacador.y - ALTURA / 2);
   } else if (foco) {

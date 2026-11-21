@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <!-- Sem zoom por toque nem por pinça: é um aparelho de jogo, não uma página de leitura. -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#14181f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Aquário">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icones/icone-192.png">
+  <link rel="apple-touch-icon" href="icones/icone-180.png">
+  <title>Aquário</title>
+  <link rel="stylesheet" href="estilo-aparelho.css">
+</head>
+<body data-modo="aparelho">
+  <main class="aparelho" id="aparelho">
+    <!-- A tela do jogo: 120×120 pixels de render, ampliada em número inteiro de vezes (aparelho-ui.js) -->
+    <section class="moldura">
+      <canvas id="tela" width="120" height="120"></canvas>
+    </section>
+
+    <!-- À esquerda o analógico. O dedo arrasta a bolinha; a direção vira o joystick do jogo. -->
+    <section class="lado lado-esquerdo">
+      <div id="analogico" class="analogico" role="application" aria-label="Analógico">
+        <div id="bolinha" class="bolinha"></div>
+      </div>
+    </section>
+
+    <!-- À direita os botões: A (abre o menu e confirma), B (volta; acelera na caçada), C (status). -->
+    <section class="lado lado-direito">
+      <div class="botoes">
+        <div id="botao-c" class="botao botao-c" role="button" aria-label="Botão C">C</div>
+        <div id="botao-b" class="botao botao-b" role="button" aria-label="Botão B">B</div>
+        <div id="botao-a" class="botao botao-a" role="button" aria-label="Botão A">A</div>
+      </div>
+    </section>
+
+    <button id="abrir-opcoes" class="engrenagem" type="button" aria-label="Opções" title="Opções">⋯</button>
+  </main>
+
+  <!-- Opções: guardar e restaurar o jogo (o jogo fica salvo só neste navegador). -->
+  <div id="opcoes" class="opcoes" hidden>
+    <div class="folha" role="dialog" aria-label="Opções">
+      <h1>Aquário <span class="versao">v0.9</span></h1>
+
+      <h2>Jogo salvo</h2>
+      <p class="dica">Seu aquário fica guardado só neste navegador. Se você limpar os dados do site ou trocar de
+        celular, ele some. Exporte um arquivo para guardar uma cópia.</p>
+      <div class="acoes">
+        <button id="exportar" type="button">Exportar jogo</button>
+        <label class="arquivo" for="importar">Importar jogo</label>
+        <input id="importar" type="file" accept=".json,application/json" hidden>
+        <button id="apagar" type="button" class="perigo">Apagar jogo</button>
+      </div>
+      <p id="opcoes-aviso" class="aviso" hidden></p>
+      <p class="dica">Ao importar, o tempo passado desde o dia da cópia não conta: o peixe continua de onde parou.</p>
+
+      <h2>Botões</h2>
+      <p class="dica">A abre o menu e confirma · B volta (no jogo, mostra ou esconde os indicadores; na caçada,
+        segure para acelerar) · C mostra o status. Também funciona no teclado: setas ou WASD, Z, X e C.</p>
+
+      <button id="fechar-opcoes" type="button" class="fechar">Fechar</button>
+    </div>
+  </div>
+
+  <script type="module" src="src/main.js"></script>
+  <!-- Só com https (o GitHub Pages): deixa instalar na tela inicial e abrir sem internet. No computador, em
+       http://localhost, não registra: assim os testes nunca pegam uma cópia velha. -->
+  <script>
+    if ('serviceWorker' in navigator && location.protocol === 'https:') {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
+  </script>
+</body>
+</html>

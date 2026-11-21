@@ -22,7 +22,7 @@ bateria + USB), gerenciado também pelo celular via WiFi. Veja `README.md` e `do
   acelerável); Fase B = firmware ESP32 (PlatformIO, editor Antigravity IDE) quando o hardware chegar.
   Usuário ainda não tem nenhuma peça.
 - Fechado: `05-arquitetura.md` (a seção 9, Fase B, fica como proposta até o hardware chegar).
-- Git: só local por enquanto. Pasta `C:\dev\aquario-virtual`; autor dos commits "Anorak".
+- Git: local + GitHub público (ver "GitHub" abaixo). Pasta `C:\dev\aquario-virtual`; autor dos commits "Anorak" (e-mail anônimo do GitHub).
   Nome do projeto provisório: "Aquário". Uma tag por versão (`v0.1` a `v0.8` criadas).
   Pendente: apagar cópia antiga do OneDrive (se existir).
 - Fechado: `06-web.md` (página do celular; design visual fica para depois do v0.5).
@@ -117,7 +117,19 @@ bateria + USB), gerenciado também pelo celular via WiFi. Veja `README.md` e `do
   `render/cacada.js`, recorde no arquivo salvo (`recordeCacada`, opcional; "Apagar jogo" zera). Comer larva **não** mexe em fome/saúde/sujeira.
   `criarMenu` agora recebe `config` e `semente`. Balanço: `node tools/cacada.js` (em `sim/`): bot perfeito faz ~44 larvas, sem B ~14;
   **dificuldade a ajustar pelo usuário jogando**. Não testado à mão: setas + B segurado juntos. Página do celular não tem a caçada.
-- Próximo: **depois da v0.8** (refinar arte/balanceamento/caçada jogando → esperar o hardware; perguntar ao usuário).
+- **GitHub (20/11/2026):** repositório **público** `github.com/4nor4k/aquario-virtual` criado e enviado a pedido do usuário (branch `main` + tags `v0.1` a `v0.8`).
+  Antes do envio reescrevi os 54 commits para o e-mail anônimo `231084968+4nor4k@users.noreply.github.com` (o e-mail real não está no histórico; o git deste
+  repositório já usa o anônimo). O `gh` tem duas contas (`4nor4k` ativa e `KatyJu` inativa: outra conta que já estava logada neste PC, não mexer). Enviar de novo (`git push`) e
+  **ligar o Pages continuam pedindo um sim explícito** do usuário.
+- **v0.9 implementada em 20/11/2026, SEM tag e SEM publicar** (plano e resultado em `docs/15-plano-v0.9.md`, seção 7; 774 testes). O usuário respondeu o plano:
+  repositório público **sim**, analógico **contínuo**, PWA **sim**, exportar/importar **sim**. Entregue: `sim/aparelho.html` + `estilo-aparelho.css` (tela em cima,
+  analógico à esquerda, A/B/C à direita; deitado: analógico | tela | botões), entrada por toque com multitoque (`input/toque.js`, `combinar.js`), salvamento no
+  `localStorage` (`sim/armazenamento-local.js`; o `main.js` escolhe pelo `data-modo="aparelho"`), Opções com exportar/importar/apagar jogo (`backup.js`,
+  `aparelho-ui.js`), PWA (`manifest.webmanifest`, `icones/`, `sw.js`), `tools/montar-site.mjs` e `.github/workflows/pages.yml` (testa e publica). Importar um backup **não conta
+  o tempo desde a cópia** (proposta minha). Testado no navegador (incl. um "Pages simulado" só com arquivos estáticos). **Pendente:** (1) ele autorizar commit/envio e ligar o
+  Pages (passos em `docs/15`, seção 7.1); (2) testar no celular de verdade (multitoque, tamanho, instalar na tela inicial, download do backup; lista na seção 7); (3) tag `v0.9`.
+  A aparência é proposta minha (variáveis no topo do CSS). Rodar a página no PC: `node servidor.js` e abrir `http://localhost:8080/aparelho.html`.
+- Depois da v0.9: **depois da v0.8** (refinar arte/balanceamento/caçada jogando → esperar o hardware; perguntar ao usuário).
   Antes: **depois da v0.7** (refinar arte/balanceamento/aparência da página jogando → esperar o hardware; perguntar ao usuário).
   Antes: **depois da v0.6** (plano combinado: refinar arte e balanceamento jogando → esperar o hardware).
   Antes: **depois da v0.5.** O roadmap do `docs/01-visao.md` vai da v0.5 direto para a v1.0 (firmware no ESP32, Fase B, quando o hardware chegar) e v1.1 (WiFi, celular, hora e clima reais). Perguntar ao usuário o que quer a seguir: refinar arte e balanceamento, simular a página do celular (doc 06) no navegador, ou esperar o hardware.
