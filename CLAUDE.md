@@ -121,7 +121,10 @@ bateria + USB), gerenciado também pelo celular via WiFi. Veja `README.md` e `do
   Antes do envio reescrevi os 54 commits para o e-mail anônimo `231084968+4nor4k@users.noreply.github.com` (o e-mail real não está no histórico; o git deste
   repositório já usa o anônimo). O `gh` tem duas contas (`4nor4k` ativa e `KatyJu` inativa: outra conta que já estava logada neste PC, não mexer). Enviar de novo (`git push`) e
   **ligar o Pages continuam pedindo um sim explícito** do usuário.
-- **v0.9 implementada em 20/11/2026, SEM tag e SEM publicar** (plano e resultado em `docs/15-plano-v0.9.md`, seção 7; 774 testes). O usuário respondeu o plano:
+- **v0.9 NO AR (20/11/2026): `https://4nor4k.github.io/aquario-virtual/`.** O usuário autorizou ("pode"): Pages ligado com fonte "GitHub Actions", `git push` do commit `dbcab53`, Action
+  `Publicar no GitHub Pages` passou (testes + publicação) e o site responde certo. Cada `git push` na `main` republica sozinho (precisa de novo sim para enviar). Só avisos de
+  Node 20 nas actions (não quebra). Falta o teste no celular e a tag. O texto a seguir é do estado antes de publicar.
+- **v0.9 implementada em 20/11/2026, SEM tag** (plano e resultado em `docs/15-plano-v0.9.md`, seção 7; 774 testes). O usuário respondeu o plano:
   repositório público **sim**, analógico **contínuo**, PWA **sim**, exportar/importar **sim**. Entregue: `sim/aparelho.html` + `estilo-aparelho.css` (tela em cima,
   analógico à esquerda, A/B/C à direita; deitado: analógico | tela | botões), entrada por toque com multitoque (`input/toque.js`, `combinar.js`), salvamento no
   `localStorage` (`sim/armazenamento-local.js`; o `main.js` escolhe pelo `data-modo="aparelho"`), Opções com exportar/importar/apagar jogo (`backup.js`,
