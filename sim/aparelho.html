@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <!-- Sem zoom por toque nem por pinça: é um aparelho de jogo, não uma página de leitura. -->
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#14181f">
+  <meta name="theme-color" content="#0a0d13">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Aquário">
@@ -17,28 +17,37 @@
 </head>
 <body data-modo="aparelho">
   <main class="aparelho" id="aparelho">
-    <!-- A tela do jogo: 120×120 pixels de render, ampliada em número inteiro de vezes (aparelho-ui.js) -->
+    <div class="placa" aria-hidden="true"></div>
+
+    <!-- A tela do jogo: 120×120 pixels de render, ampliada em número inteiro de vezes (aparelho-ui.js).
+         Fica numa moldura escura embutida, com a grade do alto-falante embaixo (só enfeite). -->
     <section class="moldura">
-      <canvas id="tela" width="120" height="120"></canvas>
+      <div class="vidro">
+        <canvas id="tela" width="120" height="120"></canvas>
+      </div>
+      <div class="alto-falante" aria-hidden="true"></div>
     </section>
 
-    <!-- À esquerda o analógico. O dedo arrasta a bolinha; a direção vira o joystick do jogo. -->
+    <!-- Os botões não têm letras, só cores. Vermelho = antigo A (abre o menu e confirma), amarelo = B (volta;
+         acelera na caçada), azul = C (status). Os ids continuam botao-a/b/c porque o código do jogo usa. -->
+
+    <!-- À esquerda o analógico. O dedo arrasta o topo emborrachado; a direção vira o joystick do jogo. -->
     <section class="lado lado-esquerdo">
       <div id="analogico" class="analogico" role="application" aria-label="Analógico">
         <div id="bolinha" class="bolinha"></div>
       </div>
     </section>
 
-    <!-- À direita os botões: A (abre o menu e confirma), B (volta; acelera na caçada), C (status). -->
     <section class="lado lado-direito">
       <div class="botoes">
-        <div id="botao-c" class="botao botao-c" role="button" aria-label="Botão C">C</div>
-        <div id="botao-b" class="botao botao-b" role="button" aria-label="Botão B">B</div>
-        <div id="botao-a" class="botao botao-a" role="button" aria-label="Botão A">A</div>
+        <div id="botao-c" class="botao botao-c" role="button" aria-label="Botão azul"></div>
+        <div id="botao-b" class="botao botao-b" role="button" aria-label="Botão amarelo"></div>
+        <div id="botao-a" class="botao botao-a" role="button" aria-label="Botão vermelho"></div>
       </div>
     </section>
 
-    <button id="abrir-opcoes" class="engrenagem" type="button" aria-label="Opções" title="Opções">⋯</button>
+    <!-- A pílula entre a tela e os controles abre as Opções. -->
+    <button id="abrir-opcoes" class="pilula" type="button" aria-label="Opções" title="Opções"></button>
   </main>
 
   <!-- Opções: guardar e restaurar o jogo (o jogo fica salvo só neste navegador). -->
@@ -59,8 +68,8 @@
       <p class="dica">Ao importar, o tempo passado desde o dia da cópia não conta: o peixe continua de onde parou.</p>
 
       <h2>Botões</h2>
-      <p class="dica">A abre o menu e confirma · B volta (no jogo, mostra ou esconde os indicadores; na caçada,
-        segure para acelerar) · C mostra o status. Também funciona no teclado: setas ou WASD, Z, X e C.</p>
+      <p class="dica">Vermelho abre o menu e confirma · amarelo volta (no jogo, mostra ou esconde os indicadores; na
+        caçada, segure para acelerar) · azul mostra o status. Também funciona no teclado: setas ou WASD, Z, X e C.</p>
 
       <button id="fechar-opcoes" type="button" class="fechar">Fechar</button>
     </div>

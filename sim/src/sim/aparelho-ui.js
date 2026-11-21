@@ -54,24 +54,15 @@ export function ligarAparelho({ controles, aoExportar, aoImportar, aoApagar, jan
 
   // ---------- o tamanho da tela ----------
   function ajustarTela() {
+    // O tamanho vem do espaço que a carcaça realmente tem (ela pode ser menor que a janela, no computador) menos
+    // o que NÃO é tela (margens, moldura, pílula, controles). Esses dois números ficam no estilo-aparelho.css
+    // (--reserva-largura e --reserva-altura), um par para em pé e outro para deitado.
     const estilo = janela.getComputedStyle(documento.documentElement);
-    const disco = numeroCss(estilo.getPropertyValue('--tamanho-disco'), 150);
-    const botao = numeroCss(estilo.getPropertyValue('--tamanho-botao'), 62);
-    const deitado = janela.innerWidth > janela.innerHeight;
-    // Os mesmos números do estilo-aparelho.css: moldura da tela 4 px de cada lado, margem lateral 6 px,
-    // em cima 12 px e embaixo 16 px, espaço entre as partes 12 px.
-    const moldura = 8;
-    const margemLateral = 12;
-    let largura;
-    let altura;
-    if (deitado) {
-      const lado = Math.max(disco, botao * 2.4); // cada lado do aparelho precisa de espaço para os controles
-      largura = janela.innerWidth - 2 * lado - 2 * 12 - margemLateral - moldura;
-      altura = janela.innerHeight - 12 - 16 - moldura;
-    } else {
-      largura = janela.innerWidth - margemLateral - moldura;
-      altura = janela.innerHeight - disco - 76 - moldura; // sobra para o analógico e os botões embaixo
-    }
+    const reservaLargura = numeroCss(estilo.getPropertyValue('--reserva-largura'), 56);
+    const reservaAltura = numeroCss(estilo.getPropertyValue('--reserva-altura'), 270);
+    const carcaca = $('aparelho');
+    const largura = carcaca.clientWidth - reservaLargura;
+    const altura = carcaca.clientHeight - reservaAltura;
     const lado = tamanhoDaTela(largura, altura, janela.devicePixelRatio || 1);
     tela.style.width = `${lado}px`;
     tela.style.height = `${lado}px`;

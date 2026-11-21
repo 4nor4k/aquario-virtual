@@ -1,20 +1,33 @@
-/* Visual do "aparelho" na página do celular (doc 15). É proposta minha e provisória: cores, formas e tamanhos
-   ficam todos aqui, para o usuário ajustar depois. */
+/* Visual do "aparelho" na página do celular (doc 15). Estilo escuro e skeuomórfico (imita um portátil de verdade:
+   carcaça com brilho nas bordas, tela embutida, grade de som, analógico emborrachado e teclas em relevo),
+   com base em uma foto de referência. É proposta minha: cores, formas e tamanhos ficam aqui, para ajustar depois. */
 :root {
-  --fundo: #14181f;
-  --carcaca: #2a6f86;          /* a cor do aparelho */
-  --carcaca-escura: #1d5163;
-  --moldura: #0b0d11;
-  --disco: #173e4b;
-  --bolinha: #d8e8ee;
-  --botao-a: #d9534f;
-  --botao-b: #e8b13c;
-  --botao-c: #4f8fd9;
+  /* carcaça (azul-grafite escuro) */
+  --carcaca-1: #27334d;
+  --carcaca-2: #151c2c;
+  --carcaca-3: #0c111b;
+  --placa-1: #222d44;           /* a placa de baixo, onde ficam os controles */
+  --placa-2: #161e2e;
+  --borda-clara: rgba(255, 255, 255, 0.16);
+  --fundo-mesa: #07090d;
+
+  /* as três teclas: cor, tom claro (brilho) e tom escuro (lateral) */
+  --vermelho: #cf4339;  --vermelho-claro: #ff8f7d;  --vermelho-escuro: #7a1a15;
+  --amarelo:  #dba936;  --amarelo-claro:  #ffe48f;  --amarelo-escuro:  #7f5f0e;
+  --azul:     #3d7fd6;  --azul-claro:     #92c3ff;  --azul-escuro:     #1a4382;
+
   --texto: #e6e9ee;
   --texto-suave: #98a2b3;
   --aviso: #f2a65a;
-  --tamanho-disco: 150px;      /* o analógico */
-  --tamanho-botao: 62px;       /* A, B e C */
+
+  --tamanho-disco: 140px;       /* o analógico */
+  --tamanho-botao: 60px;        /* as teclas coloridas */
+
+  /* Quanto do aparelho NÃO é a tela do jogo, em pixels (aparelho-ui.js lê estes dois números para escolher o
+     tamanho da tela). Em pé: largura = 2×14 (margem da carcaça) + 2×14 (moldura); altura = 14 + 16 (margem) + 52
+     (moldura e grade) + 38 (pílula) + 160 (controles). Deitado: ver mais abaixo. */
+  --reserva-largura: 56px;
+  --reserva-altura: 280px;
 }
 
 * { box-sizing: border-box; }
@@ -22,7 +35,7 @@
 html, body {
   height: 100%;
   margin: 0;
-  background: var(--fundo);
+  background: radial-gradient(ellipse at 50% 25%, #1a2130 0%, var(--fundo-mesa) 70%);
   color: var(--texto);
   font-family: system-ui, sans-serif;
   /* Nada de rolar, dar zoom, selecionar texto ou abrir o menu de segurar: é um jogo. */
@@ -35,32 +48,87 @@ html, body {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* ---------- o aparelho ---------- */
+body { display: flex; align-items: center; justify-content: center; }
+
+/* ---------- a carcaça ---------- */
 
 .aparelho {
   position: relative;
+  width: 100%;
   height: 100%;
+  max-width: 460px;
   display: grid;
-  /* Em pé: tela em cima; analógico à esquerda e botões à direita, embaixo. */
+  /* Em pé: tela em cima, a pílula no meio; analógico à esquerda e teclas à direita, embaixo. */
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto 1fr;
-  grid-template-areas:
-    "tela tela"
-    "esquerdo direito";
+  grid-template-rows: auto auto 1fr;
   align-items: center;
   justify-items: center;
-  gap: 8px 12px;
-  padding: max(12px, env(safe-area-inset-top)) max(6px, env(safe-area-inset-right))
-           max(16px, env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left));
-  background: linear-gradient(160deg, var(--carcaca), var(--carcaca-escura));
+  padding: max(14px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right))
+           max(16px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
+  border-radius: 34px;
+  background:
+    radial-gradient(120% 60% at 20% 0%, rgba(120, 150, 210, 0.16), transparent 60%),
+    linear-gradient(155deg, var(--carcaca-1) 0%, var(--carcaca-2) 45%, var(--carcaca-3) 100%);
+  box-shadow:
+    inset 0 1.5px 0 var(--borda-clara),
+    inset 1.5px 0 0 rgba(255, 255, 255, 0.06),
+    inset 0 -3px 8px rgba(0, 0, 0, 0.55),
+    0 0 0 1px #04060a,
+    0 30px 60px rgba(0, 0, 0, 0.75);
+}
+/* Telas grandes (computador): o aparelho não estica, fica do tamanho de um portátil. */
+@media (min-width: 520px) and (orientation: portrait) {
+  .aparelho { max-height: 800px; }
 }
 
+/* A placa de baixo: um painel um pouco mais claro, com a tela "saindo" por cima dele. */
+.placa {
+  grid-column: 1 / 3;
+  grid-row: 2 / 4;
+  align-self: stretch;
+  justify-self: stretch;
+  margin: -20px -6px -6px;
+  border-radius: 28px 28px 26px 26px;
+  background: linear-gradient(180deg, var(--placa-1), var(--placa-2));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.4),
+    0 -1px 0 rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+}
+
+/* ---------- a tela ---------- */
+
 .moldura {
-  grid-area: tela;
-  padding: 4px;
-  background: var(--moldura);
-  border-radius: 14px;
-  box-shadow: inset 0 0 0 2px #000, 0 4px 14px rgba(0, 0, 0, 0.45);
+  grid-column: 1 / 3;
+  grid-row: 1;
+  position: relative;
+  z-index: 2;
+  padding: 14px 14px 0;
+  border-radius: 20px;
+  background: linear-gradient(180deg, #2c2f36, #16181d);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.6),
+    0 0 0 1px #07080a,
+    0 12px 22px rgba(0, 0, 0, 0.65);
+}
+
+.vidro {
+  position: relative;
+  line-height: 0;
+  border-radius: 5px;
+  overflow: hidden;
+}
+/* Tela afundada na moldura e um reflexo bem leve no vidro (por cima do jogo, sem pegar o toque). */
+.vidro::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, transparent 38%);
+  box-shadow: inset 0 0 0 2px #000, inset 0 0 14px rgba(0, 0, 0, 0.8);
 }
 
 /* A tela fica nítida: o tamanho é um número inteiro de vezes 120 pixels (aparelho-ui.js ajusta). */
@@ -72,22 +140,48 @@ html, body {
   background: #000;
 }
 
-.lado { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
-.lado-esquerdo { grid-area: esquerdo; }
-.lado-direito { grid-area: direito; }
+/* Grade do alto-falante (só enfeite): fileiras de furinhos. */
+.alto-falante {
+  width: 62%;
+  height: 18px;
+  margin: 10px auto;
+  background-image: radial-gradient(circle at center, #040506 0 1.5px, rgba(255, 255, 255, 0.07) 2px, transparent 2.6px);
+  background-size: 7px 6px;
+}
+
+.lado {
+  grid-row: 3;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+.lado-esquerdo { grid-column: 1; }
+.lado-direito { grid-column: 2; }
 
 /* ---------- analógico ---------- */
 
+/* O poço: um buraco redondo, com um anel de metal em volta. */
 .analogico {
   position: relative;
   width: var(--tamanho-disco);
   height: var(--tamanho-disco);
   border-radius: 50%;
-  background: radial-gradient(circle at 50% 40%, #1f5062, var(--disco));
-  box-shadow: inset 0 3px 10px rgba(0, 0, 0, 0.55), 0 2px 0 rgba(255, 255, 255, 0.12);
+  background: radial-gradient(circle at 50% 50%, #04060a 0%, #0a0e15 62%, #151c2b 100%);
+  box-shadow:
+    inset 0 5px 14px rgba(0, 0, 0, 0.95),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
+    0 0 0 5px #1d2739,
+    0 0 0 6px #04060a,
+    0 7px 10px 4px rgba(0, 0, 0, 0.45),
+    0 6px 0 6px rgba(255, 255, 255, 0.03);
   touch-action: none;
 }
 
+/* O topo emborrachado do analógico: cinza escuro, com um prato côncavo e uma cruz. */
 .bolinha {
   position: absolute;
   left: 50%;
@@ -96,74 +190,151 @@ html, body {
   height: 46%;
   margin: -23% 0 0 -23%;
   border-radius: 50%;
-  background: radial-gradient(circle at 40% 35%, #f4fafc, var(--bolinha) 55%, #9db8c2);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);
+  background: radial-gradient(circle at 36% 28%, #666c78, #353941 55%, #1c1f25);
+  box-shadow:
+    inset 0 2px 1px rgba(255, 255, 255, 0.28),
+    inset 0 -4px 6px rgba(0, 0, 0, 0.55),
+    0 7px 10px rgba(0, 0, 0, 0.75),
+    0 2px 0 #0b0d11;
   pointer-events: none; /* o dedo é sempre lido pelo disco */
   will-change: transform;
 }
+.bolinha::before {
+  content: "";
+  position: absolute;
+  inset: 17%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 62% 72%, #40454f, #15171b 80%);
+  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.75), 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+.bolinha::after {
+  content: "";
+  position: absolute;
+  inset: 17%;
+  border-radius: 50%;
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)) center / 58% 2px no-repeat,
+    linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)) center / 2px 58% no-repeat;
+}
 
-/* ---------- botões ---------- */
+/* ---------- teclas coloridas (sem letras) ---------- */
 
+/* Cada tecla é um ENCAIXE (o elemento, 8 px maior que a tecla de cada lado) com a TECLA dentro (::before) e o brilho
+   (::after). Só a tecla afunda; o encaixe fica parado. */
 .botoes {
   position: relative;
-  width: calc(var(--tamanho-botao) * 2.4);
-  height: calc(var(--tamanho-botao) * 2.2);
+  width: calc(var(--tamanho-botao) * 2.4 + 16px);
+  height: calc(var(--tamanho-botao) * 2.35 + 16px);
 }
 
 .botao {
   position: absolute;
-  width: var(--tamanho-botao);
-  height: var(--tamanho-botao);
+  width: calc(var(--tamanho-botao) + 16px);
+  height: calc(var(--tamanho-botao) + 16px);
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 1.4rem;
-  color: rgba(0, 0, 0, 0.55);
-  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.35), 0 8px 12px rgba(0, 0, 0, 0.35);
+  background: #080b10;
+  box-shadow: inset 0 3px 6px #000, 0 1px 0 rgba(255, 255, 255, 0.1);
   touch-action: none;
-  transition: transform 40ms, box-shadow 40ms;
 }
-.botao.apertado {
-  transform: translateY(4px);
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.35), 0 2px 6px rgba(0, 0, 0, 0.35);
+.botao::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 36% 28%, var(--claro), var(--cor) 55%, var(--escuro));
+  box-shadow:
+    inset 0 2px 2px rgba(255, 255, 255, 0.38),
+    inset 0 -5px 7px rgba(0, 0, 0, 0.32),
+    0 4px 0 var(--escuro),
+    0 8px 9px rgba(0, 0, 0, 0.6);
+  transition: transform 50ms, box-shadow 50ms;
 }
-/* A e B embaixo, na diagonal (como nos consoles portáteis); C acima, para o status. */
-.botao-a { background: var(--botao-a); right: 0; bottom: 8px; }
-.botao-b { background: var(--botao-b); left: 0; bottom: 0; }
-.botao-c { background: var(--botao-c); left: 50%; margin-left: calc(var(--tamanho-botao) * -0.5); top: 0; }
+/* O brilho no alto da tecla. */
+.botao::after {
+  content: "";
+  position: absolute;
+  left: calc(8px + var(--tamanho-botao) * 0.2);
+  top: calc(8px + var(--tamanho-botao) * 0.09);
+  width: calc(var(--tamanho-botao) * 0.6);
+  height: calc(var(--tamanho-botao) * 0.32);
+  border-radius: 50%;
+  background: linear-gradient(rgba(255, 255, 255, 0.4), transparent);
+  pointer-events: none;
+  transition: transform 50ms;
+}
+.botao.apertado::before {
+  transform: translateY(3px);
+  box-shadow:
+    inset 0 2px 2px rgba(255, 255, 255, 0.25),
+    inset 0 -3px 5px rgba(0, 0, 0, 0.4),
+    0 1px 0 var(--escuro),
+    0 3px 5px rgba(0, 0, 0, 0.6);
+}
+.botao.apertado::after { transform: translateY(3px); }
 
-/* ---------- celular deitado: analógico | tela | botões ---------- */
+/* Vermelho e amarelo embaixo, na diagonal (como nos consoles portáteis); azul acima. */
+.botao-a { --cor: var(--vermelho); --claro: var(--vermelho-claro); --escuro: var(--vermelho-escuro); right: 0; bottom: 6px; }
+.botao-b { --cor: var(--amarelo);  --claro: var(--amarelo-claro);  --escuro: var(--amarelo-escuro);  left: 0; bottom: 0; }
+.botao-c { --cor: var(--azul);     --claro: var(--azul-claro);     --escuro: var(--azul-escuro);
+           left: 50%; margin-left: calc(var(--tamanho-botao) * -0.5 - 8px); top: 0; }
+
+/* ---------- pílula das Opções ---------- */
+
+/* Em pé: entre a tela e os controles. Deitado: no canto de cima à direita (ver o fim do arquivo). */
+.pilula {
+  grid-column: 1 / 3;
+  grid-row: 2;
+  position: relative;
+  z-index: 1;
+  width: 66px;
+  height: 18px;
+  margin: 10px 0;
+  padding: 0;
+  border: 0;
+  border-radius: 9px;
+  background: linear-gradient(180deg, #8d929c, #565b66);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.3),
+    0 0 0 1px #0a0c10,
+    0 3px 4px rgba(0, 0, 0, 0.6);
+  touch-action: manipulation;
+  cursor: pointer;
+}
+/* Área de toque maior que a pílula, para o dedo acertar. */
+.pilula::before { content: ""; position: absolute; inset: -12px -14px; }
+.pilula:active { transform: translateY(1px); box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5), 0 0 0 1px #0a0c10; }
+
+/* ---------- celular deitado: analógico | tela | teclas ---------- */
 
 @media (orientation: landscape) {
+  :root {
+    --tamanho-disco: 120px;
+    --tamanho-botao: 52px;
+    /* largura = 2×16 (margem) + 2×14 (moldura) + 2×12 (espaço) + 2×150 (cada lado); altura = 14 + 16 + 52 */
+    --reserva-largura: 384px;
+    --reserva-altura: 82px;
+  }
   .aparelho {
+    max-width: 1000px;
     grid-template-columns: 1fr auto 1fr;
     grid-template-rows: 1fr;
-    grid-template-areas: "esquerdo tela direito";
-    gap: 12px;
+    column-gap: 12px;
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
   }
-  :root { --tamanho-disco: 130px; --tamanho-botao: 54px; }
+  .placa { display: none; }
+  .moldura { grid-column: 2; grid-row: 1; }
+  .lado { grid-row: 1; }
+  .lado-esquerdo { grid-column: 1; }
+  .lado-direito { grid-column: 3; }
+}
+/* Computador deitado: o aparelho não estica na altura. */
+@media (orientation: landscape) and (min-height: 760px) {
+  .aparelho { max-height: 640px; }
 }
 
 /* ---------- opções ---------- */
-
-/* Em pé: embaixo, no meio (o canto de cima fica sobre a tela). Deitado: no canto de cima à direita. */
-.engrenagem {
-  position: absolute;
-  bottom: max(8px, env(safe-area-inset-bottom));
-  left: 50%;
-  margin-left: -20px;
-  width: 40px;
-  height: 40px;
-  border: 0;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.3);
-  color: var(--texto);
-  font-size: 1.4rem;
-  line-height: 1;
-  touch-action: manipulation;
-}
 
 .opcoes {
   position: fixed;
@@ -181,8 +352,9 @@ html, body {
   width: min(100%, 520px);
   max-height: 92%;
   overflow-y: auto;
-  background: #1d232d;
-  border-radius: 16px 16px 0 0;
+  background: linear-gradient(180deg, #1f2738, #161c29);
+  box-shadow: inset 0 1px 0 var(--borda-clara);
+  border-radius: 20px 20px 0 0;
   padding: 18px 20px max(20px, env(safe-area-inset-bottom));
   -webkit-user-select: text;
   user-select: text;
@@ -205,26 +377,27 @@ html, body {
 .acoes button, .acoes .arquivo, .fechar {
   appearance: none;
   border: 0;
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 11px 14px;
-  background: #2b3340;
+  background: linear-gradient(180deg, #343e52, #283042);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 2px 3px rgba(0, 0, 0, 0.4);
   color: var(--texto);
   font: inherit;
   font-size: 0.95rem;
   cursor: pointer;
 }
-.acoes .perigo { background: #5a2b2b; }
-.acoes .perigo.confirmando { background: #b03a3a; }
-.fechar { width: 100%; margin-top: 18px; background: #2f7fb8; }
+.acoes .perigo { background: linear-gradient(180deg, #6a3030, #532525); }
+.acoes .perigo.confirmando { background: linear-gradient(180deg, #c04545, #a03030); }
+.fechar { width: 100%; margin-top: 18px; background: linear-gradient(180deg, #3a8ac8, #2a6ea5); }
 
-/* Deitado, a engrenagem vai para o canto de cima à direita. Fica NO FIM do arquivo de propósito: a regra base
-   de .engrenagem (lá em cima) tem o mesmo peso, e a que vem depois vence. */
+/* Deitado, a pílula vai para o canto de cima à direita da carcaça. Fica NO FIM do arquivo de propósito: a regra
+   base de .pilula (lá em cima) tem o mesmo peso, e a que vem depois vence. */
 @media (orientation: landscape) {
-  .engrenagem {
-    top: max(6px, env(safe-area-inset-top));
-    right: max(6px, env(safe-area-inset-right));
-    bottom: auto;
-    left: auto;
-    margin-left: 0;
+  .pilula {
+    grid-area: auto; /* solta da grade: senão o canto de cima seria o da linha 2, que nem existe deitado */
+    position: absolute;
+    top: max(14px, env(safe-area-inset-top));
+    right: max(22px, env(safe-area-inset-right));
+    margin: 0;
   }
 }
