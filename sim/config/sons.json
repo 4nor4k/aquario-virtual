@@ -2,7 +2,6 @@
   "_comentario": "Efeitos sonoros do buzzer (doc 16). Cada som: prioridade (1 detalhe, 2 acontecimento, 3 importante) e notas [frequencia em Hz, duracao em ms]. Hz 0 = silencio. Um som de prioridade maior ou igual corta o que esta tocando; de prioridade menor e descartado. Mesma lista no ESP32 (ledcWriteTone). Notas: C5=523 D5=587 E5=659 F5=698 G5=784 A5=880 B5=988 C6=1047 E6=1319 G6=1568.",
   "sons": {
     "ligar":     { "prioridade": 2, "notas": [[523, 90], [659, 90], [784, 90], [1047, 160]] },
-    "clique":    { "prioridade": 1, "notas": [[1800, 25]] },
     "voltar":    { "prioridade": 1, "notas": [[880, 40], [659, 40]] },
     "status":    { "prioridade": 1, "notas": [[784, 50], [1047, 50]] },
     "negado":    { "prioridade": 2, "notas": [[330, 80], [0, 30], [260, 100]] },

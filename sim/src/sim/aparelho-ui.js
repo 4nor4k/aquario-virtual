@@ -32,8 +32,7 @@ export function ligarAparelho({ controles, aoExportar, aoImportar, aoApagar, jan
   const botoes = { a: $('botao-a'), b: $('botao-b'), c: $('botao-c') };
   ligarToque({ base: $('analogico'), botoes }, controles, { aoAnalogico: mexerBolinha, janela });
 
-  // O botão afunda enquanto o dedo está nele (só visual; quem manda no jogo é o ligarToque). Vale também para o
-  // quarto botão do losango (o quadrado), que não faz nada no jogo.
+  // O botão afunda enquanto o dedo está nele (só visual; quem manda no jogo é o ligarToque).
   for (const elemento of documento.querySelectorAll('.botao')) {
     elemento.addEventListener('pointerdown', () => elemento.classList.add('apertado'));
     for (const fim of ['pointerup', 'pointercancel']) {

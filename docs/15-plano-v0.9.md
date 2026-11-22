@@ -163,4 +163,6 @@ mantendo o relevo, e o **analógico no estilo de duas fotos de referência** (pr
 - **Cinza com grão:** um ruído fino (SVG em `--grao`) sobre degradês cinza na carcaça, na placa, na moldura e nas Opções. Todas as cores estão no topo do CSS.
 - **Símbolos gravados** em tom escuro sobre a borracha (como na foto); para colorir como no PlayStation (azul, vermelho, verde, rosa) é trocar `--simbolo`.
 - **Analógico:** encaixe cinza e um prato côncavo grande com borda fina; o prato anda 28% do tamanho dele (`aparelho-ui.js`).
+- **Ajuste no mesmo dia (pedido do usuário, depois de ver):** o **Quadrado foi removido** (ficaram 3 botões: Triângulo em cima, Bolinha à direita, X embaixo; `botao-d` não existe mais);
+  **mais espaço entre os botões** (o conjunto passou de 2,45 para 3 vezes o tamanho do furo); o **analógico desce 14 px e os botões sobem 14 px** (variável `--desloca` no topo do CSS).
 - **Não mudou:** o ícone do aplicativo e as cores do `manifest` (ainda azul-grafite) e os **textos dentro do jogo**, que ainda dizem "A:", "B:" e "C:".

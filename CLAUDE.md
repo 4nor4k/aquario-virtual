@@ -133,13 +133,13 @@ bateria + USB), gerenciado também pelo celular via WiFi. Veja `README.md` e `do
   Pages (passos em `docs/15`, seção 7.1); (2) testar no celular de verdade (multitoque, tamanho, instalar na tela inicial, download do backup; lista na seção 7); (3) tag `v0.9`.
   A aparência é proposta minha (variáveis no topo do CSS). Rodar a página no PC: `node servidor.js` e abrir `http://localhost:8080/aparelho.html`.
 - **v0.10 concluída em 22/11/2026 (tag `v0.10`, só local, sem push)** (plano e resultado em `docs/16-plano-v0.10.md`; 800 testes). O usuário disse "pode" e aceitou as 5 recomendações.
-  Entregue: **24 efeitos sonoros** do buzzer como lista de notas em `sim/config/sons.json`; `core/som.js` (canal único, prioridade: maior ou igual corta, menor é descartado);
+  Entregue: **24 efeitos sonoros** (depois, em 22/11/2026, o `clique` foi removido a pedido: **23**) do buzzer como lista de notas em `sim/config/sons.json`; `core/som.js` (canal único, prioridade: maior ou igual corta, menor é descartado);
   `core/eventos-som.js` (decide quando cada som toca: eventos do core, trocas de tela, caçada, trovão, grão comido; **sem som ao mover o joystick**);
   `sim/src/sim/audio.js` (Web Audio, onda quadrada, notas agendadas no relógio do áudio); interruptor **Som** (padrão ligado, guardado no `localStorage`)
   e **lista de teste ▶** no painel e nas Opções do celular. O primeiro som sai no primeiro toque/tecla (regra do navegador). **Eu não ouvi os sons:** as melodias
   são palpite meu, o usuário ouve e pede ajustes em `sons.json`. Para o ESP32: `ledcWriteTone` com as mesmas notas. Fora: alarme de fome, volume, música.
 - **Estética da página do aparelho refeita em 22/11/2026 (sem commit/tag ainda; pedido do usuário, `docs/15` seção 8):** botões do PlayStation em losango (**X = A, Bolinha = B, Triângulo = C,
-  Quadrado sem função**), carcaça cinza com grão, analógico em prato côncavo. Pendentes: textos do jogo ainda dizem "A:/B:/C:"; ícone e `manifest` ainda azul-grafite; a v0.10 e esta mudança **ainda não foram enviadas ao GitHub** (precisa de sim).
+  Quadrado sem função**), carcaça cinza com grão, analógico em prato côncavo. **Enviada ao GitHub em 22/11/2026** (commit `0e1274a`, tag `v0.10`, Pages no ar). Depois, a pedido: **Quadrado removido** (3 botões), botões mais espaçados, analógico mais abaixo e botões mais acima (`--desloca`), **som `clique` removido** (23 sons). Pendentes: textos do jogo ainda dizem "A:/B:/C:"; ícone e `manifest` ainda azul-grafite.
 - Depois da v0.9: **depois da v0.8** (refinar arte/balanceamento/caçada jogando → esperar o hardware; perguntar ao usuário).
   Antes: **depois da v0.7** (refinar arte/balanceamento/aparência da página jogando → esperar o hardware; perguntar ao usuário).
   Antes: **depois da v0.6** (plano combinado: refinar arte e balanceamento jogando → esperar o hardware).

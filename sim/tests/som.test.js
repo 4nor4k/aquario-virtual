@@ -13,7 +13,7 @@ const textos = JSON.parse(readFileSync(new URL('../config/textos.json', import.m
 
 test('catálogo: todo som tem prioridade de 1 a 3 e notas [Hz, ms] válidas', () => {
   const nomes = Object.keys(catalogo);
-  assert.equal(nomes.length, 24);
+  assert.equal(nomes.length, 23);
   for (const nome of nomes) {
     const { prioridade, notas } = catalogo[nome];
     assert.ok([1, 2, 3].includes(prioridade), `${nome}: prioridade`);
@@ -28,13 +28,13 @@ test('catálogo: todo som tem prioridade de 1 a 3 e notas [Hz, ms] válidas', ()
 
 test('catálogo: o que importa (Game Over, morreu, namoro, recorde) tem prioridade máxima; detalhes têm a mínima', () => {
   for (const nome of ['gameOver', 'morreu', 'adoeceu', 'namoro', 'recorde', 'adotar']) assert.equal(catalogo[nome].prioridade, 3, nome);
-  for (const nome of ['clique', 'comeu', 'larva', 'trovao']) assert.equal(catalogo[nome].prioridade, 1, nome);
+  for (const nome of ['comeu', 'larva', 'trovao']) assert.equal(catalogo[nome].prioridade, 1, nome);
 });
 
 test('catálogo: todo som que o jogo pede existe', () => {
   const pedidos = [
     ...Object.values(SOM_DO_EVENTO), ...Object.values(SOM_DA_ACAO),
-    'ligar', 'bemvindo', 'clique', 'voltar', 'status', 'negado', 'comeu', 'trovao',
+    'ligar', 'bemvindo', 'voltar', 'status', 'negado', 'comeu', 'trovao',
     'contagem', 'vai', 'larva', 'pausa', 'fimCacada', 'recorde',
   ];
   for (const nome of pedidos) assert.ok(catalogo[nome], `falta o som ${nome}`);
@@ -66,7 +66,7 @@ test('som: tocar avisa a interface e atualizar anda pelas notas e pelos silênci
 
 test('som: duracaoMs soma as notas', () => {
   const { som } = canal();
-  assert.equal(som.duracaoMs('clique'), 25);
+  assert.equal(som.duracaoMs('comeu'), 20);
   assert.equal(som.duracaoMs('negado'), 210);
   assert.throws(() => som.duracaoMs('nao-existe'), RangeError);
 });
@@ -74,7 +74,7 @@ test('som: duracaoMs soma as notas', () => {
 test('som: prioridade maior ou igual corta o que toca; menor é descartada', () => {
   const { som, tocados } = canal();
   assert.equal(som.tocar('gameOver'), true);          // 3
-  assert.equal(som.tocar('clique'), false);           // 1: descartado
+  assert.equal(som.tocar('comeu'), false);            // 1: descartado
   assert.equal(som.tocar('limpar'), false);           // 2: descartado
   assert.equal(som.tocar('morreu'), true);            // 3: igual, corta
   assert.equal(som.tocando, 'morreu');
@@ -85,7 +85,7 @@ test('som: depois que o som acaba, qualquer prioridade volta a tocar', () => {
   const { som } = canal();
   som.tocar('adotar');
   som.atualizar(5);
-  assert.equal(som.tocar('clique'), true);
+  assert.equal(som.tocar('comeu'), true);
 });
 
 test('som: som desconhecido é erro de programação', () => {
@@ -131,10 +131,10 @@ test('observador: o primeiro passo só marca o ponto de partida (nada toca ao ab
   assert.deepEqual(passo(estado({ tela: TELAS.BEM_VINDO })), []);
 });
 
-test('observador: A abre o menu (clique), C abre o status, B volta', () => {
+test('observador: A abre o menu (sem som), C abre o status, B volta', () => {
   const { passo } = observador();
   passo(estado());
-  assert.deepEqual(passo(estado({ tela: TELAS.MENU })), ['clique']);
+  assert.deepEqual(passo(estado({ tela: TELAS.MENU })), []);
   assert.deepEqual(passo(estado({ tela: TELAS.JOGO })), ['voltar']);
   assert.deepEqual(passo(estado({ tela: TELAS.STATUS })), ['status']);
   assert.deepEqual(passo(estado({ tela: TELAS.JOGO })), ['voltar']);
@@ -178,13 +178,13 @@ test('observador: adotar parceiro ou primeiro peixe toca "adotar"; desistir do p
   assert.deepEqual(passo(estado({ tela: TELAS.JOGO })), ['voltar']);
 });
 
-test('observador: Game Over -> adoção (clique); voltar do aviso de ausência (clique); aviso de ausência abre com som', () => {
+test('observador: Game Over -> adoção e fechar o aviso de ausência são sem som; o aviso abre com som', () => {
   const { passo } = observador();
   passo(estado({ tela: TELAS.GAME_OVER }));
-  assert.deepEqual(passo(estado({ tela: TELAS.ADOCAO })), ['clique']);
+  assert.deepEqual(passo(estado({ tela: TELAS.ADOCAO })), []);
   passo(estado());
   assert.deepEqual(passo(estado({ tela: TELAS.BEM_VINDO })), ['bemvindo']);
-  assert.deepEqual(passo(estado({ tela: TELAS.JOGO })), ['clique']);
+  assert.deepEqual(passo(estado({ tela: TELAS.JOGO })), []);
 });
 
 test('observador: cada evento do core tem seu som', () => {
@@ -219,7 +219,7 @@ test('observador: caçada — contagem 3·2·1, vai, larva, pausa, fim e recorde
   const { passo } = observador();
   const c = (fase, numero = 0, pontos = 0, novoRecorde = false) => estado({ tela: TELAS.CACADA, cacada: { fase, numero, pontos, novoRecorde } });
   passo(estado({ tela: TELAS.MENU }));
-  assert.deepEqual(passo(c('contagem', 3)), ['clique', 'contagem']);
+  assert.deepEqual(passo(c('contagem', 3)), ['contagem']);
   assert.deepEqual(passo(c('contagem', 3)), []);
   assert.deepEqual(passo(c('contagem', 2)), ['contagem']);
   assert.deepEqual(passo(c('contagem', 1)), ['contagem']);
@@ -228,7 +228,7 @@ test('observador: caçada — contagem 3·2·1, vai, larva, pausa, fim e recorde
   assert.deepEqual(passo(c('jogando', 0, 1)), []);
   assert.deepEqual(passo(c('pausa', 0, 1)), ['pausa']);
   assert.deepEqual(passo(c('pausa', 0, 1)), []);
-  assert.deepEqual(passo(c('jogando', 0, 1)), ['clique']); // continuar
+  assert.deepEqual(passo(c('jogando', 0, 1)), []); // continuar: sem som
   assert.deepEqual(passo(c('fim', 0, 5, false)), ['fimCacada']);
   assert.deepEqual(passo(c('fim', 0, 5, false)), []);
   assert.deepEqual(passo(estado({ tela: TELAS.JOGO })), ['voltar']);
@@ -247,7 +247,7 @@ test('observador: pausar e continuar durante a contagem repete o bip do número'
   const c = (fase, numero = 0) => estado({ tela: TELAS.CACADA, cacada: { fase, numero, pontos: 0, novoRecorde: false } });
   passo(c('contagem', 2));
   assert.deepEqual(passo(c('pausa', 2)), ['pausa']);
-  assert.deepEqual(passo(c('contagem', 2)), ['contagem']); // o "clique" de continuar é coberto pelo bip (prioridade maior)
+  assert.deepEqual(passo(c('contagem', 2)), ['contagem']); // continuar na contagem: volta o bip
 });
 
 test('observador: um som fraco no mesmo passo não atropela um importante', () => {

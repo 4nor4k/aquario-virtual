@@ -31,18 +31,16 @@ export function criarObservadorDeSons({ som }) {
 
   function trocaDeTela(de, para, mensagemNova, fezAcao) {
     if (de === para) return;
-    if (de === TELAS.JOGO && para === TELAS.MENU) som.tocar('clique');
-    else if (de === TELAS.JOGO && para === TELAS.STATUS) som.tocar('status');
+    // Abrir o menu, entrar na caçada, sair do Game Over e fechar o aviso de ausência NÃO fazem som (o "clique" foi
+    // tirado a pedido do usuário em 22/11/2026).
+    if (de === TELAS.JOGO && para === TELAS.STATUS) som.tocar('status');
     else if (de === TELAS.STATUS && para === TELAS.JOGO) som.tocar('voltar');
     else if (de === TELAS.MENU && para === TELAS.JOGO) {
       if (fezAcao) return; // o som da ação toca no lugar
       som.tocar(mensagemNova ? 'negado' : 'voltar'); // com mensagem nova e sem ação: o menu recusou (peixe fraco, sem vaga...)
-    } else if (de === TELAS.MENU && para === TELAS.CACADA) som.tocar('clique');
-    else if (de === TELAS.CACADA && para === TELAS.JOGO) som.tocar('voltar');
-    else if (de === TELAS.GAME_OVER && para === TELAS.ADOCAO) som.tocar('clique');
+    } else if (de === TELAS.CACADA && para === TELAS.JOGO) som.tocar('voltar');
     else if (de === TELAS.ADOCAO && para === TELAS.JOGO) { if (!fezAcao) som.tocar('voltar'); } // desistiu do parceiro
     else if (para === TELAS.BEM_VINDO) som.tocar('bemvindo');
-    else if (de === TELAS.BEM_VINDO) som.tocar('clique');
   }
 
   function somDaCacada(antes, agora) {
@@ -54,7 +52,6 @@ export function criarObservadorDeSons({ som }) {
     if (agora.fase === FASES_DA_CACADA.JOGANDO && antes.fase === FASES_DA_CACADA.JOGANDO && agora.pontos > antes.pontos) som.tocar('larva');
     if (agora.fase === FASES_DA_CACADA.PAUSA && antes.fase !== FASES_DA_CACADA.PAUSA) som.tocar('pausa');
     if (agora.fase === FASES_DA_CACADA.PAUSA && antes.fase === FASES_DA_CACADA.PAUSA) return;
-    if (antes.fase === FASES_DA_CACADA.PAUSA && agora.fase !== FASES_DA_CACADA.PAUSA && agora.fase !== null) som.tocar('clique');
     if (agora.fase === FASES_DA_CACADA.FIM && antes.fase !== FASES_DA_CACADA.FIM) som.tocar(agora.novoRecorde ? 'recorde' : 'fimCacada');
   }
 

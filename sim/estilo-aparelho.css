@@ -28,12 +28,13 @@
   --tamanho-disco: 140px;       /* o analógico */
   --tamanho-botao: 44px;        /* cada botão do losango */
   --encaixe: calc(var(--tamanho-botao) + 12px); /* o furo onde o botão fica */
+  --desloca: 14px;              /* quanto o analógico desce e os botões sobem, em relação ao centro */
 
   /* Quanto do aparelho NÃO é a tela do jogo, em pixels (aparelho-ui.js lê estes dois números para escolher o
      tamanho da tela). Em pé: largura = 2×14 (margem da carcaça) + 2×14 (moldura); altura = 14 + 16 (margem) + 52
      (moldura e grade) + 38 (pílula) + 160 (controles). Deitado: ver mais abaixo. */
   --reserva-largura: 56px;
-  --reserva-altura: 280px;
+  --reserva-altura: 290px;
 }
 
 * { box-sizing: border-box; }
@@ -185,6 +186,7 @@ body { display: flex; align-items: center; justify-content: center; }
     0 0 0 5px #070708,
     0 1px 0 5px rgba(255, 255, 255, 0.07),
     0 8px 12px 4px rgba(0, 0, 0, 0.4);
+  transform: translateY(var(--desloca));   /* o analógico desce um pouco */
   touch-action: none;
 }
 
@@ -220,12 +222,13 @@ body { display: flex; align-items: center; justify-content: center; }
 
 /* ---------- botões no losango do PlayStation ---------- */
 
-/* Quatro botões: triângulo em cima, quadrado à esquerda, bolinha à direita e X embaixo. Cada um é um FURO (o elemento,
+/* Três botões: triângulo em cima, bolinha à direita e X embaixo (o quadrado foi tirado). Cada um é um FURO (o elemento,
    6 px maior que o botão de cada lado) com o botão dentro (::before), côncavo como na foto, e o símbolo gravado (svg). */
 .botoes {
   position: relative;
-  width: calc(var(--encaixe) * 2.45);
-  height: calc(var(--encaixe) * 2.45);
+  width: calc(var(--encaixe) * 3);      /* mais espaço entre os botões (eram 2,45) */
+  height: calc(var(--encaixe) * 3);
+  transform: translateY(calc(var(--desloca) * -1));   /* os botões sobem um pouco */
 }
 
 .botao {
@@ -272,7 +275,6 @@ body { display: flex; align-items: center; justify-content: center; }
 
 .botao-c { left: 50%; top: 0; margin-left: calc(var(--encaixe) / -2); }                 /* triângulo */
 .botao-a { left: 50%; bottom: 0; margin-left: calc(var(--encaixe) / -2); }              /* X */
-.botao-d { left: 0; top: 50%; margin-top: calc(var(--encaixe) / -2); }                  /* quadrado */
 .botao-b { right: 0; top: 50%; margin-top: calc(var(--encaixe) / -2); }                 /* bolinha */
 
 /* ---------- pílula das Opções ---------- */

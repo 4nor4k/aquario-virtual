@@ -55,7 +55,7 @@ Prioridade: **1** = detalhe, **2** = acontecimento, **3** = importante.
 | Som | Quando toca | Melodia | Prior. |
 |---|---|---|---|
 | `ligar` | O aparelho/jogo abre | C5 · E5 · G5 · C6 (curtinhas, subindo) | 2 |
-| `clique` | A confirma no menu | 1 bip agudo de 25 ms (1800 Hz) | 1 |
+| ~~`clique`~~ | **Removido em 22/11/2026 a pedido do usuário** (era 1 bip de 25 ms ao abrir o menu, entrar na caçada, sair do Game Over, fechar o aviso de ausência e continuar a pausa). Agora são **23 efeitos**. | | |
 | `voltar` | B volta/cancela | A5 → E5 (2 notas descendo, 40 ms cada) | 1 |
 | `status` | C abre a tela de status | G5 · C6 (2 notas, 50 ms) | 1 |
 | `negado` | Ação que não pode (ex.: "Ele está fraco demais para caçar", "aquário cheio") | 2 bips graves: 330 Hz · 260 Hz (80 ms cada) | 2 |

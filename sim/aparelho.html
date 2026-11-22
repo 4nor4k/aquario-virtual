@@ -35,16 +35,13 @@
       </div>
     </section>
 
-    <!-- À direita os quatro botões, no losango do PlayStation. Os ids continuam botao-a/b/c porque o código do jogo usa:
-         X = A (abre o menu e confirma) · Bolinha = B (volta; acelera na caçada) · Triângulo = C (status).
-         O Quadrado (botao-d) ainda não faz nada no jogo: é só o quarto botão do losango. -->
+    <!-- À direita os três botões, abertos como no losango do PlayStation (sem o Quadrado, que foi tirado). Os ids
+         continuam botao-a/b/c porque o código do jogo usa:
+         X = A (abre o menu e confirma) · Bolinha = B (volta; acelera na caçada) · Triângulo = C (status). -->
     <section class="lado lado-direito">
       <div class="botoes">
         <div id="botao-c" class="botao botao-c" role="button" aria-label="Botão triângulo">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5 L20 18.5 H4 Z"/></svg>
-        </div>
-        <div id="botao-d" class="botao botao-d" role="button" aria-label="Botão quadrado (sem função ainda)">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="1"/></svg>
         </div>
         <div id="botao-b" class="botao botao-b" role="button" aria-label="Botão bolinha">
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7.5"/></svg>
@@ -83,7 +80,7 @@
 
       <h2>Botões</h2>
       <p class="dica">X abre o menu e confirma · Bolinha volta (no jogo, mostra ou esconde os indicadores; na
-        caçada, segure para acelerar) · Triângulo mostra o status · Quadrado ainda não faz nada. Também funciona no
+        caçada, segure para acelerar) · Triângulo mostra o status. Também funciona no
         teclado: setas ou WASD, Z (X), X (Bolinha) e C (Triângulo).</p>
 
       <button id="fechar-opcoes" type="button" class="fechar">Fechar</button>
