@@ -27,13 +27,14 @@ export function ligarAparelho({ controles, aoExportar, aoImportar, aoApagar, jan
   // ---------- o analógico e os botões ----------
   const bolinha = $('bolinha');
   const mexerBolinha = ({ x, y }) => {
-    bolinha.style.transform = `translate(${x * 58}%, ${y * 58}%)`; // a bolinha anda até a borda do disco
+    bolinha.style.transform = `translate(${x * 28}%, ${y * 28}%)`; // a bolinha anda até a borda do disco (28% do tamanho dela)
   };
   const botoes = { a: $('botao-a'), b: $('botao-b'), c: $('botao-c') };
   ligarToque({ base: $('analogico'), botoes }, controles, { aoAnalogico: mexerBolinha, janela });
 
-  // O botão afunda enquanto o dedo está nele (só visual; quem manda no jogo é o ligarToque).
-  for (const elemento of Object.values(botoes)) {
+  // O botão afunda enquanto o dedo está nele (só visual; quem manda no jogo é o ligarToque). Vale também para o
+  // quarto botão do losango (o quadrado), que não faz nada no jogo.
+  for (const elemento of documento.querySelectorAll('.botao')) {
     elemento.addEventListener('pointerdown', () => elemento.classList.add('apertado'));
     for (const fim of ['pointerup', 'pointercancel']) {
       elemento.addEventListener(fim, () => elemento.classList.remove('apertado'));
@@ -48,7 +49,7 @@ export function ligarAparelho({ controles, aoExportar, aoImportar, aoApagar, jan
     if (documento.visibilityState === 'hidden') {
       controles.soltarTudo();
       mexerBolinha({ x: 0, y: 0 });
-      for (const el of Object.values(botoes)) el.classList.remove('apertado');
+      for (const el of documento.querySelectorAll('.botao')) el.classList.remove('apertado');
     }
   });
 

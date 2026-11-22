@@ -1,27 +1,33 @@
-/* Visual do "aparelho" na página do celular (doc 15). Estilo escuro e skeuomórfico (imita um portátil de verdade:
-   carcaça com brilho nas bordas, tela embutida, grade de som, analógico emborrachado e teclas em relevo),
-   com base em uma foto de referência. É proposta minha: cores, formas e tamanhos ficam aqui, para ajustar depois. */
+/* Visual do "aparelho" na página do celular (doc 15). Estilo escuro e em relevo (imita um portátil de verdade:
+   carcaça cinza texturizada com brilho nas bordas, tela embutida, grade de som, analógico em prato côncavo e quatro
+   botões emborrachados no losango do PlayStation), com base em fotos de referência.
+   É proposta minha: cores, formas e tamanhos ficam aqui, para ajustar depois. */
 :root {
-  /* carcaça (azul-grafite escuro) */
-  --carcaca-1: #27334d;
-  --carcaca-2: #151c2c;
-  --carcaca-3: #0c111b;
-  --placa-1: #222d44;           /* a placa de baixo, onde ficam os controles */
-  --placa-2: #161e2e;
-  --borda-clara: rgba(255, 255, 255, 0.16);
-  --fundo-mesa: #07090d;
+  /* carcaça (cinza escuro, com grão) */
+  --carcaca-1: #4b4e54;
+  --carcaca-2: #2e3035;
+  --carcaca-3: #1c1d20;
+  --placa-1: #383a3f;           /* a placa de baixo, onde ficam os controles */
+  --placa-2: #25262a;
+  --borda-clara: rgba(255, 255, 255, 0.18);
+  --fundo-mesa: #09090a;
 
-  /* as três teclas: cor, tom claro (brilho) e tom escuro (lateral) */
-  --vermelho: #cf4339;  --vermelho-claro: #ff8f7d;  --vermelho-escuro: #7a1a15;
-  --amarelo:  #dba936;  --amarelo-claro:  #ffe48f;  --amarelo-escuro:  #7f5f0e;
-  --azul:     #3d7fd6;  --azul-claro:     #92c3ff;  --azul-escuro:     #1a4382;
+  /* A textura: ruído fino (um SVG pequeno que o navegador desenha), cinza e quase transparente, por cima do degradê. */
+  --grao: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='matrix' values='1 0 0 0 0  1 0 0 0 0  1 0 0 0 0  0 0 0 0 0.2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
 
-  --texto: #e6e9ee;
-  --texto-suave: #98a2b3;
+  /* Os botões e o analógico: borracha cinza escura. */
+  --borracha-clara: #50535a;
+  --borracha: #2d2f33;
+  --borracha-escura: #1d1e21;
+  --simbolo: #101113;           /* o símbolo gravado nos botões (para colorir: #e0556b, #3fa66b, #4b8fd6, #d97aa8) */
+
+  --texto: #e7e8ea;
+  --texto-suave: #9b9ea4;
   --aviso: #f2a65a;
 
   --tamanho-disco: 140px;       /* o analógico */
-  --tamanho-botao: 60px;        /* as teclas coloridas */
+  --tamanho-botao: 44px;        /* cada botão do losango */
+  --encaixe: calc(var(--tamanho-botao) + 12px); /* o furo onde o botão fica */
 
   /* Quanto do aparelho NÃO é a tela do jogo, em pixels (aparelho-ui.js lê estes dois números para escolher o
      tamanho da tela). Em pé: largura = 2×14 (margem da carcaça) + 2×14 (moldura); altura = 14 + 16 (margem) + 52
@@ -35,7 +41,7 @@
 html, body {
   height: 100%;
   margin: 0;
-  background: radial-gradient(ellipse at 50% 25%, #1a2130 0%, var(--fundo-mesa) 70%);
+  background: radial-gradient(ellipse at 50% 25%, #28292c 0%, var(--fundo-mesa) 70%);
   color: var(--texto);
   font-family: system-ui, sans-serif;
   /* Nada de rolar, dar zoom, selecionar texto ou abrir o menu de segurar: é um jogo. */
@@ -58,7 +64,7 @@ body { display: flex; align-items: center; justify-content: center; }
   height: 100%;
   max-width: 460px;
   display: grid;
-  /* Em pé: tela em cima, a pílula no meio; analógico à esquerda e teclas à direita, embaixo. */
+  /* Em pé: tela em cima, a pílula no meio; analógico à esquerda e botões à direita, embaixo. */
   grid-template-columns: 1fr 1fr;
   grid-template-rows: auto auto 1fr;
   align-items: center;
@@ -67,13 +73,14 @@ body { display: flex; align-items: center; justify-content: center; }
            max(16px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
   border-radius: 34px;
   background:
-    radial-gradient(120% 60% at 20% 0%, rgba(120, 150, 210, 0.16), transparent 60%),
+    var(--grao),
+    radial-gradient(120% 60% at 20% 0%, rgba(255, 255, 255, 0.1), transparent 60%),
     linear-gradient(155deg, var(--carcaca-1) 0%, var(--carcaca-2) 45%, var(--carcaca-3) 100%);
   box-shadow:
     inset 0 1.5px 0 var(--borda-clara),
-    inset 1.5px 0 0 rgba(255, 255, 255, 0.06),
+    inset 1.5px 0 0 rgba(255, 255, 255, 0.07),
     inset 0 -3px 8px rgba(0, 0, 0, 0.55),
-    0 0 0 1px #04060a,
+    0 0 0 1px #040405,
     0 30px 60px rgba(0, 0, 0, 0.75);
 }
 /* Telas grandes (computador): o aparelho não estica, fica do tamanho de um portátil. */
@@ -89,9 +96,9 @@ body { display: flex; align-items: center; justify-content: center; }
   justify-self: stretch;
   margin: -20px -6px -6px;
   border-radius: 28px 28px 26px 26px;
-  background: linear-gradient(180deg, var(--placa-1), var(--placa-2));
+  background: var(--grao), linear-gradient(180deg, var(--placa-1), var(--placa-2));
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
     inset 0 -2px 4px rgba(0, 0, 0, 0.4),
     0 -1px 0 rgba(0, 0, 0, 0.5);
   pointer-events: none;
@@ -106,11 +113,11 @@ body { display: flex; align-items: center; justify-content: center; }
   z-index: 2;
   padding: 14px 14px 0;
   border-radius: 20px;
-  background: linear-gradient(180deg, #2c2f36, #16181d);
+  background: var(--grao), linear-gradient(180deg, #2b2c30, #151618);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.14),
     inset 0 -1px 0 rgba(0, 0, 0, 0.6),
-    0 0 0 1px #07080a,
+    0 0 0 1px #070708,
     0 12px 22px rgba(0, 0, 0, 0.65);
 }
 
@@ -145,7 +152,7 @@ body { display: flex; align-items: center; justify-content: center; }
   width: 62%;
   height: 18px;
   margin: 10px auto;
-  background-image: radial-gradient(circle at center, #040506 0 1.5px, rgba(255, 255, 255, 0.07) 2px, transparent 2.6px);
+  background-image: radial-gradient(circle at center, #040405 0 1.5px, rgba(255, 255, 255, 0.07) 2px, transparent 2.6px);
   background-size: 7px 6px;
 }
 
@@ -164,119 +171,109 @@ body { display: flex; align-items: center; justify-content: center; }
 
 /* ---------- analógico ---------- */
 
-/* O poço: um buraco redondo, com um anel de metal em volta. */
+/* O encaixe: um furo redondo e fundo na carcaça, com uma borda fina em volta. */
 .analogico {
   position: relative;
   width: var(--tamanho-disco);
   height: var(--tamanho-disco);
   border-radius: 50%;
-  background: radial-gradient(circle at 50% 50%, #04060a 0%, #0a0e15 62%, #151c2b 100%);
+  background: radial-gradient(circle at 50% 50%, #131416 0%, #1c1d20 60%, #2a2c30 100%);
   box-shadow:
-    inset 0 5px 14px rgba(0, 0, 0, 0.95),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
-    0 0 0 5px #1d2739,
-    0 0 0 6px #04060a,
-    0 7px 10px 4px rgba(0, 0, 0, 0.45),
-    0 6px 0 6px rgba(255, 255, 255, 0.03);
+    inset 0 6px 14px rgba(0, 0, 0, 0.95),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.06),
+    0 0 0 4px #2a2c30,
+    0 0 0 5px #070708,
+    0 1px 0 5px rgba(255, 255, 255, 0.07),
+    0 8px 12px 4px rgba(0, 0, 0, 0.4);
   touch-action: none;
 }
 
-/* O topo emborrachado do analógico: cinza escuro, com um prato côncavo e uma cruz. */
+/* O topo do analógico: um prato côncavo de borracha cinza (a parte de cima fica na sombra, a de baixo pega luz),
+   com uma borda fina em volta. É esta peça que anda quando o dedo arrasta. */
 .bolinha {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 46%;
-  height: 46%;
-  margin: -23% 0 0 -23%;
+  width: 58%;
+  height: 58%;
+  margin: -29% 0 0 -29%;
   border-radius: 50%;
-  background: radial-gradient(circle at 36% 28%, #666c78, #353941 55%, #1c1f25);
+  background: radial-gradient(circle at 50% 72%, var(--borracha-clara) 0%, var(--borracha) 52%, var(--borracha-escura) 100%);
   box-shadow:
-    inset 0 2px 1px rgba(255, 255, 255, 0.28),
-    inset 0 -4px 6px rgba(0, 0, 0, 0.55),
-    0 7px 10px rgba(0, 0, 0, 0.75),
-    0 2px 0 #0b0d11;
+    inset 0 5px 7px rgba(0, 0, 0, 0.85),
+    inset 0 -2px 3px rgba(255, 255, 255, 0.1),
+    0 0 0 3px #36383d,
+    0 0 0 4px #09090a,
+    0 9px 12px rgba(0, 0, 0, 0.7);
   pointer-events: none; /* o dedo é sempre lido pelo disco */
   will-change: transform;
 }
+/* O fundo do prato: um pouco mais fundo e mais escuro, com a borda de dentro iluminada embaixo. */
 .bolinha::before {
   content: "";
   position: absolute;
-  inset: 17%;
+  inset: 13%;
   border-radius: 50%;
-  background: radial-gradient(circle at 62% 72%, #40454f, #15171b 80%);
-  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.75), 0 1px 0 rgba(255, 255, 255, 0.14);
-}
-.bolinha::after {
-  content: "";
-  position: absolute;
-  inset: 17%;
-  border-radius: 50%;
-  background:
-    linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)) center / 58% 2px no-repeat,
-    linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)) center / 2px 58% no-repeat;
+  background: radial-gradient(circle at 50% 78%, #3a3c41 0%, #26282b 55%, #1a1b1e 100%);
+  box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.75), 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
-/* ---------- teclas coloridas (sem letras) ---------- */
+/* ---------- botões no losango do PlayStation ---------- */
 
-/* Cada tecla é um ENCAIXE (o elemento, 8 px maior que a tecla de cada lado) com a TECLA dentro (::before) e o brilho
-   (::after). Só a tecla afunda; o encaixe fica parado. */
+/* Quatro botões: triângulo em cima, quadrado à esquerda, bolinha à direita e X embaixo. Cada um é um FURO (o elemento,
+   6 px maior que o botão de cada lado) com o botão dentro (::before), côncavo como na foto, e o símbolo gravado (svg). */
 .botoes {
   position: relative;
-  width: calc(var(--tamanho-botao) * 2.4 + 16px);
-  height: calc(var(--tamanho-botao) * 2.35 + 16px);
+  width: calc(var(--encaixe) * 2.45);
+  height: calc(var(--encaixe) * 2.45);
 }
 
 .botao {
   position: absolute;
-  width: calc(var(--tamanho-botao) + 16px);
-  height: calc(var(--tamanho-botao) + 16px);
+  width: var(--encaixe);
+  height: var(--encaixe);
   border-radius: 50%;
-  background: #080b10;
-  box-shadow: inset 0 3px 6px #000, 0 1px 0 rgba(255, 255, 255, 0.1);
+  background: #08090a;
+  box-shadow: inset 0 3px 5px #000, 0 1px 0 rgba(255, 255, 255, 0.12);
   touch-action: none;
 }
 .botao::before {
   content: "";
   position: absolute;
-  inset: 8px;
+  inset: 6px;
   border-radius: 50%;
-  background: radial-gradient(circle at 36% 28%, var(--claro), var(--cor) 55%, var(--escuro));
+  background: radial-gradient(circle at 50% 72%, var(--borracha-clara) 0%, var(--borracha) 55%, var(--borracha-escura) 100%);
   box-shadow:
-    inset 0 2px 2px rgba(255, 255, 255, 0.38),
-    inset 0 -5px 7px rgba(0, 0, 0, 0.32),
-    0 4px 0 var(--escuro),
-    0 8px 9px rgba(0, 0, 0, 0.6);
-  transition: transform 50ms, box-shadow 50ms;
+    inset 0 3px 4px rgba(0, 0, 0, 0.75),
+    inset 0 -2px 2px rgba(255, 255, 255, 0.08),
+    0 0 0 1px #0b0c0d;
+  transition: filter 50ms, transform 50ms;
 }
-/* O brilho no alto da tecla. */
-.botao::after {
-  content: "";
+/* O símbolo gravado no meio do botão. */
+.botao svg {
   position: absolute;
-  left: calc(8px + var(--tamanho-botao) * 0.2);
-  top: calc(8px + var(--tamanho-botao) * 0.09);
-  width: calc(var(--tamanho-botao) * 0.6);
-  height: calc(var(--tamanho-botao) * 0.32);
-  border-radius: 50%;
-  background: linear-gradient(rgba(255, 255, 255, 0.4), transparent);
+  left: 50%;
+  top: 50%;
+  width: calc(var(--tamanho-botao) * 0.52);
+  height: calc(var(--tamanho-botao) * 0.52);
+  margin: calc(var(--tamanho-botao) * -0.26) 0 0 calc(var(--tamanho-botao) * -0.26);
+  fill: none;
+  stroke: var(--simbolo);
+  stroke-width: 2.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.13));
   pointer-events: none;
   transition: transform 50ms;
 }
-.botao.apertado::before {
-  transform: translateY(3px);
-  box-shadow:
-    inset 0 2px 2px rgba(255, 255, 255, 0.25),
-    inset 0 -3px 5px rgba(0, 0, 0, 0.4),
-    0 1px 0 var(--escuro),
-    0 3px 5px rgba(0, 0, 0, 0.6);
-}
-.botao.apertado::after { transform: translateY(3px); }
+/* Apertado: o botão afunda e escurece. */
+.botao.apertado::before { transform: scale(0.95); filter: brightness(0.68); }
+.botao.apertado svg { transform: scale(0.95) translateY(1px); }
 
-/* Vermelho e amarelo embaixo, na diagonal (como nos consoles portáteis); azul acima. */
-.botao-a { --cor: var(--vermelho); --claro: var(--vermelho-claro); --escuro: var(--vermelho-escuro); right: 0; bottom: 6px; }
-.botao-b { --cor: var(--amarelo);  --claro: var(--amarelo-claro);  --escuro: var(--amarelo-escuro);  left: 0; bottom: 0; }
-.botao-c { --cor: var(--azul);     --claro: var(--azul-claro);     --escuro: var(--azul-escuro);
-           left: 50%; margin-left: calc(var(--tamanho-botao) * -0.5 - 8px); top: 0; }
+.botao-c { left: 50%; top: 0; margin-left: calc(var(--encaixe) / -2); }                 /* triângulo */
+.botao-a { left: 50%; bottom: 0; margin-left: calc(var(--encaixe) / -2); }              /* X */
+.botao-d { left: 0; top: 50%; margin-top: calc(var(--encaixe) / -2); }                  /* quadrado */
+.botao-b { right: 0; top: 50%; margin-top: calc(var(--encaixe) / -2); }                 /* bolinha */
 
 /* ---------- pílula das Opções ---------- */
 
@@ -292,25 +289,25 @@ body { display: flex; align-items: center; justify-content: center; }
   padding: 0;
   border: 0;
   border-radius: 9px;
-  background: linear-gradient(180deg, #8d929c, #565b66);
+  background: linear-gradient(180deg, #8f9196, #585a5f);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -2px 3px rgba(0, 0, 0, 0.3),
-    0 0 0 1px #0a0c10,
+    0 0 0 1px #0a0a0b,
     0 3px 4px rgba(0, 0, 0, 0.6);
   touch-action: manipulation;
   cursor: pointer;
 }
 /* Área de toque maior que a pílula, para o dedo acertar. */
 .pilula::before { content: ""; position: absolute; inset: -12px -14px; }
-.pilula:active { transform: translateY(1px); box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5), 0 0 0 1px #0a0c10; }
+.pilula:active { transform: translateY(1px); box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5), 0 0 0 1px #0a0a0b; }
 
-/* ---------- celular deitado: analógico | tela | teclas ---------- */
+/* ---------- celular deitado: analógico | tela | botões ---------- */
 
 @media (orientation: landscape) {
   :root {
     --tamanho-disco: 120px;
-    --tamanho-botao: 52px;
+    --tamanho-botao: 38px;
     /* largura = 2×16 (margem) + 2×14 (moldura) + 2×12 (espaço) + 2×150 (cada lado); altura = 14 + 16 + 52 */
     --reserva-largura: 384px;
     --reserva-altura: 82px;
@@ -352,7 +349,7 @@ body { display: flex; align-items: center; justify-content: center; }
   width: min(100%, 520px);
   max-height: 92%;
   overflow-y: auto;
-  background: linear-gradient(180deg, #1f2738, #161c29);
+  background: var(--grao), linear-gradient(180deg, #2c2d31, #1d1e21);
   box-shadow: inset 0 1px 0 var(--borda-clara);
   border-radius: 20px 20px 0 0;
   padding: 18px 20px max(20px, env(safe-area-inset-bottom));
@@ -379,8 +376,8 @@ body { display: flex; align-items: center; justify-content: center; }
   border: 0;
   border-radius: 10px;
   padding: 11px 14px;
-  background: linear-gradient(180deg, #343e52, #283042);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 2px 3px rgba(0, 0, 0, 0.4);
+  background: linear-gradient(180deg, #44464b, #323438);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 2px 3px rgba(0, 0, 0, 0.4);
   color: var(--texto);
   font: inherit;
   font-size: 0.95rem;
@@ -388,7 +385,7 @@ body { display: flex; align-items: center; justify-content: center; }
 }
 .acoes .perigo { background: linear-gradient(180deg, #6a3030, #532525); }
 .acoes .perigo.confirmando { background: linear-gradient(180deg, #c04545, #a03030); }
-.fechar { width: 100%; margin-top: 18px; background: linear-gradient(180deg, #3a8ac8, #2a6ea5); }
+.fechar { width: 100%; margin-top: 18px; background: linear-gradient(180deg, #5d6066, #45474c); }
 
 /* Deitado, a pílula vai para o canto de cima à direita da carcaça. Fica NO FIM do arquivo de propósito: a regra
    base de .pilula (lá em cima) tem o mesmo peso, e a que vem depois vence. */

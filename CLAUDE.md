@@ -138,6 +138,8 @@ bateria + USB), gerenciado também pelo celular via WiFi. Veja `README.md` e `do
   `sim/src/sim/audio.js` (Web Audio, onda quadrada, notas agendadas no relógio do áudio); interruptor **Som** (padrão ligado, guardado no `localStorage`)
   e **lista de teste ▶** no painel e nas Opções do celular. O primeiro som sai no primeiro toque/tecla (regra do navegador). **Eu não ouvi os sons:** as melodias
   são palpite meu, o usuário ouve e pede ajustes em `sons.json`. Para o ESP32: `ledcWriteTone` com as mesmas notas. Fora: alarme de fome, volume, música.
+- **Estética da página do aparelho refeita em 22/11/2026 (sem commit/tag ainda; pedido do usuário, `docs/15` seção 8):** botões do PlayStation em losango (**X = A, Bolinha = B, Triângulo = C,
+  Quadrado sem função**), carcaça cinza com grão, analógico em prato côncavo. Pendentes: textos do jogo ainda dizem "A:/B:/C:"; ícone e `manifest` ainda azul-grafite; a v0.10 e esta mudança **ainda não foram enviadas ao GitHub** (precisa de sim).
 - Depois da v0.9: **depois da v0.8** (refinar arte/balanceamento/caçada jogando → esperar o hardware; perguntar ao usuário).
   Antes: **depois da v0.7** (refinar arte/balanceamento/aparência da página jogando → esperar o hardware; perguntar ao usuário).
   Antes: **depois da v0.6** (plano combinado: refinar arte e balanceamento jogando → esperar o hardware).

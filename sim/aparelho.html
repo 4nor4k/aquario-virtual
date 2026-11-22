@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <!-- Sem zoom por toque nem por pinça: é um aparelho de jogo, não uma página de leitura. -->
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#0a0d13">
+  <meta name="theme-color" content="#0b0b0c">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Aquário">
@@ -28,21 +28,30 @@
       <div class="alto-falante" aria-hidden="true"></div>
     </section>
 
-    <!-- Os botões não têm letras, só cores. Vermelho = antigo A (abre o menu e confirma), amarelo = B (volta;
-         acelera na caçada), azul = C (status). Os ids continuam botao-a/b/c porque o código do jogo usa. -->
-
-    <!-- À esquerda o analógico. O dedo arrasta o topo emborrachado; a direção vira o joystick do jogo. -->
+    <!-- À esquerda o analógico (um prato côncavo emborrachado). O dedo arrasta; a direção vira o joystick do jogo. -->
     <section class="lado lado-esquerdo">
       <div id="analogico" class="analogico" role="application" aria-label="Analógico">
         <div id="bolinha" class="bolinha"></div>
       </div>
     </section>
 
+    <!-- À direita os quatro botões, no losango do PlayStation. Os ids continuam botao-a/b/c porque o código do jogo usa:
+         X = A (abre o menu e confirma) · Bolinha = B (volta; acelera na caçada) · Triângulo = C (status).
+         O Quadrado (botao-d) ainda não faz nada no jogo: é só o quarto botão do losango. -->
     <section class="lado lado-direito">
       <div class="botoes">
-        <div id="botao-c" class="botao botao-c" role="button" aria-label="Botão azul"></div>
-        <div id="botao-b" class="botao botao-b" role="button" aria-label="Botão amarelo"></div>
-        <div id="botao-a" class="botao botao-a" role="button" aria-label="Botão vermelho"></div>
+        <div id="botao-c" class="botao botao-c" role="button" aria-label="Botão triângulo">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5 L20 18.5 H4 Z"/></svg>
+        </div>
+        <div id="botao-d" class="botao botao-d" role="button" aria-label="Botão quadrado (sem função ainda)">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="1"/></svg>
+        </div>
+        <div id="botao-b" class="botao botao-b" role="button" aria-label="Botão bolinha">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7.5"/></svg>
+        </div>
+        <div id="botao-a" class="botao botao-a" role="button" aria-label="Botão X">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6 L18 18 M18 6 L6 18"/></svg>
+        </div>
       </div>
     </section>
 
@@ -73,8 +82,9 @@
       <p class="dica">Toque num ▶ para ouvir cada efeito do buzzer.</p>
 
       <h2>Botões</h2>
-      <p class="dica">Vermelho abre o menu e confirma · amarelo volta (no jogo, mostra ou esconde os indicadores; na
-        caçada, segure para acelerar) · azul mostra o status. Também funciona no teclado: setas ou WASD, Z, X e C.</p>
+      <p class="dica">X abre o menu e confirma · Bolinha volta (no jogo, mostra ou esconde os indicadores; na
+        caçada, segure para acelerar) · Triângulo mostra o status · Quadrado ainda não faz nada. Também funciona no
+        teclado: setas ou WASD, Z (X), X (Bolinha) e C (Triângulo).</p>
 
       <button id="fechar-opcoes" type="button" class="fechar">Fechar</button>
     </div>

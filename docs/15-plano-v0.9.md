@@ -152,3 +152,15 @@ download do arquivo de backup no celular, funcionar com o celular bloqueado (nã
 4. Conferir na aba Actions que os testes e a publicação passaram (as versões das actions no `pages.yml` são as que eu conheço: se o GitHub
    avisar que alguma está velha, é só subir o número).
 5. Abrir no celular, jogar, instalar na tela inicial e conferir a seção "Não testado" acima. Depois disso: tag `v0.9`.
+
+## 8. Mudança de estética (22/11/2026, pedido do usuário)
+
+O usuário pediu, antes de enviar a v0.10 ao GitHub: **botões do PlayStation** (X, Quadrado, Bolinha e Triângulo), **carcaça escura em tons de cinza texturizada**,
+mantendo o relevo, e o **analógico no estilo de duas fotos de referência** (prato côncavo cinza). Feito só em `aparelho.html`, `estilo-aparelho.css` e `aparelho-ui.js`:
+- **Losango do PlayStation:** Triângulo em cima, Quadrado à esquerda, Bolinha à direita, X embaixo. **[proposta]** o mapa para o jogo segue o costume do PlayStation:
+  **X = A** (abre o menu e confirma), **Bolinha = B** (volta; acelera na caçada), **Triângulo = C** (status). O **Quadrado não faz nada ainda**
+  (o jogo tem 3 funções); é só dar uma função quando quiser. Os ids no código continuam `botao-a/b/c` (o quadrado é `botao-d`).
+- **Cinza com grão:** um ruído fino (SVG em `--grao`) sobre degradês cinza na carcaça, na placa, na moldura e nas Opções. Todas as cores estão no topo do CSS.
+- **Símbolos gravados** em tom escuro sobre a borracha (como na foto); para colorir como no PlayStation (azul, vermelho, verde, rosa) é trocar `--simbolo`.
+- **Analógico:** encaixe cinza e um prato côncavo grande com borda fina; o prato anda 28% do tamanho dele (`aparelho-ui.js`).
+- **Não mudou:** o ícone do aplicativo e as cores do `manifest` (ainda azul-grafite) e os **textos dentro do jogo**, que ainda dizem "A:", "B:" e "C:".
