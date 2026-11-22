@@ -15,7 +15,7 @@
 
     <aside class="painel" id="painel">
       <h1>Aquário · simulador</h1>
-      <p class="versao">v0.9</p>
+      <p class="versao">v0.10</p>
 
       <section>
         <h2>Tempo</h2>
@@ -115,6 +115,14 @@
         </div>
         <p class="dica">Só muda o cenário (o clima não afeta o peixe). Frio: abaixo de 18 °C aparece o ícone no
           canto de cima à direita. Deixe a temperatura vazia para voltar à automática.</p>
+      </section>
+
+      <section>
+        <h2>Som</h2>
+        <label class="som-interruptor"><input type="checkbox" id="som-ligado"> Som ligado</label>
+        <div class="botoes" id="som-lista"></div>
+        <p class="dica">Cada ▶ toca um efeito do buzzer (config/sons.json). O navegador só libera o som
+          depois do primeiro clique ou tecla na página.</p>
       </section>
 
       <section>

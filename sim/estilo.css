@@ -93,3 +93,7 @@ button:hover:not(:disabled) { border-color: var(--texto-suave); }
 button.ativo { background: var(--botao-ativo); }
 button:disabled { opacity: 0.4; cursor: default; }
 button:focus-visible { outline: 2px solid var(--botao-ativo); outline-offset: 2px; }
+
+/* Som (doc 16): o interruptor e a lista de teste dos efeitos. */
+.som-interruptor { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+#som-lista button:disabled { opacity: 0.4; }

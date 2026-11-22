@@ -1,0 +1,33 @@
+{
+  "_comentario": "Efeitos sonoros do buzzer (doc 16). Cada som: prioridade (1 detalhe, 2 acontecimento, 3 importante) e notas [frequencia em Hz, duracao em ms]. Hz 0 = silencio. Um som de prioridade maior ou igual corta o que esta tocando; de prioridade menor e descartado. Mesma lista no ESP32 (ledcWriteTone). Notas: C5=523 D5=587 E5=659 F5=698 G5=784 A5=880 B5=988 C6=1047 E6=1319 G6=1568.",
+  "sons": {
+    "ligar":     { "prioridade": 2, "notas": [[523, 90], [659, 90], [784, 90], [1047, 160]] },
+    "clique":    { "prioridade": 1, "notas": [[1800, 25]] },
+    "voltar":    { "prioridade": 1, "notas": [[880, 40], [659, 40]] },
+    "status":    { "prioridade": 1, "notas": [[784, 50], [1047, 50]] },
+    "negado":    { "prioridade": 2, "notas": [[330, 80], [0, 30], [260, 100]] },
+    "bemvindo":  { "prioridade": 2, "notas": [[523, 100], [784, 100], [659, 100], [784, 100], [1047, 200]] },
+
+    "comida":    { "prioridade": 1, "notas": [[600, 40], [800, 40], [1000, 40]] },
+    "comeu":     { "prioridade": 1, "notas": [[1300, 20]] },
+    "limpar":    { "prioridade": 2, "notas": [[500, 20], [700, 20], [900, 20], [1100, 20], [1300, 20], [1500, 20], [1750, 20], [2000, 30]] },
+    "ph":        { "prioridade": 1, "notas": [[659, 60], [0, 40], [659, 80]] },
+    "adotar":    { "prioridade": 3, "notas": [[523, 90], [659, 90], [784, 90], [1047, 90], [1319, 220]] },
+    "adoeceu":   { "prioridade": 3, "notas": [[880, 150], [698, 150], [587, 300]] },
+    "recuperou": { "prioridade": 2, "notas": [[659, 80], [784, 80], [988, 160]] },
+    "morreu":    { "prioridade": 3, "notas": [[784, 220], [659, 220], [523, 220], [392, 420]] },
+    "gameOver":  { "prioridade": 3, "notas": [[659, 250], [587, 250], [523, 250], [494, 250], [440, 250], [0, 60], [330, 600]] },
+
+    "namoro":    { "prioridade": 3, "notas": [[659, 110], [784, 110], [1047, 110], [1319, 160], [1047, 110], [784, 110], [1047, 220]] },
+    "nasceu":    { "prioridade": 2, "notas": [[1047, 60], [1319, 60], [1568, 60], [0, 40], [1047, 120]] },
+
+    "trovao":    { "prioridade": 1, "notas": [[2400, 15], [160, 25], [110, 25], [160, 25], [110, 25], [160, 25], [110, 25], [160, 25], [110, 25], [160, 25], [110, 25], [160, 25], [110, 25], [160, 25], [110, 25], [160, 25], [110, 25], [160, 25], [110, 25], [160, 25], [110, 25], [160, 25], [110, 25], [160, 25], [110, 25]] },
+
+    "contagem":  { "prioridade": 2, "notas": [[880, 100]] },
+    "vai":       { "prioridade": 2, "notas": [[1319, 250]] },
+    "larva":     { "prioridade": 1, "notas": [[1000, 25], [1500, 25]] },
+    "pausa":     { "prioridade": 1, "notas": [[784, 50], [523, 50]] },
+    "fimCacada": { "prioridade": 2, "notas": [[1047, 100], [784, 100], [659, 100], [523, 200]] },
+    "recorde":   { "prioridade": 3, "notas": [[523, 100], [523, 100], [523, 100], [784, 200], [659, 100], [784, 100], [1047, 400]] }
+  }
+}

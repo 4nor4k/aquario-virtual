@@ -186,4 +186,4 @@ arquivo. Detalhes e números em `14-plano-v0.8.md`.
   Morto não conta no limite de 5.
 - **Ovos seguram o Game Over**: só é Game Over sem peixe vivo **e sem ovo**.
 - O **sexo** só aparece em texto (tela de status e painel), quando o peixe vira adulto.
-- O simulador não tem som; o aviso da reprodução é um evento (buzzer no ESP32).
+- O aviso sonoro da reprodução é o som `namoro` (v0.10, `16-plano-v0.10.md`): o simulador toca os efeitos no navegador e o ESP32 vai tocá-los no buzzer.

@@ -31,6 +31,11 @@ import { montarEstado } from './core/estado-api.js';
 import { executarComando } from './core/comandos-api.js';
 import { caracteresSemGlifo } from './render/fonte.js';
 import { preencher } from './core/formatar.js';
+import { criarSom } from './core/som.js';
+import { criarObservadorDeSons } from './core/eventos-som.js';
+import { criarAudio } from './sim/audio.js';
+import { lerSomLigado, gravarSomLigado } from './sim/preferencia-som.js';
+import { ligarSons } from './sim/sons-ui.js';
 
 const PASSO_MS = 50;           // passo fixo: 20 por segundo (igual no ESP32)
 const VELOCIDADE_CAMERA = 60;  // pixels por segundo
@@ -85,6 +90,18 @@ async function carregarJson(caminho) {
 }
 const config = await carregarJson('config/jogo.json');
 const textos = await carregarJson('config/textos.json');
+const sonsConfig = await carregarJson('config/sons.json');
+
+// O som (doc 16): o canal do "buzzer" decide qual efeito toca; o audio.js faz o barulho no navegador; o
+// observador decide QUANDO cada efeito toca (eventos do core, telas, caçada, clima). A escolha liga/desliga fica no navegador.
+const audio = criarAudio();
+const som = criarSom({
+  sons: sonsConfig.sons,
+  ligado: lerSomLigado(),
+  aoTocar: (_nome, notas) => audio.tocar(notas),
+  aoCalar: () => audio.calar(),
+});
+const observadorDeSons = criarObservadorDeSons({ som });
 
 // O clima e a hora do dia (doc 11). No simulador a hora é a do relógio do computador; o core não usa Date,
 // então é aqui que se lê e se entrega.
@@ -133,7 +150,10 @@ const menu = criarMenu({
   config,
   semente: Date.now() >>> 0,
   aoNovoJogo: ({ cor }) => adotar({ cor }),
-  aoAgir: () => salvar(),
+  aoAgir: (acao) => {
+    observadorDeSons.aoAgir(acao);
+    salvar();
+  },
   // A comida cai no meio do que você está vendo.
   posicaoDaComida: () => camera.x + LARGURA / 2,
 });
@@ -141,6 +161,7 @@ const menu = criarMenu({
 // Adota: começa um aquário novo, com um filhote da cor escolhida e o relógio em zero.
 // Sem nome, ele se chama "Beta" até você mudar (pelo painel; o aparelho não tem teclado).
 function adotar({ cor, nome }) {
+  observadorDeSons.aoAgir('novoPeixe');
   numeroDoJogo++;
   clock.reiniciar();
   menu.reiniciar();
@@ -326,7 +347,7 @@ function atualizar(dt) {
   const congelado = cacando && (menu.cacada.fase === 'pausa' || menu.cacada.fase === 'fim');
   // Chovendo, os peixes se escondem atrás da pedra grande (onde ela está na tela agora, por causa da paralaxe).
   if (!congelado) aquario.atualizar(dt, clock.agoraMs(), { chuvaNivel: clima.chuvaNivel, abrigo: abrigoDaPedraGrande({ fundo, camera }) });
-  mostrarAvisosDoCore();
+  const eventos = mostrarAvisosDoCore();
   // Por onde o peixe passa (atrás ou na frente das algas e da pedra): troca quando não está sobre elas.
   atualizarPlanos(aquario.peixes, { plantas, fundo, camera });
   if (aquario.gameOver && !jaSalvouOGameOver) {
@@ -339,11 +360,22 @@ function atualizar(dt) {
   turvacao.atualizar(dt, nivelDaSujeira(aquario.sujeira));
   tempoVisual += dt;
   menu.atualizar(dt, aquario);
+  // Os efeitos sonoros (doc 16): olha o que aconteceu neste passo e toca o som que combina.
+  observadorDeSons.passo({
+    tela: menu.tela,
+    mensagem: menu.mensagem,
+    cacada: { fase: menu.cacada.fase, numero: menu.cacada.numeroDaContagem, pontos: menu.cacada.pontos, novoRecorde: menu.cacada.novoRecorde },
+    relampago: clima.raio > 0,
+    graos: aquario.graos.length,
+    eventos,
+  });
+  som.atualizar(dt);
 }
 
-// O que o core anotou (namoro, nascimento...) vira mensagem na tela. O resto da fila é descartado.
+// O que o core anotou (namoro, nascimento...) vira mensagem na tela. Devolve a lista, para o som também usar.
 function mostrarAvisosDoCore() {
-  for (const evento of aquario.eventos.retirar()) {
+  const eventos = aquario.eventos.retirar();
+  for (const evento of eventos) {
     if (evento.tipo === 'reproducao') menu.avisar(textos.mensagens.namoro);
     else if (evento.tipo === 'nasceu') menu.avisar(textos.mensagens.nasceu);
     else if (evento.tipo === 'morreu' && !aquario.gameOver) {
@@ -352,6 +384,7 @@ function mostrarAvisosDoCore() {
       if (peixe) menu.avisar(preencher(textos.mensagens.morreu, { nome: peixe.nome }));
     }
   }
+  return eventos;
 }
 
 function desenhar() {
@@ -383,8 +416,13 @@ function ciclo(agora) {
 // Ajuda para desenvolver: abrindo http://localhost:8080/?debug, dá para mexer no jogo pelo
 // console do navegador (ex.: __debug.camera.irPara(0, 0)). Sem "?debug" nada disso existe.
 if (new URLSearchParams(location.search).has('debug')) {
-  window.__debug = { clima, camera, seguidor, clock, config, textos, menu, turvacao, aquario: () => aquario, salvamento, salvar };
+  window.__debug = { som, clima, camera, seguidor, clock, config, textos, menu, turvacao, aquario: () => aquario, salvamento, salvar };
 }
+
+// O interruptor de som e a lista de teste (nas Opções do celular e no painel do computador).
+ligarSons({ som, nomes: Object.keys(sonsConfig.sons), aoMudar: (ligado) => gravarSomLigado(ligado) });
+// O navegador só libera som depois do primeiro toque: é aí que o aparelho "liga" (ou dá boas-vindas).
+audio.aoPrimeiroGesto(() => som.tocar(menu.tela === TELAS.BEM_VINDO ? 'bemvindo' : 'ligar'));
 
 desenhar();
 painel.atualizar(true);

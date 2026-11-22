@@ -118,7 +118,7 @@ aquele indicador está ruim; sobre o peixe, **F** (fome) e **+** (doente).
 | Matar peixe | Para testar o Game Over |
 | Tela 2× / 4× | Só aumenta a imagem no computador |
 
-Ainda **não há**: reprodução e vários peixes, clima, dia e noite, som.
+Som: o jogo tem 24 efeitos sonoros para o buzzer (liga/desliga e lista de teste no painel e nas Opções do celular; ver [docs/16-plano-v0.10.md](docs/16-plano-v0.10.md)).
 Ver o roadmap em [docs/01-visao.md](docs/01-visao.md).
 
 ## Como ajustar o jogo

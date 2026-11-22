@@ -401,3 +401,9 @@ body { display: flex; align-items: center; justify-content: center; }
     margin: 0;
   }
 }
+
+/* Som (doc 16): o interruptor e a lista de teste dos efeitos. */
+.som-interruptor { display: flex; align-items: center; gap: 10px; margin: 8px 0; font-size: 1rem; }
+.som-interruptor input { width: 22px; height: 22px; }
+.som-lista button { padding: 8px 10px; font-size: 0.85rem; }
+.som-lista button:disabled { opacity: 0.4; }
